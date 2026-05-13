@@ -1,0 +1,190 @@
+---
+/**
+ * ThreeStepPlan — 3 pasos Miller (StoryBrand SB7). Ley de Hick: nunca > 3.
+ *
+ * El plan se siente lineal, fácil, predecible. Reduce fricción cognitiva
+ * antes del CTA. Reusable Home / landings con `variant` + `painContext`.
+ *
+ * Iconos: número grande, NO emojis (regla CLAUDE.md anti-decorativo).
+ */
+import Heading from '../ui/Heading.astro';
+import Body from '../ui/Body.astro';
+import Eyebrow from '../ui/Eyebrow.astro';
+
+type Variant = 'home' | 'landing';
+
+interface Props {
+  variant?: Variant;
+  painContext?: string;
+  class?: string;
+}
+
+const { variant = 'home', painContext, class: className = '' } = Astro.props;
+
+const headline =
+  variant === 'landing' && painContext
+    ? `Cómo recuperamos ${painContext} en 3 pasos`
+    : 'Cómo trabajamos contigo en 3 pasos';
+
+const subhead =
+  variant === 'landing'
+    ? 'Mismo método, contextualizado al dolor que estás resolviendo.'
+    : 'Sin contratos eternos. Sin promesas vagas. Diagnóstico, ejecución, control.';
+
+interface Paso {
+  numero: 1 | 2 | 3;
+  titulo: string;
+  descripcion: string;
+  href?: string;
+}
+
+const pasos: [Paso, Paso, Paso] = [
+  {
+    numero: 1,
+    titulo: 'Aplique al programa',
+    descripcion:
+      'Forma corta de calificación. Si su restaurante encaja, agendamos diagnóstico de 30 min. Si no, se lo decimos sin rodeos.',
+    href: '/auditoria',
+  },
+  {
+    numero: 2,
+    titulo: 'Implementación del Acelerador 3 Palancas',
+    descripcion:
+      '10 días hábiles dentro de su operación. Margen, sistema operativo y canal comercial — ejecutado con usted, no presentado en PDF.',
+  },
+  {
+    numero: 3,
+    titulo: 'Estado final: control y rentabilidad',
+    descripcion:
+      'Dashboard semanal, encargado entrenado, P&L que ya entiende. Sigue siendo su restaurante, ahora sin sangrar margen.',
+  },
+];
+---
+
+<section class:list={['plan', `plan--${variant}`, className]} aria-labelledby="plan-heading">
+  <div class="plan__inner">
+    <header class="plan__header">
+      <Eyebrow>El plan</Eyebrow>
+      <Heading as="h2" id="plan-heading">{headline}</Heading>
+      <Body tone="muted">{subhead}</Body>
+    </header>
+
+    <ol class="plan__steps">
+      {pasos.map((p) => (
+        <li class="step" data-num={p.numero}>
+          <div class="step__num" aria-hidden="true">{String(p.numero).padStart(2, '0')}</div>
+          {p.href ? (
+            <a class="step__title" href={p.href}>{p.titulo}</a>
+          ) : (
+            <span class="step__title">{p.titulo}</span>
+          )}
+          <p class="step__desc">{p.descripcion}</p>
+        </li>
+      ))}
+    </ol>
+  </div>
+</section>
+
+<style>
+  .plan {
+    width: 100%;
+    background: var(--color-surface-alt);
+    color: var(--color-text);
+  }
+
+  .plan__inner {
+    max-width: var(--content-max);
+    margin-inline: auto;
+    padding: var(--space-9) var(--space-4);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+  }
+
+  .plan__header {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    max-width: var(--content-narrow);
+  }
+
+  .plan__steps {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-5);
+    counter-reset: step;
+  }
+
+  @media (min-width: 768px) {
+    .plan__steps {
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--space-6);
+    }
+  }
+
+  .step {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    padding: var(--space-4);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-4);
+    transition: border-color var(--dur-2) var(--ease-out), box-shadow var(--dur-2) var(--ease-out);
+  }
+
+  .step:hover {
+    border-color: var(--color-border-strong);
+    box-shadow: var(--shadow-2);
+  }
+
+  .step__num {
+    font-family: var(--font-heading);
+    font-size: clamp(1.75rem, 1.3rem + 1.8vw, 2.5rem);
+    font-weight: 600;
+    line-height: 1;
+    color: var(--color-accent);
+    letter-spacing: var(--tracking-tight);
+  }
+
+  .step__title {
+    font-family: var(--font-heading);
+    font-size: var(--fs-h3);
+    font-weight: 600;
+    line-height: var(--line-snug);
+    color: var(--color-text);
+    text-decoration: none;
+  }
+
+  a.step__title {
+    border-bottom: 2px solid transparent;
+    transition: border-color var(--dur-2) var(--ease-out), color var(--dur-2) var(--ease-out);
+  }
+
+  a.step__title:hover {
+    color: var(--color-primary-dark);
+    border-bottom-color: var(--color-accent);
+  }
+
+  a.step__title:focus-visible {
+    outline: none;
+    box-shadow: var(--shadow-focus);
+    border-radius: var(--radius-1);
+  }
+
+  .step__desc {
+    margin: 0;
+    font-family: var(--font-body);
+    font-size: var(--fs-body);
+    line-height: var(--line-base);
+    color: var(--color-text-muted);
+  }
+
+  /* Compacto en landing: bloque ≤ 200px alto desktop (criterio aceptación). */
+  .plan--landing .plan__inner { padding-block: var(--space-7); }
+  .plan--landing .step { padding: var(--space-3) var(--space-4); }
+  .plan--landing .step__desc { font-size: 0.9375rem; }
+</style>

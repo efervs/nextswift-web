@@ -1,0 +1,40 @@
+---
+/**
+ * Badge — pill compacta para credenciales operativas, plazos, métricas.
+ * Cero adjetivos vanidosos por contrato editorial (CLAUDE.md §10).
+ */
+type Tone = 'accent' | 'neutral' | 'dark' | 'soft';
+
+interface Props {
+  tone?: Tone;
+  as?: 'span' | 'div';
+  class?: string;
+}
+
+const { tone = 'neutral', as: Tag = 'span', class: className = '' } = Astro.props;
+---
+
+<Tag class:list={['badge', `badge--${tone}`, className]}>
+  <slot />
+</Tag>
+
+<style>
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    padding: 0.25rem 0.625rem;
+    font-family: var(--font-subheading);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    line-height: 1.4;
+    letter-spacing: var(--tracking-wide);
+    border-radius: var(--radius-pill);
+    border: 1px solid transparent;
+    white-space: nowrap;
+  }
+  .badge--accent  { background: var(--color-accent); color: var(--color-accent-ink); }
+  .badge--neutral { background: var(--color-surface-alt); color: var(--color-text); border-color: var(--color-border); }
+  .badge--dark    { background: var(--color-dark-1); color: var(--color-text-on-dark); }
+  .badge--soft    { background: transparent; color: var(--color-text-muted); border-color: var(--color-border); }
+</style>

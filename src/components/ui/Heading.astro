@@ -1,0 +1,40 @@
+---
+/**
+ * Heading — jerarquía Oswald con tamaños clamp().
+ * `as` controla el nivel semántico; `size` el tamaño visual (decoupled).
+ */
+type Level = 'h1' | 'h2' | 'h3' | 'h4';
+type Size = 'h1' | 'h2' | 'h3';
+
+interface Props {
+  as?: Level;
+  size?: Size;
+  tone?: 'default' | 'on-dark' | 'muted';
+  class?: string;
+}
+
+const { as: Tag = 'h2', size, tone = 'default', class: className = '' } = Astro.props;
+const visualSize: Size = size ?? (Tag === 'h1' ? 'h1' : Tag === 'h2' ? 'h2' : 'h3');
+---
+
+<Tag class:list={['heading', `heading--${visualSize}`, `heading--${tone}`, className]}>
+  <slot />
+</Tag>
+
+<style>
+  .heading {
+    font-family: var(--font-heading);
+    font-weight: 600;
+    letter-spacing: var(--tracking-tight);
+    line-height: var(--line-tight);
+    text-wrap: balance;
+    margin: 0;
+  }
+  .heading--h1 { font-size: var(--fs-h1); }
+  .heading--h2 { font-size: var(--fs-h2); }
+  .heading--h3 { font-size: var(--fs-h3); line-height: var(--line-snug); }
+
+  .heading--default { color: var(--color-text); }
+  .heading--on-dark { color: var(--color-text-on-dark); }
+  .heading--muted   { color: var(--color-text-muted); }
+</style>

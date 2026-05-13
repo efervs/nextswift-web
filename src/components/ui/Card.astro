@@ -1,0 +1,50 @@
+---
+/**
+ * Card — superficie tokenizada para tiles Bento y bloques de prueba social.
+ * Sin variantes de color; el tono se hereda del contenedor.
+ */
+type Padding = 'sm' | 'md' | 'lg';
+type Tone = 'surface' | 'alt' | 'dark';
+
+interface Props {
+  padding?: Padding;
+  tone?: Tone;
+  interactive?: boolean;
+  class?: string;
+}
+
+const { padding = 'md', tone = 'surface', interactive = false, class: className = '' } = Astro.props;
+---
+
+<div class:list={['card', `card--${padding}`, `card--tone-${tone}`, interactive && 'card--interactive', className]}>
+  <slot />
+</div>
+
+<style>
+  .card {
+    border-radius: var(--radius-4);
+    border: 1px solid var(--color-border);
+    box-shadow: var(--shadow-1);
+    transition:
+      box-shadow var(--dur-2) var(--ease-out),
+      border-color var(--dur-2) var(--ease-out),
+      transform var(--dur-2) var(--ease-out);
+  }
+
+  .card--sm { padding: var(--space-4); }
+  .card--md { padding: var(--space-6); }
+  .card--lg { padding: var(--space-8); }
+
+  .card--tone-surface { background: var(--color-surface); color: var(--color-text); }
+  .card--tone-alt     { background: var(--color-surface-alt); color: var(--color-text); }
+  .card--tone-dark    { background: var(--color-dark-1); color: var(--color-text-on-dark); border-color: var(--color-dark-2); }
+
+  .card--interactive { cursor: pointer; }
+  .card--interactive:hover {
+    box-shadow: var(--shadow-3);
+    border-color: var(--color-border-strong);
+  }
+  .card--interactive:focus-within {
+    box-shadow: var(--shadow-focus);
+  }
+</style>

@@ -1,0 +1,38 @@
+---
+/**
+ * Body — párrafo Lato con line-height tokenizado.
+ * `size="lead"` para subheads bajo H1; line-length cap respetado por Section.
+ */
+type Size = 'base' | 'lead' | 'small';
+type Tone = 'default' | 'muted' | 'on-dark';
+
+interface Props {
+  size?: Size;
+  tone?: Tone;
+  as?: 'p' | 'div' | 'span';
+  class?: string;
+}
+
+const { size = 'base', tone = 'default', as: Tag = 'p', class: className = '' } = Astro.props;
+---
+
+<Tag class:list={['body', `body--${size}`, `body--${tone}`, className]}>
+  <slot />
+</Tag>
+
+<style>
+  .body {
+    font-family: var(--font-body);
+    line-height: var(--line-base);
+    margin: 0;
+    max-width: 65ch;
+    text-wrap: pretty;
+  }
+  .body--base  { font-size: var(--fs-body); }
+  .body--lead  { font-size: var(--fs-lead); line-height: var(--line-snug); }
+  .body--small { font-size: 0.875rem; line-height: var(--line-snug); }
+
+  .body--default { color: var(--color-text); }
+  .body--muted   { color: var(--color-text-muted); }
+  .body--on-dark { color: var(--color-text-on-dark); }
+</style>

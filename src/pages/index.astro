@@ -1,19 +1,27 @@
 ---
-import '../styles/global.css';
+import Base from '../layouts/Base.astro';
+import Section from '../components/ui/Section.astro';
+import Hero from '../components/home/Hero.astro';
+import ProofBar from '../components/home/ProofBar.astro';
+import GuideBlock from '../components/shared/GuideBlock.astro';
+import ThreeStepPlan from '../components/shared/ThreeStepPlan.astro';
+import Stakes from '../components/shared/Stakes.astro';
 ---
 
-<html lang="es-MX">
-  <head>
-    <meta charset="utf-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="icon" href="/favicon.ico" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="generator" content={Astro.generator} />
-    <title>NextSwift — Consultoría para restaurantes</title>
-  </head>
-  <body class="bg-white text-gray-900">
-    <main class="min-h-screen flex items-center justify-center">
-      <p class="text-xl font-semibold">NextSwift — Próximamente.</p>
-    </main>
-  </body>
-</html>
+<Base>
+  <Section spacing="lg" tone="surface">
+    <Hero />
+  </Section>
+
+  <Section spacing="md" tone="alt">
+    <ProofBar />
+  </Section>
+
+  <GuideBlock variant="home" />
+
+  <Stakes variant="home" />
+
+  <ThreeStepPlan variant="home" />
+
+  <!-- TODO P8 OfertaResumen -->
+</Base>

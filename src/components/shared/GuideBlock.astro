@@ -1,0 +1,220 @@
+---
+/**
+ * GuideBlock — El Guía (Efer Lara). Dualidad operador-estratega (Ciancio).
+ *
+ * Anti-currículum: 3 micro-credenciales operativas, no académicas.
+ * Foto izquierda (desktop) / arriba (mobile). Copy derecha / abajo.
+ * Se reusa en Home, landings de dolor y /sobre-efer (variant cambia longitud).
+ *
+ * Fuentes verificadas:
+ * - Brief §5 (dualidad operador-estratega Ciancio).
+ * - Auditoría §3.10 (foto-efer-lara.webp, copy reusable).
+ */
+import Heading from '../ui/Heading.astro';
+import Body from '../ui/Body.astro';
+import Eyebrow from '../ui/Eyebrow.astro';
+
+type Variant = 'home' | 'landing' | 'sobre-efer';
+
+interface Props {
+  variant?: Variant;
+  pain?: string;
+  class?: string;
+}
+
+const { variant = 'home', pain, class: className = '' } = Astro.props;
+
+const headline = 'Operador en piso. Estratega financiero. Ambas a la vez.';
+
+const empatiaHome =
+  'No vengo de una agencia. Vengo de la cocina, de cuadrar caja a la 1 a.m. y de despedir a un encargado un martes. ' +
+  'Reviso tu operación con el mismo rigor con el que reviso la mía: las cifras antes que la opinión, ' +
+  'el costo antes que la promesa.';
+
+const empatiaLanding = pain
+  ? `He visto cómo el dolor de ${pain} rompe un restaurante cuando se trata como problema de marketing. ` +
+    'No lo es. Es un problema de operación, de costeo, de gente. Por eso este programa empieza por ahí, no por anuncios.'
+  : empatiaHome;
+
+const empatiaSobreEfer =
+  'No vengo de una agencia. Vengo de la cocina, de cuadrar caja a la 1 a.m. y de despedir a un encargado un martes. ' +
+  'Aprendí finanzas en el Tec y operación en piso — primero como operador, después como consultor. ' +
+  'La diferencia se nota: las decisiones que tomo contigo ya las tomé en mi propio negocio antes de proponértelas.';
+
+const empatia =
+  variant === 'sobre-efer' ? empatiaSobreEfer : variant === 'landing' ? empatiaLanding : empatiaHome;
+
+// Credenciales verbatim del brief §5 (zero invención, anti-currículum Ciancio).
+const credenciales: Array<{ value: string; label: string }> = [
+  { value: 'Operador', label: 'De restaurantes en Monterrey' },
+  { value: '30+', label: 'Negocios asesorados' },
+  { value: 'Ingeniero + restaurantero', label: 'Tec de Monterrey · por elección' },
+];
+
+const showCTA = variant !== 'sobre-efer';
+---
+
+<section class:list={['guide', `guide--${variant}`, className]} aria-labelledby="guide-heading">
+  <div class="guide__inner">
+    <figure class="guide__media">
+      <img
+        src="/images/foto-efer.webp"
+        alt="Efer Lara, fundador de NextSwift, en cocina de restaurante en Monterrey"
+        width="520"
+        height="693"
+        loading="lazy"
+        decoding="async"
+      />
+    </figure>
+
+    <div class="guide__copy">
+      <Eyebrow>Operador antes que consultor</Eyebrow>
+      <Heading as="h2" id="guide-heading">{headline}</Heading>
+      <Body size="lead" tone="muted">{empatia}</Body>
+
+      <ul class="guide__creds">
+        {credenciales.map((c) => (
+          <li class="guide__cred">
+            <strong class="guide__cred-value">{c.value}</strong>
+            <span class="guide__cred-label">{c.label}</span>
+          </li>
+        ))}
+      </ul>
+
+      {showCTA && (
+        <a class="guide__cta" href="/sobre-efer">
+          Conocer el método de trabajo
+          <span aria-hidden="true">&nbsp;→</span>
+        </a>
+      )}
+    </div>
+  </div>
+</section>
+
+<style>
+  .guide {
+    width: 100%;
+    background: var(--color-surface);
+    color: var(--color-text);
+  }
+
+  .guide__inner {
+    max-width: var(--content-max);
+    margin-inline: auto;
+    padding: var(--space-9) var(--space-4);
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-6);
+    align-items: center;
+  }
+
+  @media (min-width: 768px) {
+    .guide__inner {
+      grid-template-columns: minmax(220px, 32%) 1fr;
+      gap: var(--space-8);
+    }
+  }
+
+  .guide__media {
+    margin: 0;
+    border-radius: var(--radius-4);
+    overflow: hidden;
+    background: var(--color-surface-alt);
+    aspect-ratio: 3 / 4;
+    max-width: 320px;
+  }
+
+  @media (min-width: 768px) {
+    .guide__media {
+      max-width: none;
+    }
+  }
+
+  .guide__media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .guide__copy {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .guide__creds {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-3);
+    border-top: 1px solid var(--color-border);
+    padding-top: var(--space-4);
+  }
+
+  @media (min-width: 640px) {
+    .guide__creds {
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--space-4);
+    }
+  }
+
+  .guide__cred {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+
+  .guide__cred-value {
+    font-family: var(--font-heading);
+    font-size: var(--fs-h3);
+    line-height: var(--line-tight);
+    color: var(--color-primary-dark);
+    text-wrap: balance;
+  }
+
+  .guide__cred-label {
+    font-family: var(--font-body);
+    font-size: var(--fs-body);
+    line-height: var(--line-snug);
+    color: var(--color-text-muted);
+  }
+
+  .guide__cta {
+    align-self: flex-start;
+    font-family: var(--font-subheading);
+    font-weight: 600;
+    letter-spacing: var(--tracking-wide);
+    color: var(--color-primary-dark);
+    text-decoration: none;
+    padding: var(--space-2) 0;
+    border-bottom: 2px solid var(--color-accent);
+    transition: color var(--dur-2) var(--ease-out), border-color var(--dur-2) var(--ease-out);
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .guide__cta:hover {
+    color: var(--color-primary);
+    border-bottom-color: var(--color-primary);
+  }
+
+  .guide__cta:focus-visible {
+    outline: none;
+    box-shadow: var(--shadow-focus);
+    border-radius: var(--radius-1);
+  }
+
+  /* Variante landing: bloque más compacto, copy contextualizado a un dolor. */
+  .guide--landing .guide__inner {
+    padding-block: var(--space-7);
+  }
+
+  /* Variante sobre-efer: sin CTA al método (la página YA es el método). */
+  .guide--sobre-efer .guide__inner {
+    padding-block: var(--space-10);
+  }
+</style>

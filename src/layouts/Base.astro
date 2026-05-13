@@ -1,0 +1,121 @@
+---
+/**
+ * Base — layout institucional. Inyecta tokens, fonts, meta SEO default y skip-link.
+ * Slots: `head` (override SEO específico), `default` (contenido principal).
+ */
+import '../styles/global.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+  canonical?: string;
+  ogImage?: string;
+  noindex?: boolean;
+}
+
+const {
+  title = 'NextSwift — Consultoría B2B para restaurantes en México',
+  description = 'Rehabilitamos restaurantes que venden pero no ganan dinero. Diagnóstico, plan y ejecución en 10 días hábiles. 11 garantías formales. Dueño dentro de la cabina.',
+  canonical = new URL(Astro.url.pathname, 'https://www.nextswift.mx').toString(),
+  ogImage,
+  noindex = false,
+} = Astro.props;
+
+const META_PIXEL_ID = '1545738293336210';
+
+const orgSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: 'NextSwift',
+  url: 'https://www.nextswift.mx',
+  logo: 'https://www.nextswift.mx/images/logo-nextswift.webp',
+  description:
+    'Consultoría B2B mexicana que rehabilita restaurantes que venden pero no ganan dinero. Diagnóstico, plan y ejecución en 10 días hábiles.',
+  areaServed: 'MX',
+  contactPoint: {
+    '@type': 'ContactPoint',
+    telephone: '+52-811-042-5674',
+    contactType: 'sales',
+    areaServed: 'MX',
+    availableLanguage: ['Spanish'],
+  },
+};
+---
+
+<!doctype html>
+<html lang="es-MX">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+    <meta name="theme-color" content="#003366" />
+
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    {noindex && <meta name="robots" content="noindex,nofollow" />}
+
+    {/* Open Graph */}
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="es_MX" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    {ogImage && <meta property="og:image" content={ogImage} />}
+
+    {/* Twitter */}
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    {ogImage && <meta name="twitter:image" content={ogImage} />}
+
+    {/* Iconos */}
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" href="/favicon.ico" />
+
+    {/* JSON-LD Organization schema */}
+    <script type="application/ld+json" is:inline set:html={JSON.stringify(orgSchema)} />
+
+    {/* Meta Pixel — base script + PageView */}
+    <script is:inline define:vars={{ pixelId: META_PIXEL_ID }}>
+      !(function (f, b, e, v, n, t, s) {
+        if (f.fbq) return;
+        n = f.fbq = function () {
+          n.callMethod ? n.callMethod.apply(n, arguments) : n.queue.push(arguments);
+        };
+        if (!f._fbq) f._fbq = n;
+        n.push = n;
+        n.loaded = !0;
+        n.version = '2.0';
+        n.queue = [];
+        t = b.createElement(e);
+        t.async = !0;
+        t.src = v;
+        s = b.getElementsByTagName(e)[0];
+        s.parentNode.insertBefore(t, s);
+      })(window, document, 'script', 'https://connect.facebook.net/en_US/fbevents.js');
+      window.fbq('init', pixelId);
+      window.fbq('track', 'PageView');
+    </script>
+    <noscript
+      ><img
+        height="1"
+        width="1"
+        style="display:none"
+        src={`https://www.facebook.com/tr?id=${META_PIXEL_ID}&ev=PageView&noscript=1`}
+      /></noscript
+    >
+
+    {/* Slot SEO override por página */}
+    <slot name="head" />
+  </head>
+
+  <body>
+    <a href="#main" class="skip-link">Saltar al contenido</a>
+    <slot name="header" />
+    <main id="main">
+      <slot />
+    </main>
+    <slot name="footer" />
+  </body>
+</html>

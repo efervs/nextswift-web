@@ -1,0 +1,272 @@
+---
+/**
+ * Hero — Above-the-Fold del home. Fase 4 del PLAN_IMPLEMENTACION_NEXTSWIFT.
+ * Copy verbatim brief §9.1. CTAs bifurcados Ciancio (brief §5).
+ * Tracking dual Pixel + CAPI con dedup event_id (fire-and-forget, no bloquea redirect).
+ */
+import { Image } from 'astro:assets';
+import fotoEfer from '../../assets/foto-efer.webp';
+import Button from '../ui/Button.astro';
+import Heading from '../ui/Heading.astro';
+import Body from '../ui/Body.astro';
+import Eyebrow from '../ui/Eyebrow.astro';
+import { buildWaUrl } from '../../lib/whatsapp-url';
+
+interface Props {
+  eyebrow?: string;
+  h1?: string;
+  subhead?: string;
+  bullets?: string[];
+  ctaPrimaryText?: string;
+  ctaSecondaryText?: string;
+  ctaSecondaryHref?: string;
+}
+
+const {
+  eyebrow = 'Sistemas operativos y rentabilidad B2B para restaurantes',
+  h1 = 'Vendo pero no gano dinero',
+  subhead = 'Rehabilitamos la economía y operación de tu restaurante en 10 días hábiles. Diagnóstico, plan, ejecución — con garantía operativa y dueño dentro de la cabina.',
+  bullets = [
+    'Diagnóstico de fuga de margen en 10 días: mermas, costeo, mix, descuentos, ticket promedio.',
+    'Operación que funciona cuando no estás: SOPs, encargado entrenado, dashboard semanal.',
+    'Crecimiento que no te quiebra: paid media + canal directo + retención, en ese orden.',
+  ],
+  ctaPrimaryText = 'Habla por WhatsApp con Efer',
+  ctaSecondaryText = 'Agenda diagnóstico de 30 min',
+  ctaSecondaryHref = '#oferta',
+} = Astro.props;
+
+const waUrl = buildWaUrl({ source: 'home', content: 'hero_wa' });
+---
+
+<section class="hero" aria-labelledby="hero-h1">
+  <div class="hero__copy">
+    <Eyebrow tone="accent">{eyebrow}</Eyebrow>
+    <Heading as="h1" class="hero__h1">
+      <span id="hero-h1">{h1}</span>
+    </Heading>
+    <Body size="lead" tone="muted" class="hero__subhead">{subhead}</Body>
+    <ul class="hero__bullets" role="list">
+      {bullets.map((b) => (
+        <li>
+          <svg class="hero__bullet-icon" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+            <path d="M4 10l4 4 8-8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+          <span>{b}</span>
+        </li>
+      ))}
+    </ul>
+    <div class="hero__cta-stack">
+      <Button
+        variant="primary"
+        size="lg"
+        href={waUrl}
+        target="_blank"
+        rel="noopener"
+        class="hero__cta-primary"
+        ariaLabel={`${ctaPrimaryText} (abre WhatsApp en pestaña nueva)`}
+      >
+        <svg class="hero__cta-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.94.51 3.83 1.48 5.49L2 22l4.74-1.24a9.9 9.9 0 0 0 5.3 1.52h.01c5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.02A9.84 9.84 0 0 0 12.04 2zm0 18.03h-.01a8.16 8.16 0 0 1-4.17-1.14l-.3-.18-3.09.81.82-3.01-.19-.31a8.18 8.18 0 0 1-1.25-4.3c0-4.51 3.68-8.19 8.2-8.19a8.14 8.14 0 0 1 5.79 2.4 8.14 8.14 0 0 1 2.4 5.8c0 4.51-3.68 8.19-8.2 8.19zm4.5-6.13c-.25-.12-1.46-.72-1.69-.8-.23-.08-.39-.12-.56.12-.16.25-.64.8-.78.96-.14.16-.29.18-.54.06-.25-.12-1.04-.38-1.99-1.22a7.45 7.45 0 0 1-1.38-1.71c-.14-.25-.02-.38.1-.5.11-.11.25-.29.37-.43.12-.14.16-.25.24-.41.08-.17.04-.31-.02-.43-.06-.12-.56-1.34-.76-1.84-.2-.48-.4-.42-.56-.42h-.48a.91.91 0 0 0-.66.31c-.23.25-.86.84-.86 2.05 0 1.21.89 2.38 1.01 2.55.12.16 1.75 2.67 4.23 3.74.59.26 1.05.41 1.41.52.59.19 1.13.16 1.55.1.47-.07 1.46-.6 1.67-1.18.21-.58.21-1.07.14-1.18-.06-.1-.22-.16-.47-.28z" />
+        </svg>
+        <span>{ctaPrimaryText}</span>
+      </Button>
+      <Button
+        variant="ghost"
+        size="lg"
+        href={ctaSecondaryHref}
+        class="hero__cta-secondary"
+      >
+        {ctaSecondaryText}
+      </Button>
+    </div>
+  </div>
+
+  <div class="hero__visual">
+    <div class="hero__visual-frame">
+      <Image
+        src={fotoEfer}
+        alt="Efer Lara, fundador de NextSwift — operador de restaurantes y consultor B2B"
+        widths={[400, 640, 800, 1024]}
+        sizes="(max-width: 768px) 70vw, 40vw"
+        loading="eager"
+        fetchpriority="high"
+        class="hero__visual-img"
+      />
+      <span class="hero__visual-anchor">Operador antes que consultor</span>
+    </div>
+  </div>
+</section>
+
+<script is:inline>
+  // Tracking dual Pixel + CAPI para CTA WhatsApp del hero.
+  // Fire-and-forget: no bloquea el redirect a wa.me.
+  (() => {
+    const link = document.querySelector('[data-cta="hero-wa"], .hero__cta-primary');
+    if (!link) return;
+    link.setAttribute('data-cta', 'hero-wa');
+
+    link.addEventListener('click', () => {
+      const eventId =
+        (window.crypto && typeof window.crypto.randomUUID === 'function')
+          ? window.crypto.randomUUID()
+          : `hero-wa-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+
+      // Pixel client-side (si fbq cargó vía Base.astro).
+      try {
+        if (typeof window.fbq === 'function') {
+          window.fbq(
+            'track',
+            'Contact',
+            { content_name: 'hero_wa', source: 'home' },
+            { eventID: eventId }
+          );
+        }
+      } catch (_) { /* silently ignore */ }
+
+      // CAPI server-side — sendBeacon fire-and-forget para no bloquear.
+      try {
+        const body = JSON.stringify({
+          event_name: 'Contact',
+          event_id: eventId,
+          url: location.href,
+          custom_data: { content_name: 'hero_wa', source: 'home' },
+        });
+        if (typeof navigator.sendBeacon === 'function') {
+          const blob = new Blob([body], { type: 'application/json' });
+          navigator.sendBeacon('/api/capi', blob);
+        } else {
+          // Fallback no-bloqueante con keepalive.
+          fetch('/api/capi', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body,
+            keepalive: true,
+          }).catch(() => undefined);
+        }
+      } catch (_) { /* silently ignore */ }
+    }, { passive: true });
+  })();
+</script>
+
+<style>
+  .hero {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-7);
+    padding: var(--space-9) 0 var(--space-10);
+    align-items: center;
+  }
+
+  @media (min-width: 768px) {
+    .hero {
+      grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+      gap: var(--space-9);
+      padding: var(--space-10) 0 var(--space-11);
+    }
+  }
+
+  .hero__copy {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+    min-width: 0;
+  }
+
+  .hero__h1 {
+    text-wrap: balance;
+  }
+
+  .hero__subhead {
+    max-width: 38rem;
+  }
+
+  .hero__bullets {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .hero__bullets li {
+    display: grid;
+    grid-template-columns: 1.5rem 1fr;
+    gap: var(--space-3);
+    align-items: start;
+    font-family: var(--font-body);
+    font-size: var(--fs-body);
+    line-height: var(--line-base);
+    color: var(--color-text);
+  }
+
+  .hero__bullet-icon {
+    width: 1.5rem;
+    height: 1.5rem;
+    flex-shrink: 0;
+    color: var(--color-primary);
+    margin-top: 0.15rem;
+  }
+
+  .hero__cta-stack {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    margin-top: var(--space-2);
+  }
+
+  .hero__cta-icon {
+    width: 1.25rem;
+    height: 1.25rem;
+    flex-shrink: 0;
+  }
+
+  .hero__visual {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-width: 0;
+  }
+
+  .hero__visual-frame {
+    position: relative;
+    width: 100%;
+    max-width: 24rem;
+    aspect-ratio: 1 / 1;
+    border-radius: var(--radius-5);
+    overflow: hidden;
+    background: var(--color-surface-alt);
+    box-shadow: var(--shadow-3);
+  }
+
+  .hero__visual-img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .hero__visual-anchor {
+    position: absolute;
+    inset: auto var(--space-4) var(--space-4) var(--space-4);
+    display: inline-block;
+    padding: var(--space-2) var(--space-4);
+    background: rgba(0, 51, 102, 0.92);
+    color: var(--color-text-on-dark);
+    font-family: var(--font-subheading);
+    font-size: 0.875rem;
+    font-weight: 600;
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+    border-radius: var(--radius-2);
+    backdrop-filter: blur(4px);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hero__cta-primary,
+    .hero__cta-secondary {
+      transition: none;
+    }
+  }
+</style>

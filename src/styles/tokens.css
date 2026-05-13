@@ -1,0 +1,123 @@
+/* =========================================================================
+   NextSwift — Design Tokens
+   Brand override sobre el MASTER institucional (design-system/MASTER.md).
+   Fuente de verdad para color, tipografía, espacio, radio y movimiento.
+   v1: light mode default. [data-theme="dark"] preparado, no expuesto.
+   ========================================================================= */
+
+:root {
+  /* ----- Color · Paleta primaria (light) ---------------------------------- */
+  --color-accent:        #3EEAF3;  /* acento crítico — CTAs primarias, eyebrow */
+  --color-accent-ink:    #003366;  /* texto sobre accent (contraste 7.3:1)   */
+  --color-primary:       #4A90E2;
+  --color-primary-dark:  #214971;
+  --color-blue-light:    #93C4FF;
+  --color-neutral-700:   #5C7A96;
+  --color-neutral-300:   #B3BEC9;
+  --color-bg:            #FFFFFF;
+
+  /* ----- Color · Paleta secundaria / oscura ------------------------------- */
+  --color-dark-1: #003366;
+  --color-dark-2: #2B6095;
+  --color-dark-3: #404F61;
+  --color-dark-4: #233043;
+  --color-muted:  #959595;
+  --color-soft:   #D3D3D3;
+
+  /* ----- Color · Roles semánticos ---------------------------------------- */
+  --color-surface:        var(--color-bg);
+  --color-surface-alt:    #F6F8FB;
+  --color-text:           var(--color-dark-1);
+  --color-text-muted:     var(--color-neutral-700);
+  --color-text-on-dark:   #FFFFFF;
+  --color-border:         var(--color-neutral-300);
+  --color-border-strong:  var(--color-neutral-700);
+  --color-focus-ring:     var(--color-accent);
+
+  /* ----- Tipografía ------------------------------------------------------- */
+  --font-heading:    'Oswald Variable', 'Oswald', system-ui, sans-serif;
+  --font-subheading: 'Source Sans Pro', system-ui, sans-serif;
+  --font-body:       'Lato', system-ui, sans-serif;
+
+  --line-tight:  1.15;
+  --line-snug:   1.35;
+  --line-base:   1.6;
+  --line-loose:  1.75;
+
+  --tracking-tight:  -0.01em;
+  --tracking-normal: 0;
+  --tracking-wide:   0.06em;
+  --tracking-eyebrow: 0.14em;
+
+  /* Escala tipográfica fluida — clamp(min, vw-based, max) */
+  --fs-eyebrow:  clamp(0.75rem, 0.72rem + 0.15vw, 0.875rem);   /* 12 → 14 */
+  --fs-body:     clamp(1rem,    0.96rem + 0.2vw, 1.125rem);    /* 16 → 18 */
+  --fs-lead:     clamp(1.125rem, 1.05rem + 0.4vw, 1.375rem);   /* 18 → 22 */
+  --fs-h3:       clamp(1.375rem, 1.25rem + 0.6vw, 1.75rem);    /* 22 → 28 */
+  --fs-h2:       clamp(1.75rem,  1.45rem + 1.5vw, 2.75rem);    /* 28 → 44 */
+  --fs-h1:       clamp(2.25rem,  1.8rem  + 2.4vw, 4rem);       /* 36 → 64 */
+
+  /* ----- Espacio fluido (base 4px) ---------------------------------------- */
+  --space-1:  clamp(0.25rem, 0.24rem + 0.05vw, 0.3125rem);   /* 4 → 5  */
+  --space-2:  clamp(0.5rem,  0.47rem + 0.1vw,  0.625rem);    /* 8 → 10 */
+  --space-3:  clamp(0.75rem, 0.7rem  + 0.2vw,  1rem);        /* 12 → 16 */
+  --space-4:  clamp(1rem,    0.92rem + 0.3vw,  1.25rem);     /* 16 → 20 */
+  --space-5:  clamp(1.25rem, 1.15rem + 0.4vw,  1.625rem);    /* 20 → 26 */
+  --space-6:  clamp(1.5rem,  1.35rem + 0.6vw,  2rem);        /* 24 → 32 */
+  --space-7:  clamp(2rem,    1.75rem + 1vw,    2.75rem);     /* 32 → 44 */
+  --space-8:  clamp(2.5rem,  2.15rem + 1.4vw,  3.5rem);      /* 40 → 56 */
+  --space-9:  clamp(3rem,    2.55rem + 1.8vw,  4.25rem);     /* 48 → 68 */
+  --space-10: clamp(4rem,    3.4rem  + 2.4vw,  5.5rem);      /* 64 → 88 */
+  --space-11: clamp(5rem,    4.2rem  + 3.2vw,  7rem);        /* 80 → 112 */
+  --space-12: clamp(6rem,    5rem    + 4vw,    8.5rem);      /* 96 → 136 */
+
+  --content-max:    72rem;   /* 1152px — contenedor narrativo */
+  --content-narrow: 44rem;   /* 704px  — bloques de lectura  */
+
+  /* ----- Radios ----------------------------------------------------------- */
+  --radius-1: 0.25rem;   /* 4  — chips, badges                   */
+  --radius-2: 0.5rem;    /* 8  — inputs, buttons sm              */
+  --radius-3: 0.75rem;   /* 12 — buttons md/lg                   */
+  --radius-4: 1rem;      /* 16 — cards                           */
+  --radius-5: 1.5rem;    /* 24 — bento tiles                     */
+  --radius-pill: 9999px;
+
+  /* ----- Sombras ---------------------------------------------------------- */
+  --shadow-1: 0 1px 2px rgba(3, 51, 102, 0.06);
+  --shadow-2: 0 4px 12px rgba(3, 51, 102, 0.08);
+  --shadow-3: 0 12px 32px rgba(3, 51, 102, 0.12);
+  --shadow-focus: 0 0 0 3px rgba(62, 234, 243, 0.55);
+
+  /* ----- Movimiento ------------------------------------------------------- */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --dur-1: 120ms;
+  --dur-2: 200ms;
+  --dur-3: 320ms;
+
+  /* ----- Layout ----------------------------------------------------------- */
+  --z-base: 1;
+  --z-sticky: 10;
+  --z-nav: 20;
+  --z-overlay: 30;
+  --z-modal: 50;
+}
+
+/* ============================================================================
+   Dark theme (preparado, NO expuesto en v1 — sin toggle UI).
+   Activar con <html data-theme="dark"> cuando se decida en v2.
+   ============================================================================ */
+[data-theme="dark"] {
+  --color-bg:            var(--color-dark-1);
+  --color-surface:       var(--color-dark-1);
+  --color-surface-alt:   var(--color-dark-4);
+  --color-text:          #FFFFFF;
+  --color-text-muted:    var(--color-soft);
+  --color-text-on-dark:  #FFFFFF;
+  --color-border:        var(--color-dark-3);
+  --color-border-strong: var(--color-soft);
+
+  --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-2: 0 4px 12px rgba(0, 0, 0, 0.35);
+  --shadow-3: 0 12px 32px rgba(0, 0, 0, 0.45);
+}
