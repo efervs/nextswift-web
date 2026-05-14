@@ -1,0 +1,42 @@
+---
+/**
+ * /garantia — STUB temporal. La versión completa la entrega P10 / Fase 12 con las 11 garantías formales.
+ * Existe ahora solo para que los links de /acelerador no devuelvan 404.
+ */
+import Base from '../layouts/Base.astro';
+import Heading from '../components/ui/Heading.astro';
+import Body from '../components/ui/Body.astro';
+import Eyebrow from '../components/ui/Eyebrow.astro';
+import Button from '../components/ui/Button.astro';
+---
+
+<Base
+  title="11 garantías formales — NextSwift"
+  description="Las 11 garantías formales del Acelerador 3 Palancas. Detalle completo próximamente."
+  noindex={true}
+>
+  <section class="garantia-stub">
+    <div class="garantia-stub__inner">
+      <Eyebrow>Garantías</Eyebrow>
+      <Heading as="h1">11 garantías formales del Acelerador</Heading>
+      <Body size="lead" tone="muted">
+        El detalle completo de las 11 garantías está en redacción y se publica próximamente. Si quiere verlas hoy, pídanoslas directamente — se las mandamos en PDF.
+      </Body>
+      <Button variant="primary" size="lg" href="/acelerador">
+        Volver al Acelerador
+      </Button>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .garantia-stub { background: var(--color-surface); }
+  .garantia-stub__inner {
+    max-width: var(--content-narrow);
+    margin-inline: auto;
+    padding: var(--space-11) var(--space-4);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+</style>

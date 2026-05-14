@@ -1,0 +1,112 @@
+---
+/**
+ * OfertaResumen — Bloque resumen del Acelerador 3 Palancas en home.
+ * Mini-versión de la oferta núcleo. Apunta a /acelerador para la página completa.
+ * P7 / Fase 8 del plan extendido — value stacking comprimido.
+ */
+import Eyebrow from '../ui/Eyebrow.astro';
+import Heading from '../ui/Heading.astro';
+import Body from '../ui/Body.astro';
+import Button from '../ui/Button.astro';
+
+const palancas = [
+  {
+    nombre: 'Financiera',
+    promesa: 'Recuperación de 3-7 puntos de margen real en 90 días.',
+  },
+  {
+    nombre: 'Operativa',
+    promesa: 'SOPs, encargado entrenado y dashboard semanal — el restaurante funciona cuando no estás.',
+  },
+  {
+    nombre: 'Comercial',
+    promesa: 'Tráfico directo, recurrencia y reducción de dependencia de marketplaces.',
+  },
+];
+---
+
+<section class="oferta-resumen" aria-labelledby="oferta-resumen-heading">
+  <div class="oferta-resumen__inner">
+    <header class="oferta-resumen__header">
+      <Eyebrow>La oferta núcleo</Eyebrow>
+      <Heading as="h2" id="oferta-resumen-heading">
+        Acelerador 3 Palancas: financiera, operativa, comercial
+      </Heading>
+      <Body size="lead" tone="muted">
+        Un solo paquete que ataca margen, autonomía y ventas al mismo tiempo. 10 días hábiles. Garantía operativa.
+      </Body>
+    </header>
+
+    <ul class="oferta-resumen__palancas" role="list">
+      {palancas.map((p) => (
+        <li class="palanca-tile">
+          <h3 class="palanca-tile__nombre">Palanca {p.nombre}</h3>
+          <p class="palanca-tile__promesa">{p.promesa}</p>
+        </li>
+      ))}
+    </ul>
+
+    <div class="oferta-resumen__cta">
+      <Button variant="primary" size="lg" href="/acelerador">
+        Ver la oferta completa
+        <span aria-hidden="true">&nbsp;&rarr;</span>
+      </Button>
+    </div>
+  </div>
+</section>
+
+<style>
+  .oferta-resumen {
+    width: 100%;
+    background: var(--color-surface);
+  }
+  .oferta-resumen__inner {
+    max-width: var(--content-max);
+    margin-inline: auto;
+    padding: var(--space-9) var(--space-4);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+  }
+  .oferta-resumen__header {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    max-width: var(--content-narrow);
+  }
+  .oferta-resumen__palancas {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+  }
+  @media (min-width: 768px) {
+    .oferta-resumen__palancas { grid-template-columns: repeat(3, 1fr); gap: var(--space-5); }
+  }
+  .palanca-tile {
+    padding: var(--space-5);
+    background: var(--color-surface-alt);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-4);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+  .palanca-tile__nombre {
+    font-family: var(--font-heading);
+    font-size: var(--fs-h3);
+    line-height: var(--line-snug);
+    color: var(--color-primary-dark);
+    margin: 0;
+  }
+  .palanca-tile__promesa {
+    font-family: var(--font-body);
+    font-size: var(--fs-body);
+    line-height: var(--line-base);
+    color: var(--color-text);
+    margin: 0;
+  }
+  .oferta-resumen__cta { display: flex; flex-wrap: wrap; gap: var(--space-3); }
+</style>

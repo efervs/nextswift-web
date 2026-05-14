@@ -1,0 +1,423 @@
+---
+/**
+ * /acelerador — Página dedicada de la oferta núcleo (Grand Slam Offer Hormozi).
+ * P7 / Fase 8. Pricing oculto (DH-04). Filtro de calificación + escasez auténtica (8/trimestre).
+ * Reutiliza GuideBlock, Stakes (variant=landing painSlug=utilidad), ThreeStepPlan.
+ */
+import Base from '../layouts/Base.astro';
+import Eyebrow from '../components/ui/Eyebrow.astro';
+import Heading from '../components/ui/Heading.astro';
+import Body from '../components/ui/Body.astro';
+import Button from '../components/ui/Button.astro';
+import GuideBlock from '../components/shared/GuideBlock.astro';
+import Stakes from '../components/shared/Stakes.astro';
+import ThreeStepPlan from '../components/shared/ThreeStepPlan.astro';
+import { buildWaUrl } from '../lib/whatsapp-url';
+
+const palancas = [
+  {
+    nombre: 'Financiera',
+    objetivo: 'Auditoría financiera + P&L estructurado.',
+    entregables: [
+      'Auditoría forense de mermas, costo de platillo real y mix de menú por margen.',
+      'P&L mensual estructurado y dashboard semanal con 10 KPIs operativos.',
+      'Sesión de revisión con el dueño para validar fugas y plan de recuperación.',
+    ],
+    metrica: 'Recuperación de 3-7 puntos de margen real en 90 días',
+  },
+  {
+    nombre: 'Operativa',
+    objetivo: 'Rediseño operativo del restaurante.',
+    entregables: [
+      'Manuales operativos y SOPs documentados: apertura, cierre, compras, manejo de conflictos.',
+      'Schedule óptimo de turnos y rúbrica de evaluación del encargado.',
+      'Política de propinas, escalafón con bonos por desempeño, ritmo de junta semanal.',
+    ],
+    metrica: 'Restaurante operable 72 horas sin presencia del dueño en 90 días',
+  },
+  {
+    nombre: 'Comercial',
+    objetivo: 'Sistematización comercial.',
+    entregables: [
+      'Pipeline de captación con paid media medido contra utilidad, no contra alcance.',
+      'Migración 15-20% de ventas de marketplaces a canal directo (tracking semanal).',
+      'Plan de recurrencia con base de datos propia (no rentada) y reporte mensual.',
+    ],
+    metrica: 'Tráfico recurrente medible en 60-90 días',
+  },
+];
+
+const bonos = [
+  {
+    titulo: 'Diagnóstico inicial sin costo si califica',
+    descripcion:
+      'Sesión de 30 minutos donde validamos juntos si su restaurante encaja con el programa. Si no encaja, se lo decimos sin rodeos — no le vendemos nada que no necesite.',
+  },
+  {
+    titulo: '7 días de soporte post-Boost',
+    descripcion:
+      'Una semana adicional de acompañamiento tras el cierre de los 10 días hábiles, alineada a la garantía #8 (continuidad operativa).',
+  },
+  {
+    titulo: 'Acceso a plantillas operativas v2.0',
+    descripcion:
+      'Plantillas de costeo, escalafón, comanda, junta semanal y dashboard P&L. Las mismas que usamos en cabina — no genéricas de internet.',
+  },
+];
+
+const criterios = [
+  'Ventas brutas mensuales >= $300,000 MXN.',
+  'Al menos 12 meses de operación.',
+  'Dueño-operador o sociedad de 4 socios o menos, involucrado en operación.',
+  'Disposición a abrir el P&L real al equipo NextSwift.',
+];
+
+const cuposLeyenda =
+  'Aceptamos máximo 8 restaurantes por trimestre. La auditoría inicial confirma si hay cupo disponible este trimestre.';
+
+const waFallback = buildWaUrl({ source: 'oferta', content: 'cta_secondary_wa' });
+---
+
+<Base
+  title="Acelerador 3 Palancas — Implementación operativa en 10 días | NextSwift"
+  description="Programa intensivo de 10 días hábiles para restaurantes con ventas brutas >= $300k MXN/mes. Ingeniería operativa, no asesoría. 11 garantías formales."
+>
+  <section class="acelerador-hero" aria-labelledby="acelerador-h1">
+    <div class="acelerador-hero__inner">
+      <Eyebrow tone="accent">Programa intensivo de 10 días hábiles</Eyebrow>
+      <Heading as="h1" id="acelerador-h1" class="acelerador-hero__h1">
+        Acelerador 3 Palancas — Implementación operativa en 10 días hábiles
+      </Heading>
+      <Body size="lead" tone="muted" class="acelerador-hero__subhead">
+        Para restaurantes con ventas brutas &ge; $300,000 MXN/mes que requieren ingeniería operativa, no asesoría.
+      </Body>
+      <div class="acelerador-hero__cta-stack">
+        <Button variant="primary" size="lg" href="/auditoria" data-cta="acelerador-qualify">
+          Verificar si su restaurante califica
+          <span aria-hidden="true">&nbsp;&rarr;</span>
+        </Button>
+        <Button variant="ghost" size="lg" href={waFallback} target="_blank" rel="noopener">
+          Pregunta por WhatsApp
+        </Button>
+      </div>
+    </div>
+  </section>
+
+  <section class="que-se-entrega" aria-labelledby="que-se-entrega-heading">
+    <div class="que-se-entrega__inner">
+      <header class="que-se-entrega__header">
+        <Eyebrow>Qué se entrega</Eyebrow>
+        <Heading as="h2" id="que-se-entrega-heading">
+          Entregables verificables, no horas-hombre
+        </Heading>
+        <Body size="lead" tone="muted">
+          Cada palanca cierra con artefactos tangibles que su equipo puede usar el día 11. Sin presentaciones bonitas que no operan.
+        </Body>
+      </header>
+
+      <ol class="palancas" role="list">
+        {palancas.map((p, i) => (
+          <li class="palanca-card">
+            <span class="palanca-card__num" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
+            <div class="palanca-card__copy">
+              <h3 class="palanca-card__nombre">Palanca {p.nombre}</h3>
+              <p class="palanca-card__objetivo">{p.objetivo}</p>
+              <ul class="palanca-card__entregables">
+                {p.entregables.map((e) => <li>{e}</li>)}
+              </ul>
+              <p class="palanca-card__metrica"><strong>{p.metrica}</strong></p>
+            </div>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </section>
+
+  <Stakes variant="landing" painSlug="utilidad" />
+
+  <ThreeStepPlan variant="landing" />
+
+  <section class="bonos" aria-labelledby="bonos-heading">
+    <div class="bonos__inner">
+      <header class="bonos__header">
+        <Eyebrow>Incluye, sin costo adicional</Eyebrow>
+        <Heading as="h2" id="bonos-heading">Lo que entra cuando entra al Acelerador</Heading>
+      </header>
+      <ul class="bonos__list" role="list">
+        {bonos.map((b) => (
+          <li class="bono">
+            <h3 class="bono__titulo">{b.titulo}</h3>
+            <p class="bono__desc">{b.descripcion}</p>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <section class="garantia" aria-labelledby="garantia-heading">
+    <div class="garantia__inner">
+      <Eyebrow tone="on-dark">Garantía operativa</Eyebrow>
+      <Heading as="h2" tone="on-dark" id="garantia-heading">
+        Si en 30 días no superamos sus expectativas, cancelación sin compromiso.
+      </Heading>
+      <Body size="lead" tone="on-dark" class="garantia__cuerpo">
+        El riesgo no debería ser suyo. Esta es la garantía #5 del programa — alineada con las otras 10 que formalizamos antes de firmar.
+      </Body>
+      <a class="garantia__link" href="/garantia">
+        Ver las 11 garantías completas
+        <span aria-hidden="true">&nbsp;&rarr;</span>
+      </a>
+    </div>
+  </section>
+
+  <GuideBlock variant="landing" />
+
+  <section class="calificacion" aria-labelledby="calificacion-heading">
+    <div class="calificacion__inner">
+      <Eyebrow>Filtro de calificación</Eyebrow>
+      <Heading as="h2" id="calificacion-heading">El Acelerador no es para cualquier restaurante</Heading>
+      <Body size="lead" tone="muted">
+        Las garantías aplican si su restaurante encaja. Estos son los criterios duros antes de cualquier conversación de pricing:
+      </Body>
+      <ul class="calificacion__criterios" role="list">
+        {criterios.map((c) => <li>{c}</li>)}
+      </ul>
+      <p class="calificacion__cupos">{cuposLeyenda}</p>
+      <div class="calificacion__cta-stack">
+        <Button variant="primary" size="lg" href="/auditoria" data-cta="acelerador-qualify-bottom">
+          Verificar si su restaurante califica
+          <span aria-hidden="true">&nbsp;&rarr;</span>
+        </Button>
+        <Button variant="ghost" size="lg" href={waFallback} target="_blank" rel="noopener">
+          Pregunta por WhatsApp
+        </Button>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  /* ----- Hero ------------------------------------------------------------- */
+  .acelerador-hero { background: var(--color-surface); }
+  .acelerador-hero__inner {
+    max-width: 64rem;
+    margin-inline: auto;
+    padding: var(--space-10) var(--space-4) var(--space-9);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+  }
+  .acelerador-hero__h1 { text-wrap: balance; }
+  .acelerador-hero__subhead { max-width: 48rem; }
+  .acelerador-hero__cta-stack {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    margin-top: var(--space-2);
+  }
+
+  /* ----- Qué se entrega --------------------------------------------------- */
+  .que-se-entrega { background: var(--color-surface-alt); }
+  .que-se-entrega__inner {
+    max-width: var(--content-max);
+    margin-inline: auto;
+    padding: var(--space-9) var(--space-4);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-7);
+  }
+  .que-se-entrega__header {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    max-width: var(--content-narrow);
+  }
+  .palancas {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-5);
+  }
+  @media (min-width: 960px) {
+    .palancas { grid-template-columns: repeat(3, 1fr); gap: var(--space-6); }
+  }
+  .palanca-card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    padding: var(--space-6);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-4);
+    box-shadow: var(--shadow-1);
+  }
+  .palanca-card__num {
+    font-family: var(--font-heading);
+    font-size: clamp(1.75rem, 1.3rem + 1.8vw, 2.5rem);
+    line-height: 1;
+    color: var(--color-accent);
+    letter-spacing: var(--tracking-tight);
+  }
+  .palanca-card__nombre {
+    font-family: var(--font-heading);
+    font-size: var(--fs-h3);
+    line-height: var(--line-snug);
+    color: var(--color-primary-dark);
+    margin: 0;
+  }
+  .palanca-card__objetivo {
+    font-family: var(--font-subheading);
+    font-size: var(--fs-body);
+    color: var(--color-text);
+    margin: 0;
+  }
+  .palanca-card__entregables {
+    list-style: disc;
+    padding-left: 1.1rem;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    color: var(--color-text-muted);
+    font-size: 0.9375rem;
+    line-height: var(--line-base);
+  }
+  .palanca-card__metrica {
+    margin: 0;
+    padding-top: var(--space-3);
+    border-top: 1px solid var(--color-border);
+    font-family: var(--font-subheading);
+    color: var(--color-primary-dark);
+  }
+
+  /* ----- Bonos ------------------------------------------------------------ */
+  .bonos { background: var(--color-surface); }
+  .bonos__inner {
+    max-width: var(--content-max);
+    margin-inline: auto;
+    padding: var(--space-9) var(--space-4);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+  }
+  .bonos__header {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    max-width: var(--content-narrow);
+  }
+  .bonos__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+  }
+  @media (min-width: 768px) {
+    .bonos__list { grid-template-columns: repeat(3, 1fr); gap: var(--space-5); }
+  }
+  .bono {
+    padding: var(--space-5);
+    background: var(--color-surface-alt);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-4);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+  .bono__titulo {
+    font-family: var(--font-heading);
+    font-size: var(--fs-h3);
+    line-height: var(--line-snug);
+    color: var(--color-primary-dark);
+    margin: 0;
+  }
+  .bono__desc {
+    margin: 0;
+    font-family: var(--font-body);
+    color: var(--color-text-muted);
+    line-height: var(--line-base);
+  }
+
+  /* ----- Garantía asimétrica --------------------------------------------- */
+  .garantia { background: var(--color-dark-1); color: var(--color-text-on-dark); position: relative; isolation: isolate; }
+  .garantia::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse at top left, rgba(62, 234, 243, 0.08), transparent 55%),
+      linear-gradient(180deg, var(--color-dark-1) 0%, var(--color-dark-4) 100%);
+    z-index: -1;
+  }
+  .garantia__inner {
+    max-width: 64rem;
+    margin-inline: auto;
+    padding: var(--space-10) var(--space-4);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+  .garantia__cuerpo { color: var(--color-soft); }
+  .garantia__link {
+    align-self: flex-start;
+    font-family: var(--font-subheading);
+    font-weight: 600;
+    letter-spacing: var(--tracking-wide);
+    color: var(--color-accent);
+    text-decoration: none;
+    padding: var(--space-2) 0;
+    border-bottom: 2px solid var(--color-accent);
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+  }
+  .garantia__link:hover { color: var(--color-text-on-dark); border-bottom-color: var(--color-text-on-dark); }
+  .garantia__link:focus-visible { outline: none; box-shadow: var(--shadow-focus); border-radius: var(--radius-1); }
+
+  /* ----- Calificación + cupos ------------------------------------------- */
+  .calificacion { background: var(--color-surface-alt); }
+  .calificacion__inner {
+    max-width: 64rem;
+    margin-inline: auto;
+    padding: var(--space-10) var(--space-4);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+  }
+  .calificacion__criterios {
+    list-style: disc;
+    padding-left: 1.2rem;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    color: var(--color-text);
+    font-family: var(--font-body);
+    line-height: var(--line-base);
+  }
+  .calificacion__cupos {
+    margin: 0;
+    padding: var(--space-4);
+    background: var(--color-surface);
+    border-left: 3px solid var(--color-accent);
+    border-radius: var(--radius-2);
+    color: var(--color-text-muted);
+    font-family: var(--font-subheading);
+    font-size: var(--fs-body);
+    line-height: var(--line-snug);
+  }
+  .calificacion__cta-stack {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    margin-top: var(--space-2);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .palanca-card, .bono { transition: none; }
+  }
+</style>
