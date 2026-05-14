@@ -46,31 +46,31 @@ interface Leak {
 
 const leaks: Leak[] = [
   {
-    id: 'food-cost',
-    metric: '3-7% margen',
-    title: 'Fuga de food cost descontrolado',
+    id: 'promociones-sin-roi',
+    metric: '$60k-$120k MXN/mes',
+    title: 'Promociones sin ROI medido',
     body:
-      'Sin costeo por receta ni control de mermas, un restaurante de $1M MXN/mes deja $30k-$70k mensuales en el plato. No aparece en el POS — aparece en el cierre anual cuando ya no se puede revertir.',
+      'Una promo 2x1 o 30% off sin costeo previo, corriendo 4 semanas en un negocio de $2M MXN/mes, regala entre $60k y $120k de utilidad neta — y casi nunca compensa con clientes nuevos recurrentes. Sin medir ticket pre/post promo, la decisión se repite el mes siguiente.',
     doloresPrimario: 'utilidad',
-    doloresSecundarios: ['metricas-control'],
+    doloresSecundarios: ['metricas-control', 'ventas-delivery'],
   },
   {
     id: 'comisiones-delivery',
     metric: '25-35% ticket bruto',
     title: 'Comisiones de marketplaces sin canal directo',
     body:
-      'Rappi, UberEats y DiDi Food cobran entre 25% y 35% por orden. En un negocio que factura $200k/mes en delivery, son $50k-$70k que nunca tocan tu utilidad — y crecen con cada nuevo cliente que no es tuyo.',
+      'Rappi, UberEats y DiDi Food cobran entre 25% y 35% por orden. Si el delivery suma 20-25% de un negocio de $2M MXN/mes ($400k-$500k bruto), la comisión se lleva $100k-$175k mensuales que nunca tocan tu utilidad — y crecen con cada nuevo cliente que no es tuyo.',
     doloresPrimario: 'ventas-delivery',
     doloresSecundarios: ['utilidad'],
   },
   {
-    id: 'sobre-staffing',
-    metric: '1-3% prime cost',
-    title: 'Sobre-staffing por turnos sin estructura',
+    id: 'rotacion-personal',
+    metric: '0.5-1.5 sueldos por reemplazo',
+    title: 'Rotación de personal sin estructura',
     body:
-      'Sin escalafón, sin rúbricas de turno ni proyección por venta esperada, terminas pagando entre 1 y 3 puntos más de prime cost. En $1M MXN/mes son $10k-$30k mensuales en horas que nadie pidió y que tampoco mueven ticket.',
+      'Cada salida cuesta entre medio y un sueldo y medio del puesto entre reclutamiento, formación, errores de servicio e ineficiencia inicial. En un equipo de 15 con 30-50% rotación anual, son $30k-$100k al año en costo directo — sin contar reseñas bajas ni caída de ticket por mal servicio.',
     doloresPrimario: 'personal',
-    doloresSecundarios: ['utilidad'],
+    doloresSecundarios: ['utilidad', 'autonomia'],
   },
   {
     id: 'dependencia-dueno',
@@ -105,11 +105,11 @@ const headline = variant === 'landing' ? headlineLanding : headlineHome;
 
 const subhead =
   variant === 'home'
-    ? 'Asunción: restaurante de 50-150 comensales facturando $1M MXN/mes. Cifras de mercado y rangos del diagnóstico inicial. Sin retórica.'
+    ? 'Asunción: restaurante de 50-150 comensales facturando $2M MXN/mes. Cifras de mercado y rangos del diagnóstico inicial. Sin retórica.'
     : 'Mismas cifras del diagnóstico inicial NextSwift. Cada fuga es un cálculo aplicable a tu propio P&L — no una promesa genérica.';
 
 const reframe =
-  'Verlo así: una consultoría que recupera 3-7 puntos de margen en 90 días sobre $1M MXN/mes paga su propio costo en el primer trimestre. No es gasto discrecional — es gasto de protección sobre la utilidad que ya estás generando.';
+  'Verlo así: una consultoría que recupera 3-7 puntos de margen en 90 días sobre tu base actual paga su propio costo dentro del primer trimestre. No es gasto discrecional — es gasto de protección sobre la utilidad que ya estás generando.';
 ---
 
 <section
