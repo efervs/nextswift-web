@@ -1,0 +1,312 @@
+---
+/**
+ * /casos-de-exito — Wall of Proof Beaudoin.
+ *
+ * Estructura:
+ *  1. Hero institucional + subhead anti-positioning (sin video, solo cifras).
+ *  2. Banda de 5 logos (Pangas, Temaky, Hare Krishna, Oita Fresh, Sr. Boneless).
+ *     Sr. Boneless aparece solo en la banda — no como caso publicable, por
+ *     decisión validada con Efer (project_casos_prueba_social.md).
+ *  3. Grid de 4 casos publicables con métrica ancla y link al detalle.
+ *  4. Banda CTA final: primario /acelerador, ghost wa.me.
+ *
+ * Schema.org: Review × 4 + BreadcrumbList. Cero video (DH-05).
+ */
+import { getCollection } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import Section from '../components/ui/Section.astro';
+import Heading from '../components/ui/Heading.astro';
+import Body from '../components/ui/Body.astro';
+import Eyebrow from '../components/ui/Eyebrow.astro';
+import Card from '../components/ui/Card.astro';
+import Button from '../components/ui/Button.astro';
+import Badge from '../components/ui/Badge.astro';
+import { buildWaUrl } from '../lib/whatsapp-url.ts';
+
+const cases = await getCollection('cases', (entry) => entry.data.authorized);
+
+cases.sort((a, b) => {
+  if (a.data.inProgress !== b.data.inProgress) return a.data.inProgress ? 1 : -1;
+  return b.data.publishDate.getTime() - a.data.publishDate.getTime();
+});
+
+const logos = [
+  { src: '/images/logos/temaky.webp', alt: 'Temaky Sushi' },
+  { src: '/images/logos/pangas.webp', alt: 'Pangas Sabores del Mar' },
+  { src: '/images/logos/oita-fresh.webp', alt: 'Oita Fresh' },
+  { src: '/images/logos/hare-krishna.webp', alt: 'Hare Krishna' },
+  { src: '/images/logos/sr-boneless.webp', alt: 'Sr. Boneless' },
+];
+
+const waCasos = buildWaUrl({
+  source: 'cases',
+  content: 'cta-casos',
+  customMessage:
+    'Hola, vi los casos de éxito de NextSwift y quiero hablar de mi restaurante.',
+});
+
+const reviewsSchema = cases.map((c) => ({
+  '@type': 'Review',
+  itemReviewed: {
+    '@type': 'Service',
+    name: 'NextSwift Acelerador 3 Palancas',
+    provider: { '@type': 'Organization', name: 'NextSwift' },
+  },
+  author: { '@type': 'Organization', name: c.data.client },
+  reviewBody: c.data.quote ?? c.data.result.map((r) => `${r.metric}: ${r.value} (${r.period})`).join('. '),
+  datePublished: c.data.publishDate.toISOString().slice(0, 10),
+}));
+
+const breadcrumbsSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Inicio', item: 'https://www.nextswift.mx/' },
+    { '@type': 'ListItem', position: 2, name: 'Casos de éxito', item: 'https://www.nextswift.mx/casos-de-exito' },
+  ],
+};
+
+const itemListSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'ItemList',
+  itemListElement: cases.map((c, idx) => ({
+    '@type': 'ListItem',
+    position: idx + 1,
+    url: `https://www.nextswift.mx/casos/${c.data.slug}`,
+    name: c.data.client,
+  })),
+  review: reviewsSchema,
+};
+---
+
+<Base
+  title="Casos de éxito — Restaurantes que rehabilitamos operativamente | NextSwift"
+  description="Cuatro casos verificables con cifras autorizadas por los dueños. Sin video, sin storytelling decorativo. Solo métricas defendibles de restaurantes que pasaron por NextSwift."
+>
+  <script
+    slot="head"
+    type="application/ld+json"
+    is:inline
+    set:html={JSON.stringify(breadcrumbsSchema)}
+  />
+  <script
+    slot="head"
+    type="application/ld+json"
+    is:inline
+    set:html={JSON.stringify(itemListSchema)}
+  />
+
+  <Section spacing="lg" tone="surface" as="section">
+    <Eyebrow tone="accent">Casos reales · Métricas autorizadas</Eyebrow>
+    <Heading as="h1" size="h1">Restaurantes que rehabilitamos operativamente.</Heading>
+    <Body size="lead" tone="muted" class="casos-subhead">
+      Sin video. Sin storytelling decorativo. Cifras verificables, autorizadas
+      por los dueños. Cada caso muestra qué encontramos, qué intervenimos y qué
+      cambió — en este orden.
+    </Body>
+  </Section>
+
+  <Section spacing="sm" tone="alt" as="section">
+    <p class="logos-band__label">Restaurantes acompañados</p>
+    <ul class="logos-band" role="list" aria-label="Logos de restaurantes clientes">
+      {logos.map((l) => (
+        <li class="logos-band__item">
+          <img
+            src={l.src}
+            alt={`Logo de ${l.alt}`}
+            width="120"
+            height="60"
+            loading="lazy"
+            decoding="async"
+            class="logos-band__logo"
+          />
+        </li>
+      ))}
+    </ul>
+  </Section>
+
+  <Section spacing="lg" tone="surface" as="section">
+    <ul class="casos-grid" role="list">
+      {cases.map((c) => {
+        const ancla = c.data.result[0];
+        return (
+          <li>
+            <Card padding="lg" tone="surface" interactive class="caso-card">
+              <a href={`/casos/${c.data.slug}`} class="caso-card__link">
+                <div class="caso-card__head">
+                  <img
+                    src={c.data.logo}
+                    alt={`Logo de ${c.data.client}`}
+                    width="120"
+                    height="60"
+                    loading="lazy"
+                    decoding="async"
+                    class="caso-card__logo"
+                  />
+                  <Eyebrow tone="neutral">{c.data.sector}</Eyebrow>
+                </div>
+
+                <Heading as="h2" size="h2">{c.data.client}</Heading>
+
+                {c.data.inProgress && (
+                  <Badge>Caso activo · en ejecución</Badge>
+                )}
+
+                <p class="caso-card__metric">
+                  <span class="caso-card__metric-value">{ancla.value}</span>
+                  <span class="caso-card__metric-label">{ancla.metric}</span>
+                  <span class="caso-card__metric-period">{ancla.period}</span>
+                </p>
+
+                <Body size="base" tone="muted">{c.data.before.slice(0, 180)}…</Body>
+
+                <span class="caso-card__cta">Ver el caso completo →</span>
+              </a>
+            </Card>
+          </li>
+        );
+      })}
+    </ul>
+  </Section>
+
+  <Section spacing="lg" tone="dark" as="section">
+    <Eyebrow tone="on-dark">Siguiente paso</Eyebrow>
+    <Heading as="h2" size="h2" tone="on-dark">
+      Si tu restaurante está en una situación parecida, empezamos por un diagnóstico.
+    </Heading>
+    <Body size="lead" tone="on-dark" class="casos-cta-body">
+      Diez días hábiles. Sin compromiso de continuar. Si no vemos potencial real,
+      lo decimos en la primera reunión.
+    </Body>
+    <div class="casos-cta-row">
+      <Button variant="primary" size="lg" href="/acelerador">
+        Aplicar al Acelerador
+      </Button>
+      <Button variant="wa" size="lg" href={waCasos} rel="noopener" target="_blank">
+        Hablar con Efer ahora
+      </Button>
+    </div>
+  </Section>
+</Base>
+
+<style>
+  .casos-subhead { margin-top: var(--space-4); }
+
+  .logos-band__label {
+    font-family: var(--font-subheading);
+    font-size: var(--fs-eyebrow);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-eyebrow);
+    color: var(--color-text-muted);
+    text-align: center;
+    margin: 0 0 var(--space-5);
+  }
+  .logos-band {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: var(--space-6);
+    align-items: center;
+    justify-items: center;
+  }
+  .logos-band__item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-height: 3rem;
+  }
+  .logos-band__logo {
+    max-width: 100%;
+    max-height: 3rem;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    filter: grayscale(1);
+    opacity: 0.75;
+    transition:
+      filter var(--dur-2) var(--ease-out),
+      opacity var(--dur-2) var(--ease-out);
+  }
+  .logos-band__item:hover .logos-band__logo,
+  .logos-band__item:focus-within .logos-band__logo {
+    filter: grayscale(0);
+    opacity: 1;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .logos-band__logo { transition: none; }
+  }
+
+  .casos-grid {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: var(--space-7);
+    grid-template-columns: 1fr;
+  }
+  @media (min-width: 48rem) {
+    .casos-grid { grid-template-columns: 1fr 1fr; }
+  }
+
+  .caso-card { height: 100%; }
+  .caso-card__link {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    text-decoration: none;
+    color: inherit;
+  }
+  .caso-card__head {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    flex-wrap: wrap;
+  }
+  .caso-card__logo {
+    max-height: 3rem;
+    width: auto;
+    object-fit: contain;
+  }
+  .caso-card__metric {
+    margin: 0;
+    padding: var(--space-4);
+    background: var(--color-surface-alt);
+    border-radius: var(--radius-3);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+  .caso-card__metric-value {
+    font-family: var(--font-heading);
+    font-size: var(--fs-h2);
+    font-weight: 600;
+    line-height: var(--line-tight);
+    color: var(--color-dark-1);
+  }
+  .caso-card__metric-label {
+    font-family: var(--font-subheading);
+    font-size: var(--fs-body);
+    color: var(--color-text);
+  }
+  .caso-card__metric-period {
+    font-size: 0.875rem;
+    color: var(--color-text-muted);
+  }
+  .caso-card__cta {
+    margin-top: auto;
+    font-family: var(--font-subheading);
+    font-weight: 600;
+    color: var(--color-primary-dark);
+  }
+
+  .casos-cta-body { margin-top: var(--space-4); }
+  .casos-cta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-4);
+    margin-top: var(--space-6);
+  }
+</style>

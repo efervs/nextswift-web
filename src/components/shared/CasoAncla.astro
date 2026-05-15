@@ -1,0 +1,116 @@
+---
+/**
+ * CasoAncla — render de 1 caso ancla por dolor, para insertar en landings de Fase 9.
+ *
+ * Mapeo dolor → slug controlado por tabla explícita (decisión Efer 2026-05-14):
+ *   - utilidad / ventas-delivery → temaky
+ *   - crecimiento-controlado → oita-fresh
+ *   - metricas-control → hare-krishna
+ *   - autonomia / personal → sin caso (silencioso, sin crash)
+ *
+ * Render: card compacta con logo + nombre + métrica ancla + link al detalle.
+ * Si el dolor no tiene caso, retorna null silenciosamente.
+ */
+import { getEntry } from 'astro:content';
+import type { Pain } from '../../content.config.ts';
+import Card from '../ui/Card.astro';
+import Eyebrow from '../ui/Eyebrow.astro';
+import Heading from '../ui/Heading.astro';
+import Body from '../ui/Body.astro';
+
+interface Props {
+  pain: Pain;
+  class?: string;
+}
+
+const { pain, class: className = '' } = Astro.props;
+
+const PAIN_TO_SLUG: Record<Pain, string | null> = {
+  utilidad: 'temaky',
+  autonomia: null,
+  'ventas-delivery': 'temaky',
+  personal: null,
+  'metricas-control': 'hare-krishna',
+  'crecimiento-controlado': 'oita-fresh',
+};
+
+const slug = PAIN_TO_SLUG[pain];
+const caso = slug ? await getEntry('cases', slug) : undefined;
+const data = caso?.data;
+const ancla = data?.result?.[0];
+---
+
+{data && ancla && (
+  <Card padding="md" tone="alt" interactive class:list={['caso-ancla', className]}>
+    <a href={`/casos/${data.slug}`} class="caso-ancla__link" aria-label={`Caso de éxito: ${data.client}`}>
+      <div class="caso-ancla__head">
+        <img
+          src={data.logo}
+          alt={`Logo de ${data.client}`}
+          width="80"
+          height="40"
+          loading="lazy"
+          decoding="async"
+          class="caso-ancla__logo"
+        />
+        <Eyebrow tone="neutral">Caso real · {data.sector}</Eyebrow>
+      </div>
+
+      <Heading as="h3" size="h3">{data.client}</Heading>
+
+      <p class="caso-ancla__metric">
+        <span class="caso-ancla__metric-value">{ancla.value}</span>
+        <span class="caso-ancla__metric-label">{ancla.metric}</span>
+        <span class="caso-ancla__metric-period">{ancla.period}</span>
+      </p>
+
+      <Body size="small" tone="muted">
+        Ver el caso completo →
+      </Body>
+    </a>
+  </Card>
+)}
+
+<style>
+  .caso-ancla__link {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    text-decoration: none;
+    color: inherit;
+  }
+  .caso-ancla__head {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+  }
+  .caso-ancla__logo {
+    max-height: 2.5rem;
+    width: auto;
+    object-fit: contain;
+  }
+  .caso-ancla__metric {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    margin: 0;
+    padding: var(--space-3) 0;
+    border-block: 1px solid var(--color-border);
+  }
+  .caso-ancla__metric-value {
+    font-family: var(--font-heading);
+    font-size: var(--fs-h3);
+    font-weight: 600;
+    line-height: var(--line-tight);
+    color: var(--color-dark-1);
+  }
+  .caso-ancla__metric-label {
+    font-family: var(--font-subheading);
+    font-size: var(--fs-body);
+    color: var(--color-text);
+  }
+  .caso-ancla__metric-period {
+    font-size: 0.875rem;
+    color: var(--color-text-muted);
+  }
+</style>
