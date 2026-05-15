@@ -1,0 +1,157 @@
+---
+/**
+ * /crecimiento-controlado — Dolor 6: "Quiero crecer sin caos".
+ * P8 / Fase 9. Palanca Expansión. Copy semilla: brief §9.8. Caso ancla: Oita Fresh (replicabilidad).
+ * Override: design-system/pages/crecimiento-controlado.md.
+ */
+import Base from '../layouts/Base.astro';
+import Section from '../components/ui/Section.astro';
+import Eyebrow from '../components/ui/Eyebrow.astro';
+import Heading from '../components/ui/Heading.astro';
+import Body from '../components/ui/Body.astro';
+import Button from '../components/ui/Button.astro';
+import Card from '../components/ui/Card.astro';
+import Badge from '../components/ui/Badge.astro';
+import Stakes from '../components/shared/Stakes.astro';
+import ThreeStepPlan from '../components/shared/ThreeStepPlan.astro';
+import { buildWaUrl } from '../lib/whatsapp-url';
+
+const SLUG = 'crecimiento-controlado';
+const waHero = buildWaUrl({ source: 'pain', content: `${SLUG}_hero_wa`, context: `pain:${SLUG}` });
+const waBottom = buildWaUrl({ source: 'pain', content: `${SLUG}_bottom_wa`, context: `pain:${SLUG}` });
+
+const faqs = [
+  {
+    q: '¿Cómo sé si mi restaurante está listo para una segunda sucursal?',
+    a: 'Tres condiciones: el actual opera 72 horas sin tu presencia, el margen está documentado y estable a 6 meses, y la economía unitaria por turno está medida. Si falta alguno, abrir la segunda sucursal multiplica problemas en vez de utilidad.',
+  },
+  {
+    q: '¿Franquicia o sucursal propia? ¿Qué conviene más?',
+    a: 'Depende del nivel de control que quieres y del capital disponible. Sucursal propia preserva margen completo pero requiere capital y operación replicable. Franquicia escala más rápido pero exige manual operativo blindado y soporte estructurado. El plan de expansión por escenarios compara ambos contra tu situación específica.',
+  },
+  {
+    q: '¿Qué es la "economía unitaria" y por qué importa?',
+    a: 'Es saber cuánto cuesta y cuánto deja cada unidad de venta: un platillo, un turno, una sucursal. Sin ella, decidir abrir una segunda sucursal es apostar — porque no sabes si lo que ganas por unidad cubre los costos fijos adicionales. El Acelerador documenta esta economía en 90 días.',
+  },
+  {
+    q: '¿Me sirve si quiero abrir una dark kitchen como segunda operación?',
+    a: 'Sí. Dark kitchen como expansión de un restaurante físico exitoso es una de las tres opciones que evaluamos en el plan por escenarios. Las otras dos: segunda sucursal completa, o modelo de franquicia. Cada una con su economía unitaria proyectada.',
+  },
+];
+---
+
+<Base>
+  <Section spacing="lg" tone="surface" as="section">
+    <div class="hero-landing">
+      <Eyebrow tone="accent">PALANCA DE EXPANSIÓN · EL DOLOR MÁS PREMIUM</Eyebrow>
+      <Heading as="h1" size="h1">Quiero crecer sin caos</Heading>
+      <Body size="lead" tone="muted">
+        Convertimos tu restaurante en modelo replicable: manual operativo, economía unitaria
+        documentada, plan de expansión por escenarios. En 90 días tienes lo que un inversionista
+        o socio operativo necesita ver.
+      </Body>
+      <ul class="hero-landing__bullets">
+        <li>Manual operativo replicable (no genérico, sino el TUYO).</li>
+        <li>Economía unitaria documentada — por platillo, por turno, por sucursal.</li>
+        <li>Plan de expansión por escenarios — segunda sucursal, franquicia, o dark kitchen.</li>
+      </ul>
+      <div class="hero-landing__ctas">
+        <Button variant="primary" size="lg" href={waHero} target="_blank" rel="noopener">Habla por WhatsApp con Efer</Button>
+        <Button variant="ghost" size="lg" href="#oferta">Agenda diagnóstico de 30 min</Button>
+      </div>
+    </div>
+  </Section>
+
+  <Stakes variant="landing" painSlug="crecimiento-controlado" />
+
+  <Section spacing="md" tone="alt" id="caso">
+    <Eyebrow tone="neutral">CASO ANCLA · PALANCA DE EXPANSIÓN</Eyebrow>
+    <Heading as="h2" size="h2">Oita Fresh — restaurante diseñado replicable desde el día 1</Heading>
+    <Card tone="surface" class="caso-ancla">
+      <div class="caso-ancla__grid">
+        <div class="caso-ancla__metricas">
+          <div class="caso-ancla__metric">
+            <span class="caso-ancla__num">$0 → $300k</span>
+            <span class="caso-ancla__lbl">ventas/mes desde arranque cero</span>
+          </div>
+          <div class="caso-ancla__metric">
+            <span class="caso-ancla__num">Replicable</span>
+            <span class="caso-ancla__lbl">economía unitaria documentada por turno</span>
+          </div>
+          <div class="caso-ancla__metric">
+            <span class="caso-ancla__num">Día 1</span>
+            <span class="caso-ancla__lbl">manual operativo desde el arranque, no improvisado</span>
+          </div>
+        </div>
+        <div class="caso-ancla__cuerpo">
+          <Body size="base">
+            Restaurante diseñado para escalar desde el primer día: manual operativo, economía unitaria
+            por turno y por platillo, y separación clara entre el rol del fundador y el del operador.
+            La diferencia entre crecer con caos y crecer con plan.
+          </Body>
+          <Body size="small" tone="muted">
+            Caso autorizado por Raúl García, fundador de Oita Fresh. Efer Lara como operador ejecutivo embebido.
+          </Body>
+          <Badge tone="accent">Logo + uso completo autorizado</Badge>
+        </div>
+      </div>
+    </Card>
+  </Section>
+
+  <ThreeStepPlan variant="landing" painContext="crecimiento-controlado" />
+
+  <Section spacing="md" tone="surface" id="oferta">
+    <Eyebrow tone="accent">PROGRAMA</Eyebrow>
+    <Heading as="h2" size="h2">El Acelerador 3 Palancas — paquete completo</Heading>
+    <Body size="base">
+      Si tu cuello es expansión, las tres palancas se trabajan en paralelo: financiera para documentar
+      economía unitaria, operativa para producir el manual replicable, comercial para validar demanda
+      en el nuevo punto. En 90 días tienes el plan que un inversionista o socio operativo necesita ver.
+      Pricing oculto + filtro de calificación (piso $300k MXN/mes).
+    </Body>
+    <ul class="resumen-bullets">
+      <li><strong>Financiera:</strong> economía unitaria + P&amp;L proyectado por escenario.</li>
+      <li><strong>Operativa:</strong> manual replicable + encargado entrenado para sostenerlo.</li>
+      <li><strong>Comercial:</strong> validación de demanda en el nuevo punto antes de abrir.</li>
+    </ul>
+    <div class="resumen-ctas">
+      <Button variant="primary" size="lg" href="/acelerador">Ver el Acelerador 3 Palancas</Button>
+      <Button variant="ghost" size="lg" href={waBottom} target="_blank" rel="noopener">Habla por WhatsApp con Efer</Button>
+    </div>
+  </Section>
+
+  <Section spacing="md" tone="alt" id="faq">
+    <Eyebrow tone="neutral">PREGUNTAS DE DUEÑOS QUE YA NOS PREGUNTARON ESTO</Eyebrow>
+    <Heading as="h2" size="h3">FAQ — expansión y replicabilidad</Heading>
+    <div class="faq-list">
+      {faqs.map((item) => (
+        <details class="faq-item">
+          <summary>{item.q}</summary>
+          <Body size="base">{item.a}</Body>
+        </details>
+      ))}
+    </div>
+  </Section>
+</Base>
+
+<style>
+  .hero-landing { display: grid; gap: var(--space-4); max-width: 56rem; }
+  .hero-landing__bullets { list-style: none; padding: 0; margin: 0; display: grid; gap: var(--space-2); }
+  .hero-landing__bullets li { position: relative; padding-left: 1.5rem; font-family: var(--font-body); color: var(--color-text); }
+  .hero-landing__bullets li::before { content: ''; position: absolute; left: 0; top: 0.55em; width: 0.5rem; height: 0.5rem; background: var(--color-accent); border-radius: 2px; }
+  .hero-landing__ctas, .resumen-ctas { display: flex; flex-wrap: wrap; gap: var(--space-3); margin-top: var(--space-3); }
+  .caso-ancla__grid { display: grid; gap: var(--space-4); grid-template-columns: 1fr; }
+  @media (min-width: 768px) { .caso-ancla__grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); } }
+  .caso-ancla__metricas { display: grid; gap: var(--space-3); }
+  .caso-ancla__metric { display: grid; gap: 0.25rem; padding: var(--space-3); background: var(--color-surface-alt, #f6f8fb); border-left: 4px solid var(--color-accent); border-radius: var(--radius-2); }
+  .caso-ancla__num { font-family: var(--font-heading); font-size: clamp(1.5rem, 3vw, 2.25rem); color: var(--color-dark-1); line-height: 1; }
+  .caso-ancla__lbl { font-family: var(--font-subheading); font-size: 0.875rem; color: var(--color-text-muted); }
+  .caso-ancla__cuerpo { display: grid; gap: var(--space-3); align-content: start; }
+  .resumen-bullets { list-style: none; padding: 0; margin: var(--space-3) 0 0; display: grid; gap: var(--space-2); }
+  .faq-list { display: grid; gap: var(--space-2); margin-top: var(--space-3); }
+  .faq-item { border: 1px solid var(--color-border, rgba(0, 51, 102, 0.12)); border-radius: var(--radius-2); background: var(--color-bg); }
+  .faq-item summary { cursor: pointer; padding: var(--space-3); font-family: var(--font-subheading); font-weight: 600; color: var(--color-dark-1); list-style: none; }
+  .faq-item summary::-webkit-details-marker { display: none; }
+  .faq-item[open] summary { border-bottom: 1px solid var(--color-border, rgba(0, 51, 102, 0.08)); }
+  .faq-item :global(p) { padding: var(--space-3); margin: 0; }
+</style>

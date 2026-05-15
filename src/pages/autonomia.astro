@@ -1,0 +1,154 @@
+---
+/**
+ * /autonomia — Dolor 3: "El negocio depende demasiado de mí".
+ * P8 / Fase 9. Palanca Operativa. Copy semilla: brief §9.5. Caso ancla: Oita Fresh.
+ * Override: design-system/pages/autonomia.md.
+ */
+import Base from '../layouts/Base.astro';
+import Section from '../components/ui/Section.astro';
+import Eyebrow from '../components/ui/Eyebrow.astro';
+import Heading from '../components/ui/Heading.astro';
+import Body from '../components/ui/Body.astro';
+import Button from '../components/ui/Button.astro';
+import Card from '../components/ui/Card.astro';
+import Badge from '../components/ui/Badge.astro';
+import Stakes from '../components/shared/Stakes.astro';
+import ThreeStepPlan from '../components/shared/ThreeStepPlan.astro';
+import { buildWaUrl } from '../lib/whatsapp-url';
+
+const SLUG = 'autonomia';
+const waHero = buildWaUrl({ source: 'pain', content: `${SLUG}_hero_wa`, context: `pain:${SLUG}` });
+const waBottom = buildWaUrl({ source: 'pain', content: `${SLUG}_bottom_wa`, context: `pain:${SLUG}` });
+
+const faqs = [
+  {
+    q: '¿Realmente puede mi restaurante operar 72 horas sin mí?',
+    a: 'Sí, si tres piezas existen y están probadas: un encargado entrenado con rúbrica clara, SOPs documentados para apertura/cierre/compras/conflictos, y una junta semanal con dueño que revise KPIs en lugar de operar. En semana 12 hacemos la prueba de ausencia controlada — no antes.',
+  },
+  {
+    q: '¿Cómo se entrena al encargado sin gastar 6 meses?',
+    a: 'Con una rúbrica de 8 competencias operativas y un plan de 8-10 semanas: shadowing, decisión asistida, decisión sola con auditoría, decisión sola con revisión semanal. La rúbrica se hace contigo en la primera semana — no es un manual genérico.',
+  },
+  {
+    q: '¿Qué pasa si mi encargado actual no da el ancho?',
+    a: 'El diagnóstico de 10 días identifica si el encargado actual es capacitable o si necesitas reemplazo. Si es lo segundo, te ayudamos a definir el perfil y el escalafón con bonos para atraer a la persona correcta — no a la barata.',
+  },
+  {
+    q: '¿Y si soy el chef y la operación depende de mi sazón?',
+    a: 'La sazón se documenta. Recetas estandarizadas con gramaje, tiempos y presentación, validadas por ti antes de soltar. La mayoría de chef-dueños descubren que el 80% de su sazón está en 6-8 platillos del menú, no en los 25.',
+  },
+];
+---
+
+<Base>
+  <Section spacing="lg" tone="surface" as="section">
+    <div class="hero-landing">
+      <Eyebrow tone="accent">PALANCA OPERATIVA · EL DOLOR MÁS EMOCIONAL</Eyebrow>
+      <Heading as="h1" size="h1">El negocio depende demasiado de mí</Heading>
+      <Body size="lead" tone="muted">
+        Construimos un restaurante que puede operar 72 horas sin ti — encargado entrenado,
+        SOPs documentados, ritmo de junta semanal. Probamos la ausencia controlada en semana 12.
+      </Body>
+      <ul class="hero-landing__bullets">
+        <li>Encargado entrenado con rúbrica, no con intuición.</li>
+        <li>SOPs documentados para apertura, cierre, compras y conflictos.</li>
+        <li>Prueba de ausencia controlada en semana 12 — sin que caiga ticket promedio.</li>
+      </ul>
+      <div class="hero-landing__ctas">
+        <Button variant="primary" size="lg" href={waHero} target="_blank" rel="noopener">Habla por WhatsApp con Efer</Button>
+        <Button variant="ghost" size="lg" href="#oferta">Agenda diagnóstico de 30 min</Button>
+      </div>
+    </div>
+  </Section>
+
+  <Stakes variant="landing" painSlug="autonomia" />
+
+  <Section spacing="md" tone="alt" id="caso">
+    <Eyebrow tone="neutral">CASO ANCLA · PALANCA OPERATIVA</Eyebrow>
+    <Heading as="h2" size="h2">Oita Fresh — restaurante diseñado para operar sin el fundador</Heading>
+    <Card tone="surface" class="caso-ancla">
+      <div class="caso-ancla__grid">
+        <div class="caso-ancla__metricas">
+          <div class="caso-ancla__metric">
+            <span class="caso-ancla__num">$0 → $300k</span>
+            <span class="caso-ancla__lbl">ventas/mes construidas desde cero</span>
+          </div>
+          <div class="caso-ancla__metric">
+            <span class="caso-ancla__num">Día 1</span>
+            <span class="caso-ancla__lbl">operación replicable documentada desde arranque</span>
+          </div>
+          <div class="caso-ancla__metric">
+            <span class="caso-ancla__num">Embedded</span>
+            <span class="caso-ancla__lbl">operador ejecutivo, no consultor externo</span>
+          </div>
+        </div>
+        <div class="caso-ancla__cuerpo">
+          <Body size="base">
+            Efer Lara entró como operador ejecutivo embebido durante el arranque, a las órdenes del fundador.
+            Construyó el sistema operativo del restaurante con encargado capaz de sostenerlo sin presencia del fundador.
+          </Body>
+          <Body size="small" tone="muted">
+            Caso autorizado por Raúl García, fundador de Oita Fresh.
+          </Body>
+          <Badge tone="accent">Logo + uso completo autorizado</Badge>
+        </div>
+      </div>
+    </Card>
+  </Section>
+
+  <ThreeStepPlan variant="landing" painContext="autonomia" />
+
+  <Section spacing="md" tone="surface" id="oferta">
+    <Eyebrow tone="accent">PROGRAMA</Eyebrow>
+    <Heading as="h2" size="h2">El Acelerador 3 Palancas — paquete completo</Heading>
+    <Body size="base">
+      Si tu cuello es autonomía, la Palanca Operativa entra primero: rúbrica de encargado, SOPs documentados,
+      ritmo de junta semanal. En 90 días tu restaurante opera 72 horas sin ti — con dueño dentro de la cabina,
+      pero ya no en ella todo el día. Pricing oculto + filtro de calificación (piso $300k MXN/mes de ventas).
+    </Body>
+    <ul class="resumen-bullets">
+      <li><strong>Operativa:</strong> SOPs, encargado entrenado, dashboard semanal.</li>
+      <li><strong>Financiera:</strong> recuperación de 3-7 puntos de margen en 90 días.</li>
+      <li><strong>Comercial:</strong> tráfico directo, recurrencia y reducción de marketplaces.</li>
+    </ul>
+    <div class="resumen-ctas">
+      <Button variant="primary" size="lg" href="/acelerador">Ver el Acelerador 3 Palancas</Button>
+      <Button variant="ghost" size="lg" href={waBottom} target="_blank" rel="noopener">Habla por WhatsApp con Efer</Button>
+    </div>
+  </Section>
+
+  <Section spacing="md" tone="alt" id="faq">
+    <Eyebrow tone="neutral">PREGUNTAS DE DUEÑOS QUE YA NOS PREGUNTARON ESTO</Eyebrow>
+    <Heading as="h2" size="h3">FAQ — autonomía y delegación</Heading>
+    <div class="faq-list">
+      {faqs.map((item) => (
+        <details class="faq-item">
+          <summary>{item.q}</summary>
+          <Body size="base">{item.a}</Body>
+        </details>
+      ))}
+    </div>
+  </Section>
+</Base>
+
+<style>
+  .hero-landing { display: grid; gap: var(--space-4); max-width: 56rem; }
+  .hero-landing__bullets { list-style: none; padding: 0; margin: 0; display: grid; gap: var(--space-2); }
+  .hero-landing__bullets li { position: relative; padding-left: 1.5rem; font-family: var(--font-body); color: var(--color-text); }
+  .hero-landing__bullets li::before { content: ''; position: absolute; left: 0; top: 0.55em; width: 0.5rem; height: 0.5rem; background: var(--color-accent); border-radius: 2px; }
+  .hero-landing__ctas, .resumen-ctas { display: flex; flex-wrap: wrap; gap: var(--space-3); margin-top: var(--space-3); }
+  .caso-ancla__grid { display: grid; gap: var(--space-4); grid-template-columns: 1fr; }
+  @media (min-width: 768px) { .caso-ancla__grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); } }
+  .caso-ancla__metricas { display: grid; gap: var(--space-3); }
+  .caso-ancla__metric { display: grid; gap: 0.25rem; padding: var(--space-3); background: var(--color-surface-alt, #f6f8fb); border-left: 4px solid var(--color-accent); border-radius: var(--radius-2); }
+  .caso-ancla__num { font-family: var(--font-heading); font-size: clamp(1.5rem, 3vw, 2.25rem); color: var(--color-dark-1); line-height: 1; }
+  .caso-ancla__lbl { font-family: var(--font-subheading); font-size: 0.875rem; color: var(--color-text-muted); }
+  .caso-ancla__cuerpo { display: grid; gap: var(--space-3); align-content: start; }
+  .resumen-bullets { list-style: none; padding: 0; margin: var(--space-3) 0 0; display: grid; gap: var(--space-2); }
+  .faq-list { display: grid; gap: var(--space-2); margin-top: var(--space-3); }
+  .faq-item { border: 1px solid var(--color-border, rgba(0, 51, 102, 0.12)); border-radius: var(--radius-2); background: var(--color-bg); }
+  .faq-item summary { cursor: pointer; padding: var(--space-3); font-family: var(--font-subheading); font-weight: 600; color: var(--color-dark-1); list-style: none; }
+  .faq-item summary::-webkit-details-marker { display: none; }
+  .faq-item[open] summary { border-bottom: 1px solid var(--color-border, rgba(0, 51, 102, 0.08)); }
+  .faq-item :global(p) { padding: var(--space-3); margin: 0; }
+</style>

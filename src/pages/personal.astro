@@ -1,0 +1,156 @@
+---
+/**
+ * /personal — Dolor 4: "Mi personal es un desmadre".
+ * P8 / Fase 9. Palanca Operativa (compensación + rotación). Copy semilla: brief §9.6. Caso ancla: Hare Krishna.
+ * Override: design-system/pages/personal.md.
+ */
+import Base from '../layouts/Base.astro';
+import Section from '../components/ui/Section.astro';
+import Eyebrow from '../components/ui/Eyebrow.astro';
+import Heading from '../components/ui/Heading.astro';
+import Body from '../components/ui/Body.astro';
+import Button from '../components/ui/Button.astro';
+import Card from '../components/ui/Card.astro';
+import Badge from '../components/ui/Badge.astro';
+import Stakes from '../components/shared/Stakes.astro';
+import ThreeStepPlan from '../components/shared/ThreeStepPlan.astro';
+import { buildWaUrl } from '../lib/whatsapp-url';
+
+const SLUG = 'personal';
+const waHero = buildWaUrl({ source: 'pain', content: `${SLUG}_hero_wa`, context: `pain:${SLUG}` });
+const waBottom = buildWaUrl({ source: 'pain', content: `${SLUG}_bottom_wa`, context: `pain:${SLUG}` });
+
+const faqs = [
+  {
+    q: '¿Bonos por ticket promedio no incentivan a "upsell" forzado?',
+    a: 'No, si la rúbrica está bien diseñada. El bono se calcula sobre ticket promedio sostenido a 4 semanas, no por turno. El equipo aprende que insistir destruye el promedio en visitas siguientes, así que el incentivo natural es vender bien — no vender más.',
+  },
+  {
+    q: '¿Y si bajo rotación pero el personal sigue trabajando mal?',
+    a: 'Rotación baja sin desempeño es peor que rotación alta. Por eso instalamos política de retroalimentación documentada, evaluación trimestral con criterios objetivos, y separación rápida cuando los criterios no se cumplen. La meta es retención de A players, no retención total.',
+  },
+  {
+    q: '¿Cuánto cuesta cambiar el escalafón? ¿No me va a costar más?',
+    a: 'En la mayoría de casos cuesta igual o menos. Lo que se redistribuye es cómo se paga: sueldo base menor + bono variable atado a desempeño. El personal A gana más, el personal C gana lo mismo o menos. La rotación cae porque los A se quedan.',
+  },
+  {
+    q: '¿Cómo se manejan las propinas para que sean justas?',
+    a: 'Con política documentada que distribuye entre piso, cocina y barra según contribución medida. Sin "caja única" donde el de piso se lleva todo. Sin desigualdades arbitrarias. La política se firma con el equipo en una sesión — no se impone.',
+  },
+];
+---
+
+<Base>
+  <Section spacing="lg" tone="surface" as="section">
+    <div class="hero-landing">
+      <Eyebrow tone="accent">PALANCA OPERATIVA · EL DOLOR MÁS CONSTANTE</Eyebrow>
+      <Heading as="h1" size="h1">Mi personal es un desmadre</Heading>
+      <Body size="lead" tone="muted">
+        Instalamos estructura: escalafón claro, bonos por desempeño, propinas justas,
+        política de retroalimentación. Bajamos rotación al menos 50% en 90 días, con
+        encargado capacitado para sostenerlo.
+      </Body>
+      <ul class="hero-landing__bullets">
+        <li>Escalafón con bonos por ticket promedio, no por horas.</li>
+        <li>Política de propinas y de retroalimentación documentada.</li>
+        <li>Encargado formado para sostener el sistema, sin depender del dueño.</li>
+      </ul>
+      <div class="hero-landing__ctas">
+        <Button variant="primary" size="lg" href={waHero} target="_blank" rel="noopener">Habla por WhatsApp con Efer</Button>
+        <Button variant="ghost" size="lg" href="#oferta">Agenda diagnóstico de 30 min</Button>
+      </div>
+    </div>
+  </Section>
+
+  <Stakes variant="landing" painSlug="personal" />
+
+  <Section spacing="md" tone="alt" id="caso">
+    <Eyebrow tone="neutral">CASO ANCLA · PALANCA OPERATIVA</Eyebrow>
+    <Heading as="h2" size="h2">Hare Krishna — sistematización con dinámica de personal mixta</Heading>
+    <Card tone="surface" class="caso-ancla">
+      <div class="caso-ancla__grid">
+        <div class="caso-ancla__metricas">
+          <div class="caso-ancla__metric">
+            <span class="caso-ancla__num">Activo</span>
+            <span class="caso-ancla__lbl">caso en curso · relación vigente</span>
+          </div>
+          <div class="caso-ancla__metric">
+            <span class="caso-ancla__num">Mixto</span>
+            <span class="caso-ancla__lbl">personal voluntario + remunerado documentado</span>
+          </div>
+          <div class="caso-ancla__metric">
+            <span class="caso-ancla__num">Sistema</span>
+            <span class="caso-ancla__lbl">operación informal convertida en proceso</span>
+          </div>
+        </div>
+        <div class="caso-ancla__cuerpo">
+          <Body size="base">
+            Restaurante con composición de personal compleja: parte voluntaria, parte remunerada.
+            Convertimos la operación informal en un sistema documentado con roles, ritmo y métricas claras —
+            sin destruir la dinámica cultural que sostiene al restaurante.
+          </Body>
+          <Body size="small" tone="muted">
+            Caso activo. Cifras financieras pendientes de cierre formal. Logros cualitativos publicables hoy.
+          </Body>
+          <Badge tone="accent">Logo + uso completo autorizado</Badge>
+        </div>
+      </div>
+    </Card>
+  </Section>
+
+  <ThreeStepPlan variant="landing" painContext="personal" />
+
+  <Section spacing="md" tone="surface" id="oferta">
+    <Eyebrow tone="accent">PROGRAMA</Eyebrow>
+    <Heading as="h2" size="h2">El Acelerador 3 Palancas — paquete completo</Heading>
+    <Body size="base">
+      Si tu cuello es personal, la Palanca Operativa entra primero: escalafón, bonos, política de propinas y
+      retroalimentación. Atacamos rotación, no solo síntomas. En paralelo entrenamos al encargado para que
+      sostenga el sistema sin tu intervención diaria. Pricing oculto + filtro de calificación (piso $300k MXN/mes).
+    </Body>
+    <ul class="resumen-bullets">
+      <li><strong>Operativa:</strong> SOPs, encargado entrenado, dashboard semanal.</li>
+      <li><strong>Financiera:</strong> recuperación de 3-7 puntos de margen en 90 días.</li>
+      <li><strong>Comercial:</strong> tráfico directo, recurrencia y reducción de marketplaces.</li>
+    </ul>
+    <div class="resumen-ctas">
+      <Button variant="primary" size="lg" href="/acelerador">Ver el Acelerador 3 Palancas</Button>
+      <Button variant="ghost" size="lg" href={waBottom} target="_blank" rel="noopener">Habla por WhatsApp con Efer</Button>
+    </div>
+  </Section>
+
+  <Section spacing="md" tone="alt" id="faq">
+    <Eyebrow tone="neutral">PREGUNTAS DE DUEÑOS QUE YA NOS PREGUNTARON ESTO</Eyebrow>
+    <Heading as="h2" size="h3">FAQ — personal y rotación</Heading>
+    <div class="faq-list">
+      {faqs.map((item) => (
+        <details class="faq-item">
+          <summary>{item.q}</summary>
+          <Body size="base">{item.a}</Body>
+        </details>
+      ))}
+    </div>
+  </Section>
+</Base>
+
+<style>
+  .hero-landing { display: grid; gap: var(--space-4); max-width: 56rem; }
+  .hero-landing__bullets { list-style: none; padding: 0; margin: 0; display: grid; gap: var(--space-2); }
+  .hero-landing__bullets li { position: relative; padding-left: 1.5rem; font-family: var(--font-body); color: var(--color-text); }
+  .hero-landing__bullets li::before { content: ''; position: absolute; left: 0; top: 0.55em; width: 0.5rem; height: 0.5rem; background: var(--color-accent); border-radius: 2px; }
+  .hero-landing__ctas, .resumen-ctas { display: flex; flex-wrap: wrap; gap: var(--space-3); margin-top: var(--space-3); }
+  .caso-ancla__grid { display: grid; gap: var(--space-4); grid-template-columns: 1fr; }
+  @media (min-width: 768px) { .caso-ancla__grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); } }
+  .caso-ancla__metricas { display: grid; gap: var(--space-3); }
+  .caso-ancla__metric { display: grid; gap: 0.25rem; padding: var(--space-3); background: var(--color-surface-alt, #f6f8fb); border-left: 4px solid var(--color-accent); border-radius: var(--radius-2); }
+  .caso-ancla__num { font-family: var(--font-heading); font-size: clamp(1.5rem, 3vw, 2.25rem); color: var(--color-dark-1); line-height: 1; }
+  .caso-ancla__lbl { font-family: var(--font-subheading); font-size: 0.875rem; color: var(--color-text-muted); }
+  .caso-ancla__cuerpo { display: grid; gap: var(--space-3); align-content: start; }
+  .resumen-bullets { list-style: none; padding: 0; margin: var(--space-3) 0 0; display: grid; gap: var(--space-2); }
+  .faq-list { display: grid; gap: var(--space-2); margin-top: var(--space-3); }
+  .faq-item { border: 1px solid var(--color-border, rgba(0, 51, 102, 0.12)); border-radius: var(--radius-2); background: var(--color-bg); }
+  .faq-item summary { cursor: pointer; padding: var(--space-3); font-family: var(--font-subheading); font-weight: 600; color: var(--color-dark-1); list-style: none; }
+  .faq-item summary::-webkit-details-marker { display: none; }
+  .faq-item[open] summary { border-bottom: 1px solid var(--color-border, rgba(0, 51, 102, 0.08)); }
+  .faq-item :global(p) { padding: var(--space-3); margin: 0; }
+</style>

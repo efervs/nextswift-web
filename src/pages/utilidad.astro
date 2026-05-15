@@ -1,0 +1,245 @@
+---
+/**
+ * /utilidad — Dolor 1: "Vendo pero no gano dinero".
+ * P8 / Fase 9. Palanca Financiera. Copy semilla: brief §9.3. Caso ancla: Temaky.
+ * Override: design-system/pages/utilidad.md.
+ */
+import Base from '../layouts/Base.astro';
+import Section from '../components/ui/Section.astro';
+import Eyebrow from '../components/ui/Eyebrow.astro';
+import Heading from '../components/ui/Heading.astro';
+import Body from '../components/ui/Body.astro';
+import Button from '../components/ui/Button.astro';
+import Card from '../components/ui/Card.astro';
+import Badge from '../components/ui/Badge.astro';
+import Stakes from '../components/shared/Stakes.astro';
+import ThreeStepPlan from '../components/shared/ThreeStepPlan.astro';
+import { buildWaUrl } from '../lib/whatsapp-url';
+
+const SLUG = 'utilidad';
+const waHero = buildWaUrl({ source: 'pain', content: `${SLUG}_hero_wa`, context: `pain:${SLUG}` });
+const waBottom = buildWaUrl({ source: 'pain', content: `${SLUG}_bottom_wa`, context: `pain:${SLUG}` });
+
+const faqs = [
+  {
+    q: '¿Cómo saben que mi problema es de margen y no de ventas?',
+    a: 'Los primeros 10 días son diagnóstico forense. Revisamos costo real por platillo, mermas medibles, descuentos no autorizados, mix por margen y ticket promedio. Si el diagnóstico muestra que el cuello es de tráfico y no de margen, lo decimos antes de firmar (garantía 1 y 2).',
+  },
+  {
+    q: '¿Necesito cambiar mi sistema de punto de venta?',
+    a: 'No. Trabajamos con el POS que ya tienes. Si tu POS no exporta lo que necesitamos, te enseñamos a vaciarlo en una plantilla semanal manual — sin software adicional.',
+  },
+  {
+    q: '¿Cuánto margen puedo recuperar realmente?',
+    a: '3 a 7 puntos de margen real en 90 días en restaurantes con operación promedio. Restaurantes con merma alta no auditada recuperan más; restaurantes ya optimizados recuperan menos. El dashboard semanal valida el avance — no es estimación.',
+  },
+  {
+    q: '¿Qué pasa si subimos precios y se van los clientes?',
+    a: 'No subimos precios a ciegas. Primero rediseñamos el menú por margen — bajamos el peso visual de platillos de baja rentabilidad y subimos el de los rentables. El precio sube solo donde la elasticidad lo permite.',
+  },
+];
+---
+
+<Base>
+  <Section spacing="lg" tone="surface" as="section">
+    <div class="hero-landing">
+      <Eyebrow tone="accent">PALANCA FINANCIERA · EL DOLOR MÁS PROFUNDO Y UNIVERSAL</Eyebrow>
+      <Heading as="h1" size="h1">Vendo pero no gano dinero</Heading>
+      <Body size="lead" tone="muted">
+        Encontramos la fuga de margen en 10 días hábiles: mermas, costeo descalibrado,
+        descuentos no autorizados, mix de menú equivocado. Recuperas 3-7 puntos en 90 días,
+        con dashboard semanal que valida el avance.
+      </Body>
+      <ul class="hero-landing__bullets">
+        <li>Auditoría forense de mermas, costo de platillos y ticket promedio real.</li>
+        <li>Rediseño de menú por rentabilidad, no por gusto.</li>
+        <li>Dashboard semanal con margen real, no estimado.</li>
+      </ul>
+      <div class="hero-landing__ctas">
+        <Button variant="primary" size="lg" href={waHero} target="_blank" rel="noopener">Habla por WhatsApp con Efer</Button>
+        <Button variant="ghost" size="lg" href="#oferta">Agenda diagnóstico de 30 min</Button>
+      </div>
+    </div>
+  </Section>
+
+  <Stakes variant="landing" painSlug="utilidad" />
+
+  <Section spacing="md" tone="alt" id="caso">
+    <Eyebrow tone="neutral">CASO ANCLA · PALANCA FINANCIERA</Eyebrow>
+    <Heading as="h2" size="h2">Restaurante de sushi en Monterrey — margen y venta del negocio</Heading>
+    <Card tone="surface" class="caso-ancla">
+      <div class="caso-ancla__grid">
+        <div class="caso-ancla__metricas">
+          <div class="caso-ancla__metric">
+            <span class="caso-ancla__num">+42%</span>
+            <span class="caso-ancla__lbl">margen general delivery (neto)</span>
+          </div>
+          <div class="caso-ancla__metric">
+            <span class="caso-ancla__num">&gt; $1.6M</span>
+            <span class="caso-ancla__lbl">negocio vendido (MXN)</span>
+          </div>
+          <div class="caso-ancla__metric">
+            <span class="caso-ancla__num">10 días</span>
+            <span class="caso-ancla__lbl">diagnóstico forense de margen</span>
+          </div>
+        </div>
+        <div class="caso-ancla__cuerpo">
+          <Body size="base">
+            Diagnóstico financiero + rediseño de menú por rentabilidad + dashboard semanal.
+            La operación quedó documentada al punto de que el restaurante se convirtió en activo vendible.
+          </Body>
+          <Body size="small" tone="muted">
+            <em>"Hubiera querido que llegaran 15, o mejor 20 años antes para arreglar todo."</em>
+            — exdueña de restaurante de sushi en Monterrey.
+          </Body>
+          <Badge tone="accent">Logo + uso completo autorizado</Badge>
+        </div>
+      </div>
+    </Card>
+  </Section>
+
+  <ThreeStepPlan variant="landing" painContext="utilidad" />
+
+  <Section spacing="md" tone="surface" id="oferta">
+    <Eyebrow tone="accent">PROGRAMA</Eyebrow>
+    <Heading as="h2" size="h2">El Acelerador 3 Palancas — paquete completo</Heading>
+    <Body size="base">
+      Un solo programa de 10 días hábiles que ataca margen, autonomía y ventas al mismo tiempo.
+      Si tu cuello es margen, la Palanca Financiera entra primero: auditoría forense, P&amp;L estructurado,
+      dashboard semanal con 10 KPIs operativos. Pricing oculto + filtro de calificación (piso $300k MXN/mes de ventas).
+    </Body>
+    <ul class="resumen-bullets">
+      <li><strong>Financiera:</strong> recuperación de 3-7 puntos de margen en 90 días.</li>
+      <li><strong>Operativa:</strong> SOPs, encargado entrenado, dashboard semanal.</li>
+      <li><strong>Comercial:</strong> tráfico directo, recurrencia y reducción de marketplaces.</li>
+    </ul>
+    <div class="resumen-ctas">
+      <Button variant="primary" size="lg" href="/acelerador">Ver el Acelerador 3 Palancas</Button>
+      <Button variant="ghost" size="lg" href={waBottom} target="_blank" rel="noopener">Habla por WhatsApp con Efer</Button>
+    </div>
+  </Section>
+
+  <Section spacing="md" tone="alt" id="faq">
+    <Eyebrow tone="neutral">PREGUNTAS DE DUEÑOS QUE YA NOS PREGUNTARON ESTO</Eyebrow>
+    <Heading as="h2" size="h3">FAQ — margen y utilidad</Heading>
+    <div class="faq-list">
+      {faqs.map((item) => (
+        <details class="faq-item">
+          <summary>{item.q}</summary>
+          <Body size="base">{item.a}</Body>
+        </details>
+      ))}
+    </div>
+  </Section>
+</Base>
+
+<style>
+  .hero-landing {
+    display: grid;
+    gap: var(--space-4);
+    max-width: 56rem;
+  }
+  .hero-landing__bullets {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: var(--space-2);
+  }
+  .hero-landing__bullets li {
+    position: relative;
+    padding-left: 1.5rem;
+    font-family: var(--font-body);
+    color: var(--color-text);
+  }
+  .hero-landing__bullets li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.55em;
+    width: 0.5rem;
+    height: 0.5rem;
+    background: var(--color-accent);
+    border-radius: 2px;
+  }
+  .hero-landing__ctas,
+  .resumen-ctas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    margin-top: var(--space-3);
+  }
+  .caso-ancla__grid {
+    display: grid;
+    gap: var(--space-4);
+    grid-template-columns: 1fr;
+  }
+  @media (min-width: 768px) {
+    .caso-ancla__grid {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
+    }
+  }
+  .caso-ancla__metricas {
+    display: grid;
+    gap: var(--space-3);
+  }
+  .caso-ancla__metric {
+    display: grid;
+    gap: 0.25rem;
+    padding: var(--space-3);
+    background: var(--color-surface-alt, #f6f8fb);
+    border-left: 4px solid var(--color-accent);
+    border-radius: var(--radius-2);
+  }
+  .caso-ancla__num {
+    font-family: var(--font-heading);
+    font-size: clamp(1.5rem, 3vw, 2.25rem);
+    color: var(--color-dark-1);
+    line-height: 1;
+  }
+  .caso-ancla__lbl {
+    font-family: var(--font-subheading);
+    font-size: 0.875rem;
+    color: var(--color-text-muted);
+  }
+  .caso-ancla__cuerpo {
+    display: grid;
+    gap: var(--space-3);
+    align-content: start;
+  }
+  .resumen-bullets {
+    list-style: none;
+    padding: 0;
+    margin: var(--space-3) 0 0;
+    display: grid;
+    gap: var(--space-2);
+  }
+  .faq-list {
+    display: grid;
+    gap: var(--space-2);
+    margin-top: var(--space-3);
+  }
+  .faq-item {
+    border: 1px solid var(--color-border, rgba(0, 51, 102, 0.12));
+    border-radius: var(--radius-2);
+    background: var(--color-bg);
+  }
+  .faq-item summary {
+    cursor: pointer;
+    padding: var(--space-3);
+    font-family: var(--font-subheading);
+    font-weight: 600;
+    color: var(--color-dark-1);
+    list-style: none;
+  }
+  .faq-item summary::-webkit-details-marker {
+    display: none;
+  }
+  .faq-item[open] summary {
+    border-bottom: 1px solid var(--color-border, rgba(0, 51, 102, 0.08));
+  }
+  .faq-item :global(p) {
+    padding: var(--space-3);
+    margin: 0;
+  }
+</style>
