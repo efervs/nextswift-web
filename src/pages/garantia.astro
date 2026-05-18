@@ -1,42 +1,397 @@
 ---
 /**
- * /garantia — STUB temporal. La versión completa la entrega P10 / Fase 12 con las 11 garantías formales.
- * Existe ahora solo para que los links de /acelerador no devuelvan 404.
+ * /garantia — Las 11 garantías formales del Acelerador 3 Palancas.
+ *
+ * Estructura:
+ *  - Hero con SLA defaults visibles (canal + ventana + receptor).
+ *  - Accordion semántico (<details>) con las 11 garantías; cada una con 4 micro-bloques.
+ *  - Disclaimer visible para garantía #5 (DH-09: revisión jurídica pendiente).
+ *  - Cross-link a /acelerador.
+ *  - schema.org FAQPage + BreadcrumbList.
+ *
+ * Fuente única: src/data/garantias.ts (derivada de docs/garantias-verbatim.md).
+ * Regla CLAUDE.md §10: no suavizar copy, no inventar garantía #12.
  */
 import Base from '../layouts/Base.astro';
 import Heading from '../components/ui/Heading.astro';
 import Body from '../components/ui/Body.astro';
 import Eyebrow from '../components/ui/Eyebrow.astro';
 import Button from '../components/ui/Button.astro';
+import Badge from '../components/ui/Badge.astro';
+import { GARANTIAS, SLA_DEFAULT, type GarantiaTipo } from '../data/garantias';
+import { buildWaUrl } from '../lib/whatsapp-url';
+
+const tipoLabel: Record<GarantiaTipo, string> = {
+  previa: 'Pre-venta',
+  durante: 'Durante el programa',
+  post: 'Post-Acelerador',
+  financiera: 'Financiera',
+  comunicacion: 'Comunicación',
+  gobernanza: 'Gobernanza',
+};
+
+const waUrl = buildWaUrl({
+  source: 'guarantee',
+  content: 'cta_inferior_garantia',
+  customMessage: 'Hola Efer, vi las 11 garantías del Acelerador y quiero conversar.',
+});
+
+const faqSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: GARANTIAS.map((g) => ({
+    '@type': 'Question',
+    name: `Garantía ${g.id} — ${g.titulo}`,
+    acceptedAnswer: {
+      '@type': 'Answer',
+      text: `${g.enunciado} Qué cubre: ${g.queCubre} Qué NO cubre: ${g.queNoCubre} Cómo se invoca: ${g.comoSeInvoca}`,
+    },
+  })),
+};
+
+const breadcrumbSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Inicio', item: 'https://www.nextswift.mx/' },
+    { '@type': 'ListItem', position: 2, name: 'Acelerador', item: 'https://www.nextswift.mx/acelerador' },
+    { '@type': 'ListItem', position: 3, name: 'Garantías', item: 'https://www.nextswift.mx/garantia' },
+  ],
+};
 ---
 
 <Base
-  title="11 garantías formales — NextSwift"
-  description="Las 11 garantías formales del Acelerador 3 Palancas. Detalle completo próximamente."
-  noindex={true}
+  title="11 garantías formales del Acelerador 3 Palancas — NextSwift"
+  description="Las 11 garantías que firmamos antes de empezar: pre-venta, durante el programa, financieras, de comunicación y gobernanza. Verbatim, con qué cubre y qué NO."
 >
-  <section class="garantia-stub">
-    <div class="garantia-stub__inner">
-      <Eyebrow>Garantías</Eyebrow>
-      <Heading as="h1">11 garantías formales del Acelerador</Heading>
-      <Body size="lead" tone="muted">
-        El detalle completo de las 11 garantías está en redacción y se publica próximamente. Si quiere verlas hoy, pídanoslas directamente — se las mandamos en PDF.
+  <script type="application/ld+json" is:inline set:html={JSON.stringify(faqSchema)} slot="head" />
+  <script type="application/ld+json" is:inline set:html={JSON.stringify(breadcrumbSchema)} slot="head" />
+
+  <section class="garantia-hero" aria-labelledby="garantia-hero-h1">
+    <div class="garantia-hero__inner">
+      <Eyebrow>11 garantías formales</Eyebrow>
+      <Heading as="h1" id="garantia-hero-h1">El riesgo no debería ser suyo.</Heading>
+      <Body size="lead" tone="muted" class="garantia-hero__lead">
+        Estas son las 11 garantías del Acelerador 3 Palancas. Cada una declara su enunciado, qué cubre, qué NO cubre y cómo se invoca. Sin asteriscos, sin promesas inflables, sin "100% éxito garantizado".
       </Body>
-      <Button variant="primary" size="lg" href="/acelerador">
-        Volver al Acelerador
-      </Button>
+
+      <dl class="sla-defaults" aria-label="Defaults globales de SLA">
+        <div class="sla-row">
+          <dt>Canal</dt>
+          <dd>{SLA_DEFAULT.canal}</dd>
+        </div>
+        <div class="sla-row">
+          <dt>Ventana de respuesta</dt>
+          <dd>{SLA_DEFAULT.ventana}</dd>
+        </div>
+        <div class="sla-row">
+          <dt>Quien responde</dt>
+          <dd>{SLA_DEFAULT.receptor}</dd>
+        </div>
+      </dl>
+    </div>
+  </section>
+
+  <section class="garantia-list" aria-labelledby="garantia-list-heading">
+    <div class="garantia-list__inner">
+      <Heading as="h2" id="garantia-list-heading" class="garantia-list__heading">
+        Las 11 garantías, una por una
+      </Heading>
+
+      <ol class="garantia-list__items" role="list">
+        {GARANTIAS.map((g) => (
+          <li class="g-item">
+            <details class="g-item__details">
+              <summary class="g-item__summary">
+                <span class="g-item__id">#{g.id}</span>
+                <span class="g-item__titulo">{g.titulo}</span>
+                <Badge tone="soft" class="g-item__tipo">{tipoLabel[g.tipo]}</Badge>
+                <span class="g-item__chevron" aria-hidden="true">+</span>
+              </summary>
+
+              <div class="g-item__body">
+                <p class="g-item__enunciado">{g.enunciado}</p>
+
+                {g.notaLegal && (
+                  <p class="g-item__legal" role="note">
+                    <strong>Nota:</strong> {g.notaLegal}
+                  </p>
+                )}
+
+                <dl class="g-item__bloques">
+                  <div class="g-bloque">
+                    <dt class="g-bloque__label g-bloque__label--ok">Qué cubre</dt>
+                    <dd class="g-bloque__valor">{g.queCubre}</dd>
+                  </div>
+                  <div class="g-bloque">
+                    <dt class="g-bloque__label g-bloque__label--no">Qué NO cubre</dt>
+                    <dd class="g-bloque__valor">{g.queNoCubre}</dd>
+                  </div>
+                  <div class="g-bloque">
+                    <dt class="g-bloque__label g-bloque__label--how">Cómo se invoca</dt>
+                    <dd class="g-bloque__valor">{g.comoSeInvoca}</dd>
+                  </div>
+                </dl>
+              </div>
+            </details>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </section>
+
+  <section class="garantia-cta" aria-labelledby="garantia-cta-heading">
+    <div class="garantia-cta__inner">
+      <Eyebrow tone="on-dark">Siguiente paso</Eyebrow>
+      <Heading as="h2" tone="on-dark" id="garantia-cta-heading">
+        Antes de firmar, hacemos la auditoría sin costo.
+      </Heading>
+      <Body size="lead" tone="on-dark" class="garantia-cta__lead">
+        Si su restaurante califica (≥ $300k MXN/mes), agendamos 30 minutos por WhatsApp. Si no aplica el programa, se lo decimos — esa es la garantía #2.
+      </Body>
+      <div class="garantia-cta__stack">
+        <Button variant="primary" size="lg" href="/acelerador" data-cta="garantia-acelerador">
+          Ver el Acelerador 3 Palancas
+          <span aria-hidden="true">&nbsp;&rarr;</span>
+        </Button>
+        <Button variant="wa" size="lg" href={waUrl} target="_blank" rel="noopener" data-cta="garantia-wa">
+          Pedir auditoría por WhatsApp
+        </Button>
+      </div>
     </div>
   </section>
 </Base>
 
 <style>
-  .garantia-stub { background: var(--color-surface); }
-  .garantia-stub__inner {
+  /* ----- Hero ------------------------------------------------------------- */
+  .garantia-hero { background: var(--color-surface); }
+  .garantia-hero__inner {
     max-width: var(--content-narrow);
     margin-inline: auto;
-    padding: var(--space-11) var(--space-4);
+    padding: var(--space-10) var(--space-4) var(--space-8);
     display: flex;
     flex-direction: column;
     gap: var(--space-4);
+  }
+  .garantia-hero__lead { text-wrap: pretty; }
+
+  .sla-defaults {
+    margin: var(--space-4) 0 0;
+    padding: var(--space-5);
+    background: var(--color-surface-alt);
+    border: 1px solid var(--color-border);
+    border-left: 3px solid var(--color-accent);
+    border-radius: var(--radius-3);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+  .sla-row {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-1);
+  }
+  @media (min-width: 640px) {
+    .sla-row {
+      grid-template-columns: 12rem 1fr;
+      gap: var(--space-3);
+      align-items: baseline;
+    }
+  }
+  .sla-row dt {
+    font-family: var(--font-subheading);
+    font-weight: 600;
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+    font-size: 0.8125rem;
+    color: var(--color-primary-dark);
+    margin: 0;
+  }
+  .sla-row dd {
+    margin: 0;
+    font-family: var(--font-body);
+    color: var(--color-text);
+    line-height: var(--line-base);
+  }
+
+  /* ----- Lista de 11 garantías ------------------------------------------- */
+  .garantia-list { background: var(--color-surface-alt); }
+  .garantia-list__inner {
+    max-width: var(--content-narrow);
+    margin-inline: auto;
+    padding: var(--space-9) var(--space-4);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+  }
+  .garantia-list__heading { text-wrap: balance; }
+
+  .garantia-list__items {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .g-item {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-3);
+    overflow: hidden;
+    transition: border-color var(--dur-2) var(--ease-out), box-shadow var(--dur-2) var(--ease-out);
+  }
+  .g-item:has(details[open]) {
+    border-color: var(--color-accent);
+    box-shadow: var(--shadow-1);
+  }
+
+  .g-item__details { width: 100%; }
+
+  .g-item__summary {
+    list-style: none;
+    cursor: pointer;
+    display: grid;
+    grid-template-columns: auto 1fr auto auto;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-4) var(--space-5);
+    min-height: 56px;
+    font-family: var(--font-subheading);
+    color: var(--color-text);
+  }
+  .g-item__summary::-webkit-details-marker { display: none; }
+  .g-item__summary:hover { background: var(--color-surface-alt); }
+  .g-item__summary:focus-visible {
+    outline: none;
+    box-shadow: var(--shadow-focus);
+    border-radius: var(--radius-2);
+  }
+
+  .g-item__id {
+    font-family: var(--font-heading);
+    font-weight: 600;
+    color: var(--color-accent);
+    font-size: 1.125rem;
+    min-width: 2.25rem;
+  }
+  .g-item__titulo {
+    font-family: var(--font-heading);
+    font-size: var(--fs-h3);
+    line-height: var(--line-snug);
+    color: var(--color-primary-dark);
+    text-wrap: balance;
+  }
+  .g-item__tipo {
+    justify-self: end;
+  }
+  @media (max-width: 640px) {
+    .g-item__tipo { display: none; }
+    .g-item__summary { grid-template-columns: auto 1fr auto; }
+  }
+  .g-item__chevron {
+    font-family: var(--font-heading);
+    font-size: 1.5rem;
+    color: var(--color-primary-dark);
+    line-height: 1;
+    transition: transform var(--dur-2) var(--ease-out);
+  }
+  details[open] .g-item__chevron {
+    transform: rotate(45deg);
+  }
+
+  .g-item__body {
+    padding: 0 var(--space-5) var(--space-5);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    border-top: 1px solid var(--color-border);
+    padding-top: var(--space-4);
+    margin-top: var(--space-2);
+  }
+  .g-item__enunciado {
+    margin: 0;
+    font-family: var(--font-body);
+    font-size: var(--fs-body);
+    line-height: var(--line-base);
+    color: var(--color-text);
+    font-style: italic;
+  }
+
+  .g-item__legal {
+    margin: 0;
+    padding: var(--space-3) var(--space-4);
+    background: rgba(62, 234, 243, 0.08);
+    border-left: 3px solid var(--color-accent);
+    border-radius: var(--radius-2);
+    font-size: 0.875rem;
+    line-height: var(--line-base);
+    color: var(--color-text-muted);
+  }
+
+  .g-item__bloques {
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+  .g-bloque {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    padding: var(--space-3);
+    background: var(--color-surface-alt);
+    border-radius: var(--radius-2);
+  }
+  .g-bloque__label {
+    margin: 0;
+    font-family: var(--font-subheading);
+    font-weight: 600;
+    font-size: 0.75rem;
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+  }
+  .g-bloque__label--ok  { color: var(--color-primary-dark); }
+  .g-bloque__label--no  { color: #b3261e; }
+  .g-bloque__label--how { color: var(--color-accent); }
+  .g-bloque__valor {
+    margin: 0;
+    font-family: var(--font-body);
+    font-size: 0.9375rem;
+    line-height: var(--line-base);
+    color: var(--color-text);
+  }
+
+  /* ----- CTA final (dark) ------------------------------------------------ */
+  .garantia-cta {
+    background: var(--color-dark-1);
+    color: var(--color-text-on-dark);
+    position: relative;
+    isolation: isolate;
+  }
+  .garantia-cta::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse at top right, rgba(62, 234, 243, 0.10), transparent 55%),
+      linear-gradient(180deg, var(--color-dark-1) 0%, var(--color-dark-4) 100%);
+    z-index: -1;
+  }
+  .garantia-cta__inner {
+    max-width: var(--content-narrow);
+    margin-inline: auto;
+    padding: var(--space-10) var(--space-4);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+  .garantia-cta__lead { color: var(--color-soft); }
+  .garantia-cta__stack {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    margin-top: var(--space-2);
   }
 </style>

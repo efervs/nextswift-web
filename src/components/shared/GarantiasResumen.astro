@@ -1,0 +1,218 @@
+---
+/**
+ * GarantiasResumen — bloque ancla de 4 garantías formales.
+ *
+ * Consumido por:
+ *  - src/pages/index.astro (tone="light", tras OfertaResumen)
+ *  - src/pages/acelerador.astro (tone="dark", reemplaza la sección .garantia legacy)
+ *
+ * Fuente única: src/data/garantias.ts (GARANTIAS_RESUMEN_IDS = [1, 4, 5, 6]).
+ * La página completa con las 11 garantías vive en /garantia.
+ */
+import { GARANTIAS, GARANTIAS_RESUMEN_IDS, getGarantiaById } from '../../data/garantias';
+import Heading from '../ui/Heading.astro';
+import Body from '../ui/Body.astro';
+import Eyebrow from '../ui/Eyebrow.astro';
+
+type Tone = 'light' | 'dark';
+
+interface Props {
+  tone?: Tone;
+  class?: string;
+}
+
+const { tone = 'light', class: className = '' } = Astro.props;
+const isDark = tone === 'dark';
+
+const ancla = GARANTIAS_RESUMEN_IDS
+  .map((id) => getGarantiaById(id))
+  .filter((g): g is (typeof GARANTIAS)[number] => Boolean(g));
+
+const headingId = `garantias-resumen-heading-${tone}`;
+---
+
+<section
+  class:list={['garantias-resumen', isDark && 'garantias-resumen--dark', className]}
+  aria-labelledby={headingId}
+>
+  <div class="garantias-resumen__inner">
+    <header class="garantias-resumen__header">
+      <Eyebrow tone={isDark ? 'on-dark' : 'accent'}>11 garantías formales</Eyebrow>
+      <Heading as="h2" tone={isDark ? 'on-dark' : 'default'} id={headingId}>
+        El riesgo no debería ser suyo.
+      </Heading>
+      <Body size="lead" tone={isDark ? 'on-dark' : 'muted'} class="garantias-resumen__lead">
+        Estas son 4 de las 11 garantías que firmamos antes de empezar. Cada una con su alcance, sus límites y cómo se invoca.
+      </Body>
+    </header>
+
+    <ul class="garantias-resumen__list" role="list">
+      {ancla.map((g) => (
+        <li class="g-card">
+          <span class="g-card__num" aria-hidden="true">#{g.id}</span>
+          <h3 class="g-card__titulo">{g.titulo}</h3>
+          <p class="g-card__enunciado">{g.enunciado}</p>
+        </li>
+      ))}
+    </ul>
+
+    <a class="garantias-resumen__link" href="/garantia">
+      Ver las 11 garantías completas
+      <span aria-hidden="true">&nbsp;&rarr;</span>
+    </a>
+  </div>
+</section>
+
+<style>
+  .garantias-resumen {
+    background: var(--color-surface);
+    color: var(--color-text);
+  }
+
+  .garantias-resumen--dark {
+    background: var(--color-dark-1);
+    color: var(--color-text-on-dark);
+    position: relative;
+    isolation: isolate;
+  }
+
+  .garantias-resumen--dark::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse at top left, rgba(62, 234, 243, 0.08), transparent 55%),
+      linear-gradient(180deg, var(--color-dark-1) 0%, var(--color-dark-4) 100%);
+    z-index: -1;
+  }
+
+  .garantias-resumen__inner {
+    max-width: var(--content-max);
+    margin-inline: auto;
+    padding: var(--space-10) var(--space-4);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-7);
+  }
+
+  .garantias-resumen__header {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    max-width: var(--content-narrow);
+  }
+
+  .garantias-resumen__lead {
+    text-wrap: pretty;
+  }
+
+  .garantias-resumen--dark .garantias-resumen__lead {
+    color: var(--color-soft);
+  }
+
+  .garantias-resumen__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+  }
+
+  @media (min-width: 640px) {
+    .garantias-resumen__list {
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--space-5);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .garantias-resumen__list {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+
+  .g-card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    padding: var(--space-5);
+    background: var(--color-surface-alt);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-4);
+    min-height: 100%;
+  }
+
+  .garantias-resumen--dark .g-card {
+    background: rgba(255, 255, 255, 0.04);
+    border-color: rgba(255, 255, 255, 0.12);
+  }
+
+  .g-card__num {
+    font-family: var(--font-heading);
+    font-size: 0.875rem;
+    letter-spacing: var(--tracking-wide);
+    color: var(--color-accent);
+    text-transform: uppercase;
+  }
+
+  .g-card__titulo {
+    font-family: var(--font-heading);
+    font-size: var(--fs-h3);
+    line-height: var(--line-snug);
+    margin: 0;
+    color: var(--color-primary-dark);
+    text-wrap: balance;
+  }
+
+  .garantias-resumen--dark .g-card__titulo {
+    color: var(--color-text-on-dark);
+  }
+
+  .g-card__enunciado {
+    margin: 0;
+    font-family: var(--font-body);
+    font-size: 0.9375rem;
+    line-height: var(--line-base);
+    color: var(--color-text-muted);
+  }
+
+  .garantias-resumen--dark .g-card__enunciado {
+    color: var(--color-soft);
+  }
+
+  .garantias-resumen__link {
+    align-self: flex-start;
+    font-family: var(--font-subheading);
+    font-weight: 600;
+    letter-spacing: var(--tracking-wide);
+    color: var(--color-primary-dark);
+    text-decoration: none;
+    padding: var(--space-2) 0;
+    border-bottom: 2px solid var(--color-accent);
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    transition: color var(--dur-2) var(--ease-out), border-color var(--dur-2) var(--ease-out);
+  }
+
+  .garantias-resumen--dark .garantias-resumen__link {
+    color: var(--color-accent);
+  }
+
+  .garantias-resumen__link:hover {
+    color: var(--color-primary);
+    border-bottom-color: var(--color-primary);
+  }
+
+  .garantias-resumen--dark .garantias-resumen__link:hover {
+    color: var(--color-text-on-dark);
+    border-bottom-color: var(--color-text-on-dark);
+  }
+
+  .garantias-resumen__link:focus-visible {
+    outline: none;
+    box-shadow: var(--shadow-focus);
+    border-radius: var(--radius-1);
+  }
+</style>

@@ -10,6 +10,7 @@ import Heading from '../components/ui/Heading.astro';
 import Body from '../components/ui/Body.astro';
 import Button from '../components/ui/Button.astro';
 import GuideBlock from '../components/shared/GuideBlock.astro';
+import GarantiasResumen from '../components/shared/GarantiasResumen.astro';
 import Stakes from '../components/shared/Stakes.astro';
 import ThreeStepPlan from '../components/shared/ThreeStepPlan.astro';
 import { buildWaUrl } from '../lib/whatsapp-url';
@@ -154,21 +155,7 @@ const waFallback = buildWaUrl({ source: 'oferta', content: 'cta_secondary_wa' })
     </div>
   </section>
 
-  <section class="garantia" aria-labelledby="garantia-heading">
-    <div class="garantia__inner">
-      <Eyebrow tone="on-dark">Garantía operativa</Eyebrow>
-      <Heading as="h2" tone="on-dark" id="garantia-heading">
-        Si en 30 días no superamos sus expectativas, cancelación sin compromiso.
-      </Heading>
-      <Body size="lead" tone="on-dark" class="garantia__cuerpo">
-        El riesgo no debería ser suyo. Esta es la garantía #5 del programa — alineada con las otras 10 que formalizamos antes de firmar.
-      </Body>
-      <a class="garantia__link" href="/garantia">
-        Ver las 11 garantías completas
-        <span aria-hidden="true">&nbsp;&rarr;</span>
-      </a>
-    </div>
-  </section>
+  <GarantiasResumen tone="dark" />
 
   <GuideBlock variant="landing" />
 
@@ -341,42 +328,6 @@ const waFallback = buildWaUrl({ source: 'oferta', content: 'cta_secondary_wa' })
     color: var(--color-text-muted);
     line-height: var(--line-base);
   }
-
-  /* ----- Garantía asimétrica --------------------------------------------- */
-  .garantia { background: var(--color-dark-1); color: var(--color-text-on-dark); position: relative; isolation: isolate; }
-  .garantia::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background:
-      radial-gradient(ellipse at top left, rgba(62, 234, 243, 0.08), transparent 55%),
-      linear-gradient(180deg, var(--color-dark-1) 0%, var(--color-dark-4) 100%);
-    z-index: -1;
-  }
-  .garantia__inner {
-    max-width: 64rem;
-    margin-inline: auto;
-    padding: var(--space-10) var(--space-4);
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-4);
-  }
-  .garantia__cuerpo { color: var(--color-soft); }
-  .garantia__link {
-    align-self: flex-start;
-    font-family: var(--font-subheading);
-    font-weight: 600;
-    letter-spacing: var(--tracking-wide);
-    color: var(--color-accent);
-    text-decoration: none;
-    padding: var(--space-2) 0;
-    border-bottom: 2px solid var(--color-accent);
-    min-height: 44px;
-    display: inline-flex;
-    align-items: center;
-  }
-  .garantia__link:hover { color: var(--color-text-on-dark); border-bottom-color: var(--color-text-on-dark); }
-  .garantia__link:focus-visible { outline: none; box-shadow: var(--shadow-focus); border-radius: var(--radius-1); }
 
   /* ----- Calificación + cupos ------------------------------------------- */
   .calificacion { background: var(--color-surface-alt); }

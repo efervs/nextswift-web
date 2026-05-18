@@ -24,12 +24,12 @@ interface Props {
 
 const { variant = 'home', pain, class: className = '' } = Astro.props;
 
-const headline = 'Operador en piso. Estratega financiero. Ambas a la vez.';
+const headline = 'Partner operativo. Estratega del P&L. Junto al dueño, no en su lugar.';
 
 const empatiaHome =
-  'No vengo de una agencia. Vengo de la cocina, de cuadrar caja a la 1 a.m. y de despedir a un encargado un martes. ' +
-  'Reviso tu operación con el mismo rigor con el que reviso la mía: las cifras antes que la opinión, ' +
-  'el costo antes que la promesa.';
+  'No vengo de una agencia. Entro a la cabina junto al dueño — con tu P&L abierto, tus costos reales y tu equipo a la vista. ' +
+  'Reviso tu operación con el mismo rigor con el que revisamos la de cada cliente activo: ' +
+  'las cifras antes que la opinión, el costo antes que la promesa.';
 
 const empatiaLanding = pain
   ? `He visto cómo el dolor de ${pain} rompe un restaurante cuando se trata como problema de marketing. ` +
@@ -37,18 +37,18 @@ const empatiaLanding = pain
   : empatiaHome;
 
 const empatiaSobreEfer =
-  'No vengo de una agencia. Vengo de la cocina, de cuadrar caja a la 1 a.m. y de despedir a un encargado un martes. ' +
-  'Aprendí finanzas en el Tec y operación en piso — primero como operador, después como consultor. ' +
-  'La diferencia se nota: las decisiones que tomo contigo ya las tomé en mi propio negocio antes de proponértelas.';
+  'No vengo de una agencia. Soy partner operativo — entro a la cabina junto al dueño, con su P&L abierto. ' +
+  'Soy ingeniero IID del Tec de Monterrey, con mención honorífica. Pero las decisiones que importan no salen del aula: ' +
+  'salen de la cabina, junto a dueños como tú. Lo que te propongo ya lo validamos juntos en restaurantes activos.';
 
 const empatia =
   variant === 'sobre-efer' ? empatiaSobreEfer : variant === 'landing' ? empatiaLanding : empatiaHome;
 
-// Credenciales verbatim del brief §5 (zero invención, anti-currículum Ciancio).
+// Credenciales verificables (fuente única: docs/credenciales-efer.md). CERO invención.
 const credenciales: Array<{ value: string; label: string }> = [
-  { value: 'Operador', label: 'De restaurantes en Monterrey' },
-  { value: '30+', label: 'Negocios asesorados' },
-  { value: 'Ingeniero + restaurantero', label: 'Tec de Monterrey · por elección' },
+  { value: 'Partner operativo', label: 'Junto al dueño, no en su lugar' },
+  { value: '5 restaurantes', label: 'Intervenciones documentadas' },
+  { value: 'IID Tec MTY', label: 'Ingeniero · mención honorífica' },
 ];
 
 const showCTA = variant !== 'sobre-efer';

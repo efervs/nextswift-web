@@ -1,0 +1,458 @@
+---
+/**
+ * /sobre-efer — Anti-currículum del fundador. Operador antes que consultor.
+ *
+ * Estructura (referencia P10 / brief §5 dualidad Ciancio):
+ *  1. Hero (foto + headline operador-estratega).
+ *  2. Trayectoria operativa: partner operativo, no operador-dueño.
+ *  3. Formación: IID Tec mención honorífica, sin certificaciones infladas.
+ *  4. Filosofía: tres anclas verbales en primera persona.
+ *  5. Equipo declarable: solo Efer.
+ *  6. CTAs duales — /auditoria primario, /diagnostico ghost.
+ *
+ * Fuente única verbatim: astro-nextswift/docs/credenciales-efer.md (DH-NEW-05).
+ * Regla CLAUDE.md §10: cero invención. Nada que no esté en credenciales-efer.md.
+ */
+import Base from '../layouts/Base.astro';
+import Heading from '../components/ui/Heading.astro';
+import Body from '../components/ui/Body.astro';
+import Eyebrow from '../components/ui/Eyebrow.astro';
+import Button from '../components/ui/Button.astro';
+import Badge from '../components/ui/Badge.astro';
+import { buildWaUrl } from '../lib/whatsapp-url';
+
+const waUrl = buildWaUrl({
+  source: 'about',
+  content: 'cta_sobre_efer_wa',
+  customMessage: 'Hola Efer, leí tu página y quiero conversar sobre mi restaurante.',
+});
+
+const clientesDocumentados = [
+  {
+    nombre: 'Temaky Sushi',
+    pain: 'Utilidad (margen delivery)',
+    intervencion: 'Partner operativo intensivo',
+    resultado: '+42% margen delivery · venta >$1.6M MXN sostenida · ROAS rentable',
+  },
+  {
+    nombre: 'Hare Krishna',
+    pain: 'Métricas y control',
+    intervencion: 'Partner operativo intensivo',
+    resultado: 'En ejecución activa — caso vigente',
+  },
+  {
+    nombre: 'Pangas Sabores del Mar',
+    pain: 'Ventas y delivery',
+    intervencion: 'Implementación táctica',
+    resultado: '4.4 → 4.6★ Google · 490 → 646 reseñas en <2 meses',
+  },
+  {
+    nombre: 'Oita Fresh',
+    pain: 'Crecimiento controlado',
+    intervencion: 'Setup desde día cero',
+    resultado: 'Arranque $0 → $300k MXN/mes',
+  },
+  {
+    nombre: 'Sr. Boneless',
+    pain: 'Logo en banda',
+    intervencion: 'Colaboración puntual',
+    resultado: 'Sin caso publicable',
+  },
+];
+
+const filosofiaAnclas = [
+  'Partner operativo, no consultor de slides.',
+  'Las cifras antes que la opinión, el costo antes que la promesa.',
+  'Diagnóstico, plan y ejecución — en ese orden, sin saltarse el primero.',
+];
+
+const personSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: 'Efer Isai Lara Corona',
+  alternateName: 'Efer Lara',
+  jobTitle: 'Founder NextSwift · Partner operativo de restaurantes',
+  worksFor: {
+    '@type': 'Organization',
+    name: 'NextSwift',
+    url: 'https://www.nextswift.mx',
+  },
+  alumniOf: {
+    '@type': 'CollegeOrUniversity',
+    name: 'Tecnológico de Monterrey, Campus Monterrey',
+  },
+  hasCredential: {
+    '@type': 'EducationalOccupationalCredential',
+    credentialCategory: 'degree',
+    educationalLevel: 'Licenciatura',
+    name: 'Ingeniero en Innovación y Desarrollo de Empresas (IID) — mención honorífica',
+  },
+  address: {
+    '@type': 'PostalAddress',
+    addressLocality: 'Monterrey',
+    addressRegion: 'Nuevo León',
+    addressCountry: 'MX',
+  },
+  url: 'https://www.nextswift.mx/sobre-efer',
+};
+---
+
+<Base
+  title="Sobre Efer Lara — Partner operativo de restaurantes | NextSwift"
+  description="Efer Lara, founder de NextSwift: partner operativo. Entra a la cabina junto al dueño, con el P&L abierto. Ingeniero IID del Tec de Monterrey con mención honorífica. 5 restaurantes intervenidos en Monterrey."
+>
+  <script type="application/ld+json" is:inline set:html={JSON.stringify(personSchema)} slot="head" />
+
+  <section class="sef-hero" aria-labelledby="sef-hero-h1">
+    <div class="sef-hero__inner">
+      <figure class="sef-hero__media">
+        <img
+          src="/images/foto-efer.webp"
+          alt="Efer Lara, fundador de NextSwift, en cocina de restaurante en Monterrey"
+          width="640"
+          height="800"
+          loading="eager"
+          decoding="async"
+        />
+      </figure>
+
+      <div class="sef-hero__copy">
+        <Eyebrow>Operador antes que consultor</Eyebrow>
+        <Heading as="h1" id="sef-hero-h1" class="sef-hero__h1">
+          Partner operativo. Estratega del P&amp;L. Junto al dueño, no en su lugar.
+        </Heading>
+        <Body size="lead" tone="muted" class="sef-hero__lead">
+          Soy Efer Lara. No vengo de una agencia. Entro a la cabina junto al dueño — con su P&amp;L abierto, sus costos reales y su equipo a la vista. Reviso operación con el mismo rigor con el que revisamos la de cada cliente activo: las cifras antes que la opinión, el costo antes que la promesa.
+        </Body>
+
+        <ul class="sef-hero__creds" role="list">
+          <li><Badge tone="neutral">Partner operativo</Badge></li>
+          <li><Badge tone="neutral">5 restaurantes intervenidos</Badge></li>
+          <li><Badge tone="neutral">IID Tec MTY · mención honorífica</Badge></li>
+          <li><Badge tone="neutral">Monterrey, NL</Badge></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="sef-section sef-trayectoria" aria-labelledby="sef-tray-h2">
+    <div class="sef-section__inner">
+      <Eyebrow>Trayectoria operativa</Eyebrow>
+      <Heading as="h2" id="sef-tray-h2">
+        Cinco restaurantes intervenidos. Cero números inflados.
+      </Heading>
+      <Body size="lead" tone="muted">
+        Esta es la lista completa. No hay "30+ negocios asesorados" porque no es cierto. Lo que hay es trabajo verificable, con dueños que pueden corroborarlo.
+      </Body>
+
+      <ol class="sef-clientes" role="list">
+        {clientesDocumentados.map((c) => (
+          <li class="sef-cliente">
+            <h3 class="sef-cliente__nombre">{c.nombre}</h3>
+            <dl class="sef-cliente__meta">
+              <div>
+                <dt>Pain ancla</dt>
+                <dd>{c.pain}</dd>
+              </div>
+              <div>
+                <dt>Modo de apoyo</dt>
+                <dd>{c.intervencion}</dd>
+              </div>
+              <div>
+                <dt>Resultado verificable</dt>
+                <dd>{c.resultado}</dd>
+              </div>
+            </dl>
+          </li>
+        ))}
+      </ol>
+
+      <p class="sef-clientes__nota">
+        Si quiere referencias directas con cualquiera de ellos, las facilitamos antes de firmar contrato.
+      </p>
+    </div>
+  </section>
+
+  <section class="sef-section sef-formacion" aria-labelledby="sef-form-h2">
+    <div class="sef-section__inner sef-section__inner--narrow">
+      <Eyebrow>Formación</Eyebrow>
+      <Heading as="h2" id="sef-form-h2">
+        Ingeniero IID por el Tec de Monterrey, con mención honorífica.
+      </Heading>
+      <Body size="lead" tone="muted">
+        Ingeniería en Innovación y Desarrollo de Empresas, Campus Monterrey. Graduación con honores. Sin certificaciones extra que declarar. El resto del aprendizaje viene de piso: junto a dueños activos, con su P&amp;L abierto.
+      </Body>
+      <Body tone="muted" class="sef-formacion__nota">
+        Anti-currículum: las decisiones que importan no salen del aula. Salen de la cabina.
+      </Body>
+    </div>
+  </section>
+
+  <section class="sef-section sef-filosofia" aria-labelledby="sef-filo-h2">
+    <div class="sef-section__inner">
+      <Eyebrow tone="on-dark">Filosofía operador-estratega</Eyebrow>
+      <Heading as="h2" tone="on-dark" id="sef-filo-h2">
+        Tres anclas que rigen cada decisión dentro del programa.
+      </Heading>
+
+      <ul class="sef-anclas" role="list">
+        {filosofiaAnclas.map((frase, i) => (
+          <li class="sef-ancla">
+            <span class="sef-ancla__num" aria-hidden="true">0{i + 1}</span>
+            <p class="sef-ancla__texto">{frase}</p>
+          </li>
+        ))}
+      </ul>
+
+      <Body size="lead" tone="on-dark" class="sef-filosofia__cierre">
+        Esto no es un manifiesto. Es la regla que aplicamos cuando un entregable parece "bonito" pero no mueve un KPI, o cuando un dueño quiere ejecutar antes de diagnosticar. La respuesta siempre vuelve a estas tres líneas.
+      </Body>
+    </div>
+  </section>
+
+  <section class="sef-section sef-equipo" aria-labelledby="sef-eq-h2">
+    <div class="sef-section__inner sef-section__inner--narrow">
+      <Eyebrow>Equipo declarado</Eyebrow>
+      <Heading as="h2" id="sef-eq-h2">
+        Quien firma es quien ejecuta. Sin agencia fantasma.
+      </Heading>
+      <Body size="lead" tone="muted">
+        Hoy NextSwift es Efer Lara. No hay equipo invisible, no hay subcontratación sin avisar, no hay capa intermedia entre usted y el responsable de su programa. Si en algún momento entra un colaborador externo, se lo decimos antes — esa es la garantía #9.
+      </Body>
+    </div>
+  </section>
+
+  <section class="sef-section sef-cta" aria-labelledby="sef-cta-h2">
+    <div class="sef-section__inner sef-section__inner--narrow">
+      <Eyebrow>Siguiente paso</Eyebrow>
+      <Heading as="h2" id="sef-cta-h2">
+        Si su restaurante factura ≥ $300k/mes, hagamos la auditoría sin costo.
+      </Heading>
+      <Body size="lead" tone="muted">
+        30 minutos por WhatsApp. Si no aplica el Acelerador, se lo decimos — sin venderle lo que no necesita.
+      </Body>
+      <div class="sef-cta__stack">
+        <Button variant="primary" size="lg" href="/auditoria" data-cta="sobre-efer-auditoria">
+          Verificar si su restaurante califica
+          <span aria-hidden="true">&nbsp;&rarr;</span>
+        </Button>
+        <Button variant="ghost" size="lg" href="/diagnostico" data-cta="sobre-efer-diagnostico">
+          Empezar por un diagnóstico
+        </Button>
+        <Button variant="wa" size="lg" href={waUrl} target="_blank" rel="noopener" data-cta="sobre-efer-wa">
+          Hablar por WhatsApp
+        </Button>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  /* ----- Hero ------------------------------------------------------------- */
+  .sef-hero { background: var(--color-surface); }
+  .sef-hero__inner {
+    max-width: var(--content-max);
+    margin-inline: auto;
+    padding: var(--space-10) var(--space-4) var(--space-9);
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-6);
+    align-items: center;
+  }
+  @media (min-width: 900px) {
+    .sef-hero__inner {
+      grid-template-columns: minmax(260px, 38%) 1fr;
+      gap: var(--space-8);
+    }
+  }
+  .sef-hero__media {
+    margin: 0;
+    border-radius: var(--radius-4);
+    overflow: hidden;
+    background: var(--color-surface-alt);
+    aspect-ratio: 4 / 5;
+    max-width: 360px;
+  }
+  @media (min-width: 900px) {
+    .sef-hero__media { max-width: none; }
+  }
+  .sef-hero__media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .sef-hero__copy {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+  .sef-hero__h1 { text-wrap: balance; }
+  .sef-hero__lead { text-wrap: pretty; }
+  .sef-hero__creds {
+    list-style: none;
+    margin: var(--space-2) 0 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  /* ----- Section base ---------------------------------------------------- */
+  .sef-section { background: var(--color-surface); }
+  .sef-section:nth-of-type(even) { background: var(--color-surface-alt); }
+  .sef-section__inner {
+    max-width: var(--content-max);
+    margin-inline: auto;
+    padding: var(--space-9) var(--space-4);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+  .sef-section__inner--narrow { max-width: var(--content-narrow); }
+
+  /* ----- Trayectoria (5 clientes) ---------------------------------------- */
+  .sef-clientes {
+    list-style: none;
+    margin: var(--space-3) 0 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+  }
+  @media (min-width: 768px) {
+    .sef-clientes {
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--space-5);
+    }
+  }
+  .sef-cliente {
+    padding: var(--space-5);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-4);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+  .sef-cliente__nombre {
+    font-family: var(--font-heading);
+    font-size: var(--fs-h3);
+    line-height: var(--line-snug);
+    color: var(--color-primary-dark);
+    margin: 0;
+  }
+  .sef-cliente__meta {
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+  .sef-cliente__meta > div {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-1);
+  }
+  @media (min-width: 480px) {
+    .sef-cliente__meta > div {
+      grid-template-columns: 9rem 1fr;
+      gap: var(--space-3);
+      align-items: baseline;
+    }
+  }
+  .sef-cliente__meta dt {
+    font-family: var(--font-subheading);
+    font-weight: 600;
+    font-size: 0.75rem;
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+    margin: 0;
+  }
+  .sef-cliente__meta dd {
+    margin: 0;
+    font-family: var(--font-body);
+    font-size: 0.9375rem;
+    line-height: var(--line-base);
+    color: var(--color-text);
+  }
+  .sef-clientes__nota {
+    margin: var(--space-4) 0 0;
+    font-family: var(--font-body);
+    font-size: 0.9375rem;
+    color: var(--color-text-muted);
+    line-height: var(--line-base);
+  }
+
+  /* ----- Formación ------------------------------------------------------- */
+  .sef-formacion__nota {
+    margin-top: var(--space-2);
+    font-style: italic;
+  }
+
+  /* ----- Filosofía (dark) ------------------------------------------------ */
+  .sef-filosofia {
+    background: var(--color-dark-1);
+    color: var(--color-text-on-dark);
+    position: relative;
+    isolation: isolate;
+  }
+  .sef-filosofia::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse at top left, rgba(62, 234, 243, 0.08), transparent 55%),
+      linear-gradient(180deg, var(--color-dark-1) 0%, var(--color-dark-4) 100%);
+    z-index: -1;
+  }
+  .sef-anclas {
+    list-style: none;
+    margin: var(--space-3) 0 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+  }
+  @media (min-width: 768px) {
+    .sef-anclas {
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--space-5);
+    }
+  }
+  .sef-ancla {
+    padding: var(--space-5);
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: var(--radius-4);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+  .sef-ancla__num {
+    font-family: var(--font-heading);
+    font-size: 1.5rem;
+    color: var(--color-accent);
+    letter-spacing: var(--tracking-tight);
+  }
+  .sef-ancla__texto {
+    margin: 0;
+    font-family: var(--font-heading);
+    font-size: var(--fs-h3);
+    line-height: var(--line-snug);
+    color: var(--color-text-on-dark);
+    text-wrap: balance;
+  }
+  .sef-filosofia__cierre {
+    color: var(--color-soft);
+    margin-top: var(--space-2);
+  }
+
+  /* ----- CTA ------------------------------------------------------------- */
+  .sef-cta__stack {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    margin-top: var(--space-3);
+  }
+</style>
