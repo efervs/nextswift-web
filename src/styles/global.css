@@ -124,3 +124,23 @@ a:hover { color: var(--color-primary); }
     scroll-behavior: auto !important;
   }
 }
+
+/* =========================================================================
+   Caso ancla — link "Ver el caso completo →" inyectado en cada landing.
+   Definido global porque el patrón es idéntico en las 6 landings.
+   ========================================================================= */
+.caso-ancla__more {
+  display: inline-block;
+  margin-top: var(--space-3);
+  font-family: var(--font-subheading);
+  font-weight: 600;
+  font-size: var(--fs-body);
+  color: var(--color-primary-dark);
+  text-decoration: none;
+  transition: color var(--dur-2) var(--ease-out);
+}
+.caso-ancla__more:hover,
+.caso-ancla__more:focus-visible {
+  text-decoration: underline;
+  color: var(--color-dark-1);
+}
