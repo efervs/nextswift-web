@@ -16,9 +16,23 @@ import ThreeStepPlan from '../components/shared/ThreeStepPlan.astro';
 import CTAs from '../components/shared/CTAs.astro';
 import SocialProof from '../components/shared/SocialProof.astro';
 import FAQ from '../components/shared/FAQ.astro';
+import { buildServiceSchema } from '../lib/seo';
+
+const serviceSchema = buildServiceSchema({
+  name: 'Diagnóstico de margen para restaurantes — Palanca Financiera NextSwift',
+  description:
+    'Auditoría forense de mermas, costeo real y mix de menú. Recuperación de 3-7 puntos de margen en 90 días con dashboard semanal de 10 KPIs.',
+  slug: 'utilidad',
+});
 ---
 
-<Base>
+<Base
+  title="Restaurante vende pero no gana dinero — Diagnóstico de margen en 10 días | NextSwift"
+  description="Auditamos la fuga de margen de tu restaurante: mermas, costeo real, mix de menú. Recuperas 3-7 puntos en 90 días con dashboard semanal. Caso Temaky: +42% margen verificado."
+  canonical="https://www.nextswift.mx/utilidad"
+  ogImage="https://www.nextswift.mx/images/og/utilidad.png"
+>
+  <script slot="head" type="application/ld+json" is:inline set:html={JSON.stringify(serviceSchema)} />
   <Section spacing="lg" tone="surface" as="section">
     <div class="hero-landing">
       <Eyebrow tone="accent">PALANCA FINANCIERA · EL DOLOR MÁS PROFUNDO Y UNIVERSAL</Eyebrow>

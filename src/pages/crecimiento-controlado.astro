@@ -16,9 +16,23 @@ import ThreeStepPlan from '../components/shared/ThreeStepPlan.astro';
 import CTAs from '../components/shared/CTAs.astro';
 import SocialProof from '../components/shared/SocialProof.astro';
 import FAQ from '../components/shared/FAQ.astro';
+import { buildServiceSchema } from '../lib/seo';
+
+const serviceSchema = buildServiceSchema({
+  name: 'Expansión de restaurante sin caos — Palanca de Expansión NextSwift',
+  description:
+    'Convertimos tu restaurante en modelo replicable: manual operativo, economía unitaria por sucursal y plan de expansión a 12 meses. Crecer con estructura, no con fe.',
+  slug: 'crecimiento-controlado',
+});
 ---
 
-<Base>
+<Base
+  title="Cómo escalar tu restaurante sin caos — Modelo replicable en 10 días | NextSwift"
+  description="Convertimos tu restaurante en modelo replicable: manual operativo, economía unitaria y plan de expansión a 12 meses. Crecer con estructura, no con fe ciega. Caso Oita Fresh."
+  canonical="https://www.nextswift.mx/crecimiento-controlado"
+  ogImage="https://www.nextswift.mx/images/og/crecimiento-controlado.png"
+>
+  <script slot="head" type="application/ld+json" is:inline set:html={JSON.stringify(serviceSchema)} />
   <Section spacing="lg" tone="surface" as="section">
     <div class="hero-landing">
       <Eyebrow tone="accent">PALANCA DE EXPANSIÓN · EL DOLOR MÁS PREMIUM</Eyebrow>

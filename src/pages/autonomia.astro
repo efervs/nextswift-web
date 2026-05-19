@@ -16,9 +16,23 @@ import ThreeStepPlan from '../components/shared/ThreeStepPlan.astro';
 import CTAs from '../components/shared/CTAs.astro';
 import SocialProof from '../components/shared/SocialProof.astro';
 import FAQ from '../components/shared/FAQ.astro';
+import { buildServiceSchema } from '../lib/seo';
+
+const serviceSchema = buildServiceSchema({
+  name: 'Autonomía operativa para restaurantes — Palanca Operativa NextSwift',
+  description:
+    'Construimos la estructura para que tu restaurante opere sin tu presencia constante: encargado entrenado, SOPs y dashboard semanal. Caso Oita Fresh.',
+  slug: 'autonomia',
+});
 ---
 
-<Base>
+<Base
+  title="Tu restaurante depende demasiado de ti — Operación autónoma en 10 días | NextSwift"
+  description="Instalamos la estructura para que tu restaurante opere sin ti: encargado entrenado, SOPs y dashboard semanal. De dependencia total a operación autónoma en 10 días. Caso Oita Fresh."
+  canonical="https://www.nextswift.mx/autonomia"
+  ogImage="https://www.nextswift.mx/images/og/autonomia.png"
+>
+  <script slot="head" type="application/ld+json" is:inline set:html={JSON.stringify(serviceSchema)} />
   <Section spacing="lg" tone="surface" as="section">
     <div class="hero-landing">
       <Eyebrow tone="accent">PALANCA OPERATIVA · EL DOLOR MÁS EMOCIONAL</Eyebrow>

@@ -3,6 +3,7 @@
  * Home (/) — orquestación principal.
  * Inyecta P14 (Fase 17 SocialProof + Fase 18 FAQ global).
  * ProofBar legacy (P4) reemplazado por <SocialProof variant="agregada"/> + variant="logos".
+ * P20: LocalBusiness + Service schema vía slot="head".
  */
 import Base from '../layouts/Base.astro';
 import Hero from '../components/home/Hero.astro';
@@ -13,9 +14,22 @@ import OfertaResumen from '../components/home/OfertaResumen.astro';
 import GarantiasResumen from '../components/shared/GarantiasResumen.astro';
 import FAQ from '../components/shared/FAQ.astro';
 import Section from '../components/ui/Section.astro';
+import { buildLocalBusinessSchema, buildServiceSchema } from '../lib/seo';
+
+const localBusinessSchema = buildLocalBusinessSchema();
+const serviceSchema = buildServiceSchema({
+  name: 'Acelerador 3 Palancas NextSwift',
+  description:
+    'Programa intensivo de implementación operativa en 10 días hábiles para restaurantes con ventas >= $300k MXN/mes. Tres palancas: financiera, operativa y comercial.',
+  slug: 'acelerador',
+});
 ---
 
-<Base>
+<Base
+  ogImage="https://www.nextswift.mx/images/og/home.png"
+>
+  <script slot="head" type="application/ld+json" is:inline set:html={JSON.stringify(localBusinessSchema)} />
+  <script slot="head" type="application/ld+json" is:inline set:html={JSON.stringify(serviceSchema)} />
   <Section spacing="lg" tone="surface">
     <Hero />
     <SocialProof variant="agregada" tone="transparent" />

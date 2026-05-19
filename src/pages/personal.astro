@@ -16,9 +16,23 @@ import ThreeStepPlan from '../components/shared/ThreeStepPlan.astro';
 import CTAs from '../components/shared/CTAs.astro';
 import SocialProof from '../components/shared/SocialProof.astro';
 import FAQ from '../components/shared/FAQ.astro';
+import { buildServiceSchema } from '../lib/seo';
+
+const serviceSchema = buildServiceSchema({
+  name: 'Gestión de personal para restaurantes — Palanca Operativa NextSwift',
+  description:
+    'Instalamos escalafón, bonos por desempeño y SOPs de personal en tu restaurante. Menos rotación, más disciplina, operación sin drama en 10 días.',
+  slug: 'personal',
+});
 ---
 
-<Base>
+<Base
+  title="Personal de restaurante desorganizado — Estructura operativa en 10 días | NextSwift"
+  description="Instalamos escalafón, bonos y SOPs de personal en tu restaurante. Menos rotación, más disciplina, operación sin drama en 10 días. Caso Hare Krishna verificado."
+  canonical="https://www.nextswift.mx/personal"
+  ogImage="https://www.nextswift.mx/images/og/personal.png"
+>
+  <script slot="head" type="application/ld+json" is:inline set:html={JSON.stringify(serviceSchema)} />
   <Section spacing="lg" tone="surface" as="section">
     <div class="hero-landing">
       <Eyebrow tone="accent">PALANCA OPERATIVA · EL DOLOR MÁS CONSTANTE</Eyebrow>

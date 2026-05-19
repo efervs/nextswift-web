@@ -16,9 +16,23 @@ import ThreeStepPlan from '../components/shared/ThreeStepPlan.astro';
 import CTAs from '../components/shared/CTAs.astro';
 import SocialProof from '../components/shared/SocialProof.astro';
 import FAQ from '../components/shared/FAQ.astro';
+import { buildServiceSchema } from '../lib/seo';
+
+const serviceSchema = buildServiceSchema({
+  name: 'Aceleración de ventas y delivery para restaurantes — Palanca Comercial NextSwift',
+  description:
+    'Reactivamos tráfico recurrente y reducimos dependencia de marketplaces en 60-90 días. Reputación digital y conversión directa para restaurantes en México.',
+  slug: 'ventas-delivery',
+});
 ---
 
-<Base>
+<Base
+  title="Ventas flojas en tu restaurante — Estrategia comercial y delivery | NextSwift"
+  description="Reactivamos tráfico recurrente y reducimos dependencia de marketplaces en 60-90 días. Reputación digital + conversión directa para restaurantes en México. Caso Pangas verificado."
+  canonical="https://www.nextswift.mx/ventas-delivery"
+  ogImage="https://www.nextswift.mx/images/og/ventas-delivery.png"
+>
+  <script slot="head" type="application/ld+json" is:inline set:html={JSON.stringify(serviceSchema)} />
   <Section spacing="lg" tone="surface" as="section">
     <div class="hero-landing">
       <Eyebrow tone="accent">PALANCA COMERCIAL · EL DOLOR MÁS FÁCIL DE VENDER</Eyebrow>

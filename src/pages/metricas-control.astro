@@ -16,9 +16,23 @@ import ThreeStepPlan from '../components/shared/ThreeStepPlan.astro';
 import CTAs from '../components/shared/CTAs.astro';
 import SocialProof from '../components/shared/SocialProof.astro';
 import FAQ from '../components/shared/FAQ.astro';
+import { buildServiceSchema } from '../lib/seo';
+
+const serviceSchema = buildServiceSchema({
+  name: 'Dashboard financiero para restaurantes — Palanca Financiera NextSwift',
+  description:
+    'Dashboard semanal con 10 KPIs operativos y financieros, P&L estructurado, costeo real y control de mermas. Claridad financiera para restauranteros en 21 días.',
+  slug: 'metricas-control',
+});
 ---
 
-<Base>
+<Base
+  title="Sin control financiero en tu restaurante — Dashboard de 10 KPIs en 21 días | NextSwift"
+  description="Construimos tu dashboard semanal: 10 KPIs, P&L estructurado, costeo real y control de mermas. Claridad financiera total para restauranteros en México en 21 días."
+  canonical="https://www.nextswift.mx/metricas-control"
+  ogImage="https://www.nextswift.mx/images/og/metricas-control.png"
+>
+  <script slot="head" type="application/ld+json" is:inline set:html={JSON.stringify(serviceSchema)} />
   <Section spacing="lg" tone="surface" as="section">
     <div class="hero-landing">
       <Eyebrow tone="accent">PALANCA FINANCIERA · EL DOLOR MÁS SILENCIOSO</Eyebrow>

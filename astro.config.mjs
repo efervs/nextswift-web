@@ -11,7 +11,11 @@ export default defineConfig({
   output: 'static',
   adapter: cloudflare(),
   integrations: [
-    sitemap(),
+    sitemap({
+      filter: (page) =>
+        !page.includes('/gracias-') &&
+        !page.includes('/api/'),
+    }),
     critters(),
   ],
   vite: {

@@ -14,6 +14,14 @@ import Stakes from '../components/shared/Stakes.astro';
 import ThreeStepPlan from '../components/shared/ThreeStepPlan.astro';
 import CTAs from '../components/shared/CTAs.astro';
 import SocialProof from '../components/shared/SocialProof.astro';
+import { buildServiceSchema } from '../lib/seo';
+
+const serviceSchema = buildServiceSchema({
+  name: 'Acelerador 3 Palancas — Programa de implementación operativa para restaurantes',
+  description:
+    'Programa intensivo de 10 días hábiles para restaurantes con ventas >= $300k MXN/mes. Tres palancas: financiera, operativa y comercial. 11 garantías formales.',
+  slug: 'acelerador',
+});
 
 const palancas = [
   {
@@ -81,7 +89,10 @@ const cuposLeyenda =
 <Base
   title="Acelerador 3 Palancas — Implementación operativa en 10 días | NextSwift"
   description="Programa intensivo de 10 días hábiles para restaurantes con ventas brutas >= $300k MXN/mes. Ingeniería operativa, no asesoría. 11 garantías formales."
+  canonical="https://www.nextswift.mx/acelerador"
+  ogImage="https://www.nextswift.mx/images/og/acelerador.png"
 >
+  <script slot="head" type="application/ld+json" is:inline set:html={JSON.stringify(serviceSchema)} />
   <section class="acelerador-hero" aria-labelledby="acelerador-h1">
     <div class="acelerador-hero__inner">
       <Eyebrow tone="accent">Programa intensivo de 10 días hábiles</Eyebrow>
