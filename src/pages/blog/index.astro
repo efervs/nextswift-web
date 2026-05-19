@@ -1,0 +1,188 @@
+---
+/**
+ * /blog — listado de artículos por pillar con buscador Pagefind.
+ *
+ * Estructura:
+ *  1. Hero corto del blog (eyebrow + H1 + descripción + buscador Pagefind UI).
+ *  2. Chips de filtro por pillar (cliente-side, sin reload).
+ *  3. Grid de BlogCard ordenado por fecha desc.
+ *
+ * Pagefind: este index no se indexa (data-pagefind-ignore en body) — solo los
+ * posts. JSON-LD Blog para SEO.
+ */
+import Base from '../../layouts/Base.astro';
+import Section from '../../components/ui/Section.astro';
+import Eyebrow from '../../components/ui/Eyebrow.astro';
+import Heading from '../../components/ui/Heading.astro';
+import Body from '../../components/ui/Body.astro';
+import BlogCard from '../../components/blog/BlogCard.astro';
+import { getAllPosts } from '../../lib/blog-helpers';
+import { PILLARS } from '../../data/blog-pillars';
+
+const posts = await getAllPosts();
+
+const blogSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Blog',
+  name: 'Blog NextSwift',
+  description:
+    'Artículos para dueños de restaurantes que quieren operar con cifras encima de la mesa — no con corazonadas.',
+  url: 'https://www.nextswift.mx/blog',
+  publisher: {
+    '@type': 'Organization',
+    name: 'NextSwift',
+    url: 'https://www.nextswift.mx',
+  },
+  blogPost: posts.map((p) => ({
+    '@type': 'BlogPosting',
+    headline: p.data.title,
+    datePublished: p.data.date.toISOString().slice(0, 10),
+    url: `https://www.nextswift.mx/blog/${p.data.slug}`,
+    author: { '@type': 'Person', name: p.data.author },
+  })),
+};
+---
+
+<Base
+  title="Blog — NextSwift | Operación, margen y criterio para dueños de restaurantes"
+  description="Artículos forenses sobre operación, margen, personal y crecimiento controlado en restaurantes mexicanos. Sin motivación vacía — cifras y decisiones."
+>
+  <script
+    slot="head"
+    type="application/ld+json"
+    is:inline
+    set:html={JSON.stringify(blogSchema)}
+  />
+  <link slot="head" rel="stylesheet" href="/_pagefind/pagefind-ui.css" />
+
+  <Section spacing="lg" tone="surface" as="section">
+    <div class="blog-hero" data-pagefind-ignore>
+      <Eyebrow tone="accent">BLOG · OPERACIÓN, MARGEN Y CRITERIO</Eyebrow>
+      <Heading as="h1" size="h1">Artículos para dueños que prefieren cifras a corazonadas</Heading>
+      <Body size="lead" tone="muted">
+        Aquí publicamos lo que vemos adentro de los restaurantes que rehabilitamos: dónde se fuga
+        el margen, por qué el delivery sangra, qué libera al dueño y qué destruye un buen equipo.
+        Sin motivación, sin frases. Lo que de verdad mueve el P&amp;L.
+      </Body>
+
+      <div class="blog-hero__search">
+        <label for="pagefind-search" class="sr-only">Buscar en el blog</label>
+        <div id="pagefind-search" class="pagefind-mount"></div>
+      </div>
+    </div>
+  </Section>
+
+  <Section spacing="md" tone="alt" as="section">
+    <div class="blog-filter" role="group" aria-label="Filtrar por pillar" data-pagefind-ignore>
+      <button type="button" class="chip chip--active" data-pillar="all">Todos</button>
+      {PILLARS.map((p) => (
+        <button type="button" class="chip" data-pillar={p.id}>{p.short}</button>
+      ))}
+    </div>
+
+    <div class="blog-grid" id="blog-grid">
+      {posts.map((post) => (
+        <div class="blog-grid__item" data-pillar={post.data.pillar}>
+          <BlogCard post={post} />
+        </div>
+      ))}
+    </div>
+
+    {posts.length === 0 && (
+      <p class="blog-empty">Aún no hay artículos publicados. Vuelve pronto.</p>
+    )}
+  </Section>
+
+  <script src="/_pagefind/pagefind-ui.js" is:inline></script>
+  <script is:inline>
+    // Init Pagefind UI cuando esté disponible
+    window.addEventListener('load', function () {
+      if (typeof window.PagefindUI !== 'undefined') {
+        new window.PagefindUI({
+          element: '#pagefind-search',
+          showSubResults: true,
+          showImages: false,
+          resetStyles: false,
+          translations: {
+            placeholder: 'Buscar: margen, delivery, personal...',
+            zero_results: 'Sin resultados para [SEARCH_TERM]. Prueba con otra palabra clave.',
+          },
+        });
+      }
+    });
+
+    // Filtro por pillar (sin recargar página)
+    document.querySelectorAll('.chip').forEach(function (chip) {
+      chip.addEventListener('click', function () {
+        var target = chip.getAttribute('data-pillar');
+        document.querySelectorAll('.chip').forEach(function (c) {
+          c.classList.toggle('chip--active', c === chip);
+        });
+        document.querySelectorAll('#blog-grid .blog-grid__item').forEach(function (item) {
+          var pillar = item.getAttribute('data-pillar');
+          item.style.display = target === 'all' || pillar === target ? '' : 'none';
+        });
+      });
+    });
+  </script>
+</Base>
+
+<style>
+  .blog-hero {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    max-width: 70ch;
+  }
+  .blog-hero__search { margin-block-start: var(--space-4); max-width: 36rem; }
+  .pagefind-mount { width: 100%; }
+
+  .sr-only {
+    position: absolute;
+    width: 1px; height: 1px; padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
+  }
+
+  .blog-filter {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin-block-end: var(--space-6);
+  }
+  .chip {
+    font-family: var(--font-subheading);
+    font-size: 0.875rem;
+    font-weight: 600;
+    padding: 0.45rem 0.875rem;
+    border-radius: var(--radius-pill);
+    border: 1px solid var(--color-border);
+    background: transparent;
+    color: var(--color-text);
+    cursor: pointer;
+    transition: background var(--dur-2) var(--ease-out), color var(--dur-2) var(--ease-out);
+  }
+  .chip:hover { background: var(--color-surface); }
+  .chip--active {
+    background: var(--color-dark-1);
+    color: var(--color-text-on-dark);
+    border-color: var(--color-dark-1);
+  }
+  .chip:focus-visible {
+    outline: none;
+    box-shadow: var(--shadow-focus);
+  }
+
+  .blog-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-5);
+  }
+  @media (min-width: 640px)  { .blog-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (min-width: 1024px) { .blog-grid { grid-template-columns: repeat(3, 1fr); } }
+
+  .blog-empty {
+    text-align: center;
+    color: var(--color-text-muted);
+    padding: var(--space-7) 0;
+  }
+</style>

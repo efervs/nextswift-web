@@ -1,0 +1,91 @@
+---
+/**
+ * BlogCard — tarjeta para listados de blog (`/blog`, related, pillar index).
+ * Cover por imagen referenciada en frontmatter (string path en `/images/blog/...`).
+ */
+import Card from '../ui/Card.astro';
+import Heading from '../ui/Heading.astro';
+import Body from '../ui/Body.astro';
+import PillarBadge from './PillarBadge.astro';
+import { formatDate } from '../../lib/blog-helpers';
+import { readingTime } from '../../lib/reading-time';
+import type { BlogEntry } from '../../lib/blog-helpers';
+
+interface Props {
+  post: BlogEntry;
+  compact?: boolean;
+}
+
+const { post, compact = false } = Astro.props;
+const { data, body } = post;
+const href = `/blog/${data.slug}`;
+const meta = readingTime(body ?? '');
+---
+
+<Card interactive padding={compact ? 'sm' : 'md'} class="blog-card">
+  <a href={href} class="blog-card__link">
+    <div class="blog-card__cover" aria-hidden="true">
+      <img src={data.cover} alt="" loading="lazy" decoding="async" />
+    </div>
+    <div class="blog-card__body">
+      <div class="blog-card__meta">
+        <PillarBadge pillar={data.pillar} size="sm" />
+        <time datetime={data.date.toISOString().slice(0, 10)}>{formatDate(data.date)}</time>
+        <span aria-hidden="true">·</span>
+        <span>{meta.label}</span>
+      </div>
+      <Heading as="h3" size="h3" class="blog-card__title">{data.title}</Heading>
+      <Body size="base" tone="muted" class="blog-card__excerpt">{data.excerpt}</Body>
+    </div>
+  </a>
+</Card>
+
+<style>
+  .blog-card {
+    overflow: hidden;
+    padding: 0;
+  }
+  .blog-card__link {
+    display: flex;
+    flex-direction: column;
+    color: inherit;
+    text-decoration: none;
+    height: 100%;
+  }
+  .blog-card__cover {
+    aspect-ratio: 16 / 9;
+    background: var(--color-surface-alt);
+    overflow: hidden;
+  }
+  .blog-card__cover img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform var(--dur-3) var(--ease-out);
+  }
+  .blog-card:hover .blog-card__cover img { transform: scale(1.03); }
+
+  .blog-card__body {
+    padding: var(--space-5);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+  .blog-card__meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+    font-family: var(--font-body);
+    font-size: 0.8125rem;
+    color: var(--color-text-muted);
+  }
+  .blog-card__title {
+    margin: 0;
+    font-size: clamp(1.125rem, 1rem + 0.5vw, 1.375rem);
+  }
+  .blog-card__excerpt {
+    margin: 0;
+  }
+</style>

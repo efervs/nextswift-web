@@ -1,0 +1,54 @@
+---
+/**
+ * BlogCTA — CTA contextual al final del post, mapeado por pillar.
+ * Si pillar === 'transversal' → CTA hacia /diagnostico.
+ * Caso contrario → CTA hacia el landing del dolor correspondiente.
+ */
+import Card from '../ui/Card.astro';
+import Heading from '../ui/Heading.astro';
+import Body from '../ui/Body.astro';
+import Button from '../ui/Button.astro';
+import { getPillarMeta } from '../../data/blog-pillars';
+import type { Pillar } from '../../content.config';
+
+interface Props {
+  pillar: Pillar;
+}
+
+const { pillar } = Astro.props;
+const meta = getPillarMeta(pillar);
+---
+
+<aside class="blog-cta" aria-labelledby="blog-cta-heading" data-pagefind-ignore>
+  <Card tone="dark" padding="lg">
+    <div class="blog-cta__inner">
+      <div class="blog-cta__copy">
+        <Heading as="h2" size="h2" tone="on-dark" id="blog-cta-heading">
+          {pillar === 'transversal' ? '¿Por dónde empieza tu fuga?' : `¿Tu restaurante vive este dolor?`}
+        </Heading>
+        <Body size="lead" tone="on-dark">{meta.ctaCopy}</Body>
+      </div>
+      <div class="blog-cta__actions">
+        <Button variant="primary" size="lg" href={meta.ctaTarget}>
+          {pillar === 'transversal' ? 'Solicitar diagnóstico' : `Ver cómo lo resolvemos`}
+        </Button>
+      </div>
+    </div>
+  </Card>
+</aside>
+
+<style>
+  .blog-cta { margin-block: var(--space-8); }
+  .blog-cta__inner {
+    display: grid;
+    gap: var(--space-5);
+    grid-template-columns: 1fr;
+    align-items: center;
+  }
+  .blog-cta__copy { display: flex; flex-direction: column; gap: var(--space-3); }
+  .blog-cta__actions { display: flex; flex-wrap: wrap; gap: var(--space-3); }
+  @media (min-width: 820px) {
+    .blog-cta__inner { grid-template-columns: 2fr 1fr; }
+    .blog-cta__actions { justify-content: flex-end; }
+  }
+</style>

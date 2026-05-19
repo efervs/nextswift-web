@@ -1,0 +1,101 @@
+---
+/**
+ * BlogHeader — hero del post: breadcrumb + pillar + H1 + meta + cover.
+ * Breadcrumb semántico para a11y + Schema.org en page-level.
+ */
+import Heading from '../ui/Heading.astro';
+import Body from '../ui/Body.astro';
+import PillarBadge from './PillarBadge.astro';
+import { formatDate } from '../../lib/blog-helpers';
+import { getPillarMeta } from '../../data/blog-pillars';
+import type { BlogEntry } from '../../lib/blog-helpers';
+
+interface Props {
+  post: BlogEntry;
+  readingLabel: string;
+}
+
+const { post, readingLabel } = Astro.props;
+const { data } = post;
+const pillarMeta = getPillarMeta(data.pillar);
+---
+
+<header class="blog-header">
+  <nav class="blog-header__crumbs" aria-label="Migas de pan">
+    <ol>
+      <li><a href="/">Inicio</a></li>
+      <li aria-hidden="true">/</li>
+      <li><a href="/blog">Blog</a></li>
+      <li aria-hidden="true">/</li>
+      <li>
+        {data.pillar === 'transversal'
+          ? <span>Transversal</span>
+          : <a href={pillarMeta.landingPath}>{pillarMeta.short}</a>}
+      </li>
+    </ol>
+  </nav>
+
+  <div class="blog-header__meta">
+    <PillarBadge pillar={data.pillar} />
+    <time datetime={data.date.toISOString().slice(0, 10)}>{formatDate(data.date)}</time>
+    <span aria-hidden="true">·</span>
+    <span>{readingLabel}</span>
+    <span aria-hidden="true">·</span>
+    <span>Por <strong>{data.author}</strong></span>
+  </div>
+
+  <Heading as="h1" size="h1" class="blog-header__title">{data.title}</Heading>
+  <Body size="lead" tone="muted" class="blog-header__excerpt">{data.excerpt}</Body>
+
+  <figure class="blog-header__cover">
+    <img
+      src={data.cover}
+      alt={`Imagen de portada: ${data.title}`}
+      loading="eager"
+      decoding="async"
+      fetchpriority="high"
+    />
+  </figure>
+</header>
+
+<style>
+  .blog-header {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+  .blog-header__crumbs ol {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    font-size: 0.875rem;
+    color: var(--color-text-muted);
+  }
+  .blog-header__crumbs a { color: inherit; text-decoration: underline; text-underline-offset: 0.2em; }
+  .blog-header__crumbs a:hover { color: var(--color-primary-dark); }
+
+  .blog-header__meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+    font-family: var(--font-body);
+    font-size: 0.875rem;
+    color: var(--color-text-muted);
+  }
+  .blog-header__title { margin: 0; }
+  .blog-header__excerpt { max-width: 60ch; }
+  .blog-header__cover {
+    margin: 0;
+    aspect-ratio: 16 / 8;
+    border-radius: var(--radius-4);
+    overflow: hidden;
+    background: var(--color-surface-alt);
+  }
+  .blog-header__cover img {
+    width: 100%; height: 100%; object-fit: cover; display: block;
+  }
+</style>

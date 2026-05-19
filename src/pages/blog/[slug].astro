@@ -1,0 +1,245 @@
+---
+/**
+ * /blog/[slug] — render del post con TOC, breadcrumb, related, CTA contextual y JSON-LD.
+ *
+ * Pagefind:
+ *  - `<article data-pagefind-body>` delimita el contenido indexable.
+ *  - `data-pagefind-meta="pillar"` sobre el badge.
+ *  - `data-pagefind-weight="10"` sobre el H1.
+ *  - Sidebars, TOC y related quedan con `data-pagefind-ignore`.
+ *
+ * Schema.org: BlogPosting + Article + BreadcrumbList.
+ */
+import { render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import Section from '../../components/ui/Section.astro';
+import BlogHeader from '../../components/blog/BlogHeader.astro';
+import BlogTOC from '../../components/blog/BlogTOC.astro';
+import BlogRelated from '../../components/blog/BlogRelated.astro';
+import BlogCTA from '../../components/blog/BlogCTA.astro';
+import { getAllPosts, buildToc, type BlogEntry } from '../../lib/blog-helpers';
+import { readingTime } from '../../lib/reading-time';
+import { getPillarMeta } from '../../data/blog-pillars';
+
+export async function getStaticPaths() {
+  const posts = await getAllPosts();
+  return posts.map((post) => ({
+    params: { slug: post.data.slug },
+    props: { post },
+  }));
+}
+
+interface Props { post: BlogEntry; }
+const { post } = Astro.props;
+const { Content, headings } = await render(post);
+const toc = buildToc(headings);
+const rt = readingTime(post.body ?? '');
+const meta = getPillarMeta(post.data.pillar);
+const canonical = `https://www.nextswift.mx/blog/${post.data.slug}`;
+const ogImage = post.data.cover.startsWith('http')
+  ? post.data.cover
+  : `https://www.nextswift.mx${post.data.cover}`;
+
+const blogPostingSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'BlogPosting',
+  headline: post.data.title,
+  description: post.data.excerpt,
+  datePublished: post.data.date.toISOString().slice(0, 10),
+  dateModified: post.data.date.toISOString().slice(0, 10),
+  author: {
+    '@type': 'Person',
+    name: post.data.author,
+    url: 'https://www.nextswift.mx/sobre-efer',
+  },
+  publisher: {
+    '@type': 'Organization',
+    name: 'NextSwift',
+    logo: {
+      '@type': 'ImageObject',
+      url: 'https://www.nextswift.mx/images/logo-nextswift.webp',
+    },
+  },
+  image: ogImage,
+  mainEntityOfPage: { '@type': 'WebPage', '@id': canonical },
+  keywords: post.data.tags.join(', '),
+  articleSection: meta.label,
+};
+
+const articleSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Article',
+  headline: post.data.title,
+  datePublished: post.data.date.toISOString().slice(0, 10),
+  author: { '@type': 'Person', name: post.data.author },
+};
+
+const breadcrumbSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Inicio', item: 'https://www.nextswift.mx/' },
+    { '@type': 'ListItem', position: 2, name: 'Blog', item: 'https://www.nextswift.mx/blog' },
+    {
+      '@type': 'ListItem',
+      position: 3,
+      name: post.data.title,
+      item: canonical,
+    },
+  ],
+};
+---
+
+<Base
+  title={`${post.data.title} | Blog NextSwift`}
+  description={post.data.excerpt}
+  canonical={canonical}
+  ogImage={ogImage}
+>
+  <script slot="head" type="application/ld+json" is:inline set:html={JSON.stringify(blogPostingSchema)} />
+  <script slot="head" type="application/ld+json" is:inline set:html={JSON.stringify(articleSchema)} />
+  <script slot="head" type="application/ld+json" is:inline set:html={JSON.stringify(breadcrumbSchema)} />
+
+  <Section spacing="lg" tone="surface" as="section">
+    <article class="blog-post" data-pagefind-body>
+      <BlogHeader post={post} readingLabel={rt.label} />
+
+      <div class="blog-post__layout">
+        <div class="blog-post__content">
+          {toc.length > 0 && (
+            <div class="blog-post__toc-mobile">
+              <BlogTOC headings={toc} variant="mobile" />
+            </div>
+          )}
+
+          <Content />
+
+          {post.data.supportingPdf && (
+            <p class="blog-post__pdf" data-pagefind-ignore>
+              <strong>Material complementario:</strong>{' '}
+              <a href={post.data.supportingPdf} rel="noopener" target="_blank">
+                Descargar PDF de apoyo →
+              </a>
+            </p>
+          )}
+        </div>
+
+        {toc.length > 0 && (
+          <div class="blog-post__aside">
+            <BlogTOC headings={toc} variant="desktop" />
+          </div>
+        )}
+      </div>
+    </article>
+  </Section>
+
+  <Section spacing="md" tone="surface" as="section">
+    <div class="blog-post__cta-wrap">
+      <BlogCTA pillar={post.data.pillar} />
+    </div>
+  </Section>
+
+  <Section spacing="md" tone="alt" as="section">
+    <BlogRelated post={post} />
+  </Section>
+</Base>
+
+<style is:global>
+  /* Tipografía del cuerpo del post — sin scoping para alcanzar el Markdown */
+  .blog-post__content h2 {
+    font-family: var(--font-heading);
+    font-size: var(--fs-h2);
+    font-weight: 600;
+    line-height: var(--line-tight);
+    margin-block: var(--space-7) var(--space-3);
+    scroll-margin-top: var(--space-6);
+  }
+  .blog-post__content h3 {
+    font-family: var(--font-heading);
+    font-size: var(--fs-h3);
+    font-weight: 600;
+    line-height: var(--line-snug);
+    margin-block: var(--space-6) var(--space-2);
+    scroll-margin-top: var(--space-6);
+  }
+  .blog-post__content p {
+    font-family: var(--font-body);
+    font-size: var(--fs-body);
+    line-height: var(--line-base);
+    margin-block: 0 var(--space-4);
+    max-width: 65ch;
+  }
+  .blog-post__content ul,
+  .blog-post__content ol {
+    font-family: var(--font-body);
+    font-size: var(--fs-body);
+    line-height: var(--line-base);
+    margin-block: 0 var(--space-4);
+    padding-inline-start: var(--space-5);
+    max-width: 65ch;
+  }
+  .blog-post__content li { margin-block-end: var(--space-2); }
+  .blog-post__content li::marker { color: var(--color-primary-dark); }
+  .blog-post__content strong { color: var(--color-text); font-weight: 600; }
+  .blog-post__content a { color: var(--color-primary-dark); text-underline-offset: 0.2em; }
+  .blog-post__content hr {
+    border: 0;
+    border-top: 1px solid var(--color-border);
+    margin-block: var(--space-7);
+  }
+  .blog-post__content blockquote {
+    border-inline-start: 3px solid var(--color-primary-dark);
+    padding-inline-start: var(--space-4);
+    color: var(--color-text-muted);
+    font-style: italic;
+    margin-block: var(--space-5);
+  }
+  .blog-post__content table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-block: var(--space-5);
+    font-size: 0.9375rem;
+  }
+  .blog-post__content th,
+  .blog-post__content td {
+    text-align: left;
+    padding: var(--space-2) var(--space-3);
+    border-bottom: 1px solid var(--color-border);
+  }
+  .blog-post__content th {
+    font-family: var(--font-subheading);
+    font-weight: 600;
+    background: var(--color-surface-alt);
+  }
+</style>
+
+<style>
+  .blog-post { display: flex; flex-direction: column; gap: var(--space-6); }
+
+  .blog-post__layout {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-6);
+    margin-block-start: var(--space-6);
+  }
+  .blog-post__content { min-width: 0; }
+  .blog-post__toc-mobile { margin-block-end: var(--space-5); }
+  .blog-post__aside { display: none; }
+
+  .blog-post__pdf {
+    margin-block-start: var(--space-6);
+    padding: var(--space-4);
+    border: 1px dashed var(--color-border);
+    border-radius: var(--radius-3);
+    background: var(--color-surface-alt);
+  }
+  .blog-post__cta-wrap { max-width: var(--content-max); margin-inline: auto; }
+
+  @media (min-width: 1024px) {
+    .blog-post__layout {
+      grid-template-columns: minmax(0, 1fr) 16rem;
+      gap: var(--space-8);
+    }
+    .blog-post__aside { display: block; }
+  }
+</style>

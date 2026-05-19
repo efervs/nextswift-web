@@ -4,9 +4,9 @@
  * Colecciones:
  *  - `cases` (Fase 10): casos de cliente publicables. Validación estricta para
  *    impedir publicar sin autorización. Métricas defendibles, sin video (DH-05).
- *
- * Fuente de validación: project_casos_prueba_social.md (auto-memory) +
- * confirmación de Efer 2026-05-14 (logos autorizados de los 4 casos publicables).
+ *  - `blog`  (Fase 19): entradas editoriales por pillar. Author default Efer
+ *    Vázquez. `pillar` admite `transversal` (no enrutado a landing). Cover y
+ *    supportingPdf son strings (rutas a `/images/blog/...` o `/pdfs/...`).
  */
 import { defineCollection, z } from 'astro:content';
 import { glob } from 'astro/loaders';
@@ -20,7 +20,10 @@ const PAIN_VALUES = [
   'crecimiento-controlado',
 ] as const;
 
+const PILLAR_VALUES = [...PAIN_VALUES, 'transversal'] as const;
+
 export type Pain = (typeof PAIN_VALUES)[number];
+export type Pillar = (typeof PILLAR_VALUES)[number];
 
 const cases = defineCollection({
   loader: glob({ pattern: '**/*.md', base: './src/content/cases' }),
@@ -50,4 +53,21 @@ const cases = defineCollection({
   }),
 });
 
-export const collections = { cases };
+const blog = defineCollection({
+  loader: glob({ pattern: '**/*.md', base: './src/content/blog' }),
+  schema: z.object({
+    title: z.string(),
+    slug: z.string(),
+    date: z.coerce.date(),
+    pillar: z.enum(PILLAR_VALUES),
+    cover: z.string(),
+    author: z.string().default('Efer Vázquez'),
+    excerpt: z.string().max(160),
+    tags: z.array(z.string()),
+    relatedCases: z.array(z.string()).optional(),
+    relatedLanding: z.enum(PAIN_VALUES).optional(),
+    supportingPdf: z.string().optional(),
+  }),
+});
+
+export const collections = { cases, blog };

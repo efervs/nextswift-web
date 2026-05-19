@@ -1,0 +1,42 @@
+---
+/**
+ * BlogRelated — bloque "Más sobre [pillar]" al pie del post.
+ * Hasta 3 entradas del mismo pillar; rellena con otras si no alcanza.
+ */
+import Heading from '../ui/Heading.astro';
+import BlogCard from './BlogCard.astro';
+import { getRelatedPosts } from '../../lib/blog-helpers';
+import type { BlogEntry } from '../../lib/blog-helpers';
+
+interface Props {
+  post: BlogEntry;
+}
+
+const { post } = Astro.props;
+const related = await getRelatedPosts(post, 3);
+---
+
+{related.length > 0 && (
+  <section class="blog-related" aria-labelledby="related-heading" data-pagefind-ignore>
+    <Heading as="h2" size="h2" id="related-heading">Sigue leyendo</Heading>
+    <div class="blog-related__grid">
+      {related.map((r) => <BlogCard post={r} compact />)}
+    </div>
+  </section>
+)}
+
+<style>
+  .blog-related {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+    margin-block-start: var(--space-8);
+  }
+  .blog-related__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-5);
+  }
+  @media (min-width: 640px)  { .blog-related__grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (min-width: 1024px) { .blog-related__grid { grid-template-columns: repeat(3, 1fr); } }
+</style>
