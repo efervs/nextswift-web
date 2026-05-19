@@ -17,6 +17,10 @@ export interface UTM {
   medium: string;
   campaign: string;
   landing: string;
+  /** utm_content — opcional, agregado en P21. */
+  content?: string;
+  /** utm_term — opcional, agregado en P21. */
+  term?: string;
   capturedAt: string;
 }
 
@@ -41,9 +45,11 @@ export function captureUTMFromURL(): void {
   const medium = params.get('utm_medium');
   const campaign = params.get('utm_campaign');
   const landing = params.get('utm_landing');
+  const content = params.get('utm_content');
+  const term = params.get('utm_term');
 
   // Si ningún UTM está presente, no tocamos el storage existente.
-  if (!source && !medium && !campaign && !landing) return;
+  if (!source && !medium && !campaign && !landing && !content && !term) return;
 
   const utm: UTM = {
     source: source ?? '',
@@ -52,6 +58,8 @@ export function captureUTMFromURL(): void {
     landing: landing ?? '',
     capturedAt: new Date().toISOString(),
   };
+  if (content) utm.content = content;
+  if (term) utm.term = term;
 
   try {
     sessionStorage.setItem(STORAGE_KEY, JSON.stringify(utm));
@@ -70,13 +78,16 @@ export function readUTMFromSessionStorage(): UTM | null {
     if (!raw) return null;
     const parsed = JSON.parse(raw) as Partial<UTM>;
     if (typeof parsed !== 'object' || parsed === null) return null;
-    return {
+    const out: UTM = {
       source: parsed.source ?? '',
       medium: parsed.medium ?? '',
       campaign: parsed.campaign ?? '',
       landing: parsed.landing ?? '',
       capturedAt: parsed.capturedAt ?? '',
     };
+    if (parsed.content) out.content = parsed.content;
+    if (parsed.term) out.term = parsed.term;
+    return out;
   } catch {
     return null;
   }

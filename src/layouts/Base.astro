@@ -7,6 +7,7 @@ import '../styles/global.css';
 import Header from '../components/layout/Header.astro';
 import Footer from '../components/layout/Footer.astro';
 import StickyCTAMobile from '../components/layout/StickyCTAMobile.astro';
+import CookieBanner from '../components/legal/CookieBanner.astro';
 
 // Font preloads — Vite resuelve URL con content-hash; reduce FOUT en LCP.
 import oswald from '@fontsource-variable/oswald/files/oswald-latin-wght-normal.woff2?url';
@@ -32,6 +33,7 @@ const {
 } = Astro.props;
 
 const META_PIXEL_ID = '1545738293336210';
+const GA4_MEASUREMENT_ID = import.meta.env.PUBLIC_GA4_MEASUREMENT_ID ?? '';
 
 const orgSchema = {
   '@context': 'https://schema.org',
@@ -97,42 +99,106 @@ const orgSchema = {
     {/* JSON-LD Organization schema */}
     <script type="application/ld+json" is:inline set:html={JSON.stringify(orgSchema)} />
 
-    {/* Meta Pixel — base script + PageView */}
-    <script is:inline define:vars={{ pixelId: META_PIXEL_ID }}>
-      !(function (f, b, e, v, n, t, s) {
-        if (f.fbq) return;
-        n = f.fbq = function () {
-          n.callMethod ? n.callMethod.apply(n, arguments) : n.queue.push(arguments);
-        };
-        if (!f._fbq) f._fbq = n;
-        n.push = n;
-        n.loaded = !0;
-        n.version = '2.0';
-        n.queue = [];
-        t = b.createElement(e);
-        t.async = !0;
-        t.src = v;
-        s = b.getElementsByTagName(e)[0];
-        s.parentNode.insertBefore(t, s);
-      })(window, document, 'script', 'https://connect.facebook.net/en_US/fbevents.js');
-      window.fbq('init', pixelId);
-      window.fbq('track', 'PageView');
-    </script>
-    <noscript
-      ><img
-        height="1"
-        width="1"
-        style="display:none"
-        src={`https://www.facebook.com/tr?id=${META_PIXEL_ID}&ev=PageView&noscript=1`}
-      /></noscript
-    >
+    {/* Tracking loader — consent-gated (P22 / CookieBanner).
+        Pixel + GA4 SDK se cargan al accept; tracking.ts dispara los events
+        (PageView/Lead/etc.) con event_id compartido contra /api/capi para
+        dedup en Meta Events Manager.
 
-    {/* UTM capture — P12. Corre ANTES de cualquier CTA (clicks tempranos
-       en bottom-CTAs mobile lo necesitan). Lee ?utm_*= y guarda en
-       sessionStorage para que buildWaUrl los inyecte en el prefilled WA. */}
+        El track('PageView') NO se hace aquí inline (delegado a tracking.ts
+        para que comparta event_id con CAPI). Sin event_id no hay dedup,
+        de ahí el cambio vs P22 original. */}
+    <script is:inline define:vars={{ pixelId: META_PIXEL_ID, ga4Id: GA4_MEASUREMENT_ID }}>
+      (function () {
+        function loadPixelSDK() {
+          if (window.fbq) return;
+          !(function (f, b, e, v, n, t, s) {
+            if (f.fbq) return;
+            n = f.fbq = function () {
+              n.callMethod ? n.callMethod.apply(n, arguments) : n.queue.push(arguments);
+            };
+            if (!f._fbq) f._fbq = n;
+            n.push = n;
+            n.loaded = !0;
+            n.version = '2.0';
+            n.queue = [];
+            t = b.createElement(e);
+            t.async = !0;
+            t.src = v;
+            s = b.getElementsByTagName(e)[0];
+            s.parentNode.insertBefore(t, s);
+          })(window, document, 'script', 'https://connect.facebook.net/en_US/fbevents.js');
+          window.fbq('init', pixelId);
+        }
+        function loadGA4() {
+          if (!ga4Id) return;            // GA4 opcional; no-op si env vacía
+          if (window.__ns_ga4_loaded) return;
+          window.__ns_ga4_loaded = true;
+          window.dataLayer = window.dataLayer || [];
+          window.gtag = function () { window.dataLayer.push(arguments); };
+          window.gtag('js', new Date());
+          window.gtag('config', ga4Id, { send_page_view: false });
+          var s = document.createElement('script');
+          s.async = true;
+          s.src = 'https://www.googletagmanager.com/gtag/js?id=' + ga4Id;
+          document.head.appendChild(s);
+        }
+        function initTracking() {
+          loadPixelSDK();
+          loadGA4();
+          // Re-fire PageView con event_id (dedup Pixel ↔ CAPI). Si el module
+          // script de tracking ya cargó, dispara. Si no, queda el flag y el
+          // module script lo dispara al hidratar.
+          if (window.nxTrack && typeof window.nxTrack.pageView === 'function') {
+            window.nxTrack.pageView();
+          } else {
+            window.__ns_pendingPageView = true;
+          }
+        }
+        window.__ns_loadTracking = initTracking;
+        try {
+          if (localStorage.getItem('cookieConsent') === 'all') initTracking();
+        } catch (e) { /* private mode */ }
+      })();
+    </script>
+
+    {/* UTM capture + tracking wiring — P12 (UTM) + P21 (tracking).
+       Corre como module script (deferred); UTM captura ANTES de cualquier
+       CTA tardío. tracking se expone como window.nxTrack para handlers
+       inline (StickyCTAMobile, CookieBanner, wa.me anchors). */}
     <script>
       import { captureUTMFromURL } from '../lib/utm';
+      import * as nxTrack from '../lib/tracking';
+
       captureUTMFromURL();
+      (window as unknown as { nxTrack: typeof nxTrack }).nxTrack = nxTrack;
+
+      // Initial PageView. Si consent='all', dispara Pixel + CAPI + GA4 con
+      // event_id compartido. Si consent != 'all', no-op (tracking.ts
+      // chequea cookieConsent internamente).
+      void nxTrack.pageView();
+
+      // Si __ns_loadTracking llegó antes que este module y dejó pendiente
+      // un re-fire, lo limpiamos. (La llamada anterior ya cubrió el caso.)
+      try {
+        delete (window as unknown as { __ns_pendingPageView?: boolean }).__ns_pendingPageView;
+      } catch { /* noop */ }
+
+      // Auto-wire wa.me clicks → Contact(whatsapp). Capture phase para
+      // disparar antes del redirect; keepalive en fetch garantiza envío.
+      document.addEventListener(
+        'click',
+        (ev) => {
+          const path = (ev.composedPath?.() ?? []) as EventTarget[];
+          const anchor = (path.find(
+            (n) => n instanceof HTMLAnchorElement && /wa\.me/i.test((n as HTMLAnchorElement).href),
+          ) as HTMLAnchorElement | undefined)
+            ?? ((ev.target as HTMLElement | null)?.closest?.('a[href*="wa.me"]') as HTMLAnchorElement | null)
+            ?? null;
+          if (!anchor) return;
+          void nxTrack.contact('whatsapp');
+        },
+        { capture: true },
+      );
     </script>
 
     {/* Slot SEO override por página */}
@@ -147,5 +213,6 @@ const orgSchema = {
     </main>
     <Footer />
     <StickyCTAMobile />
+    <CookieBanner />
   </body>
 </html>

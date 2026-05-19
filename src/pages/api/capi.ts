@@ -1,3 +1,18 @@
+/**
+ * /api/capi — Meta Conversions API relay. P2 + P21 / Fase 26.
+ *
+ * Hash server-side de PII (em/ph/fn/ln) con SHA-256 antes de enviar a Meta.
+ * Si el campo ya viene hasheado (64 hex chars), no se re-hashea.
+ *
+ * Consent: este endpoint NO consume `cookieConsent` directamente. La fuente
+ * de los eventos garantiza base jurídica:
+ *   - Eventos de browsing (PageView, ViewContent): cliente solo relaya si
+ *     consent='all' (ver src/lib/tracking.ts).
+ *   - Eventos de acción explícita (Lead, CompleteRegistration, Contact):
+ *     base jurídica de ejecución de contrato (P22 Risk 1 / DH-09).
+ *
+ * Dedup Pixel ↔ CAPI: shared `event_id`; Meta deduplica en Events Manager.
+ */
 import type { APIRoute } from 'astro';
 
 export const prerender = false;
@@ -11,6 +26,8 @@ interface UserData {
   client_user_agent?: string;
   em?: string;
   ph?: string;
+  fn?: string;
+  ln?: string;
 }
 
 interface CustomData {
@@ -26,6 +43,30 @@ interface CAPIPayload {
   custom_data?: CustomData;
 }
 
+const SHA256_RE = /^[a-f0-9]{64}$/i;
+
+async function sha256Hex(input: string): Promise<string> {
+  const buf = new TextEncoder().encode(input);
+  const digest = await crypto.subtle.digest('SHA-256', buf);
+  return Array.from(new Uint8Array(digest))
+    .map((b) => b.toString(16).padStart(2, '0'))
+    .join('');
+}
+
+function normalizeForHash(field: 'em' | 'ph' | 'fn' | 'ln', raw: string): string {
+  const trimmed = raw.trim().toLowerCase();
+  if (field === 'ph') return trimmed.replace(/\D/g, '');
+  return trimmed;
+}
+
+async function hashIfNeeded(field: 'em' | 'ph' | 'fn' | 'ln', raw: string | undefined): Promise<string | undefined> {
+  if (!raw) return undefined;
+  const trimmed = raw.trim();
+  if (!trimmed) return undefined;
+  if (SHA256_RE.test(trimmed)) return trimmed.toLowerCase();
+  return sha256Hex(normalizeForHash(field, trimmed));
+}
+
 export const POST: APIRoute = async ({ request }) => {
   if (!PIXEL_ID || !CAPI_TOKEN) {
     console.error('[CAPI] Missing META_PIXEL_ID or META_CAPI_TOKEN env vars');
@@ -37,7 +78,7 @@ export const POST: APIRoute = async ({ request }) => {
 
   let body: Partial<CAPIPayload>;
   try {
-    body = await request.json() as Partial<CAPIPayload>;
+    body = (await request.json()) as Partial<CAPIPayload>;
   } catch {
     return new Response(
       JSON.stringify({ success: false, error: 'Invalid JSON body' }),
@@ -63,6 +104,23 @@ export const POST: APIRoute = async ({ request }) => {
 
   const eventSourceUrl = url ?? request.headers.get('referer') ?? 'https://www.nextswift.mx';
 
+  // Hash PII server-side (idempotente: si ya viene hasheado, se preserva).
+  const [em, ph, fn, ln] = await Promise.all([
+    hashIfNeeded('em', user_data.em),
+    hashIfNeeded('ph', user_data.ph),
+    hashIfNeeded('fn', user_data.fn),
+    hashIfNeeded('ln', user_data.ln),
+  ]);
+
+  const hashedUserData: Record<string, string> = {
+    client_ip_address: clientIp,
+    client_user_agent: clientUserAgent,
+  };
+  if (em) hashedUserData.em = em;
+  if (ph) hashedUserData.ph = ph;
+  if (fn) hashedUserData.fn = fn;
+  if (ln) hashedUserData.ln = ln;
+
   const payload = {
     data: [
       {
@@ -71,11 +129,7 @@ export const POST: APIRoute = async ({ request }) => {
         event_id,
         event_source_url: eventSourceUrl,
         action_source: 'website',
-        user_data: {
-          client_ip_address: clientIp,
-          client_user_agent: clientUserAgent,
-          ...user_data,
-        },
+        user_data: hashedUserData,
         custom_data: {
           content_name: 'WhatsApp General',
           ...custom_data,
@@ -93,20 +147,37 @@ export const POST: APIRoute = async ({ request }) => {
       body: JSON.stringify(payload),
     });
 
-    const metaJson = await metaRes.json() as { events_received?: number; fbtrace_id?: string; error?: unknown };
+    const metaJson = await metaRes.json() as {
+      events_received?: number;
+      fbtrace_id?: string;
+      messages?: unknown;
+      error?: unknown;
+    };
 
     if (!metaRes.ok) {
-      console.error('[CAPI] Meta API error:', JSON.stringify(metaJson));
+      // No logueamos el body Meta crudo si trae detalle PII; solo metadatos.
+      console.error('[CAPI] Meta API error', {
+        status: metaRes.status,
+        event_name,
+        event_id,
+        fbtrace_id: metaJson.fbtrace_id,
+      });
       return new Response(
-        JSON.stringify({ success: false, error: 'Meta API error', detail: metaJson }),
+        JSON.stringify({ success: false, error: 'Meta API error', fbtrace_id: metaJson.fbtrace_id }),
         { status: 502, headers: { 'Content-Type': 'application/json' } }
       );
     }
 
-    console.log(`[CAPI] ${event_name} sent — id: ${event_id} — fbtrace: ${metaJson.fbtrace_id ?? 'n/a'}`);
+    console.log(
+      `[CAPI] ${event_name} sent — id: ${event_id} — received: ${metaJson.events_received ?? 0} — fbtrace: ${metaJson.fbtrace_id ?? 'n/a'}`
+    );
 
     return new Response(
-      JSON.stringify({ success: true, fbtrace_id: metaJson.fbtrace_id }),
+      JSON.stringify({
+        success: true,
+        fbtrace_id: metaJson.fbtrace_id,
+        events_received: metaJson.events_received ?? 0,
+      }),
       { status: 200, headers: { 'Content-Type': 'application/json' } }
     );
   } catch (err) {
