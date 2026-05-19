@@ -142,6 +142,8 @@ const TOTAL_STEPS = 6;
               name="units"
               class="audit__input"
               inputmode="numeric"
+              enterkeyhint="next"
+              pattern="[0-9]*"
               min="1"
               max="999"
               step="1"
@@ -198,6 +200,7 @@ const TOTAL_STEPS = 6;
               name="firstname"
               class="audit__input"
               autocomplete="given-name"
+              enterkeyhint="next"
               placeholder="Ej. Alejandro"
             />
           </div>
@@ -210,6 +213,7 @@ const TOTAL_STEPS = 6;
               name="email"
               class="audit__input"
               inputmode="email"
+              enterkeyhint="next"
               autocomplete="email"
               placeholder="usted@surestaurante.com"
               required
@@ -226,7 +230,9 @@ const TOTAL_STEPS = 6;
               name="whatsapp"
               class="audit__input"
               inputmode="tel"
+              enterkeyhint="send"
               autocomplete="tel"
+              pattern="[0-9]*"
               placeholder="10 dígitos, ej. 8110425674"
               required
               aria-describedby="q-whatsapp-error"
@@ -277,13 +283,13 @@ const TOTAL_STEPS = 6;
 
         {/* Navegación */}
         <nav class="audit__nav" aria-label="Navegación del formulario">
-          <button type="button" id="audit-back" class="btn btn--ghost btn--md" hidden>
+          <button type="button" id="audit-back" class="btn btn--ghost btn--md" enterkeyhint="previous" hidden>
             ← Atrás
           </button>
-          <button type="button" id="audit-next" class="btn btn--primary btn--lg">
+          <button type="button" id="audit-next" class="btn btn--primary btn--lg" enterkeyhint="next">
             Siguiente →
           </button>
-          <button type="submit" id="audit-submit" class="btn btn--primary btn--lg" hidden>
+          <button type="submit" id="audit-submit" class="btn btn--primary btn--lg" enterkeyhint="send" hidden>
             Solicitar auditoría
           </button>
         </nav>
@@ -305,6 +311,9 @@ const TOTAL_STEPS = 6;
   const root = document.getElementById('audit');
   const form = document.getElementById('audit-form') as HTMLFormElement | null;
   if (!root || !form) throw new Error('Audit root missing');
+
+  // F22 — silencia el StickyCTAMobile global mientras el form multi-step está activo
+  document.body.dataset.hasStickyForm = 'true';
 
   const steps = Array.from(root.querySelectorAll<HTMLElement>('.audit__step'));
   const stepLabel = document.getElementById('audit-step-label')!;

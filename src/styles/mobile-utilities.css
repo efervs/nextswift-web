@@ -1,0 +1,81 @@
+/* =========================================================================
+   NextSwift — Mobile-first hardening utilities (F22 / P17)
+   Importado desde global.css o BaseLayout. Sin Tailwind layer:
+   reglas mínimas y deterministas para touch, safe-area, sticky coexistence.
+   ========================================================================= */
+
+/* ----- Touch targets ≥44px (WCAG 2.5.5 AAA / Apple HIG) ------------------ */
+.touch-target-min,
+button,
+[role="button"],
+.btn,
+a.header-cta,
+a.btn,
+.header-nav__link,
+.header-dropdown__link,
+.header-hamburger {
+  min-height: var(--touch-target);
+}
+
+/* Inputs deben tener altura cómoda en mobile */
+input[type="text"],
+input[type="email"],
+input[type="tel"],
+input[type="number"],
+input[type="search"],
+input[type="url"],
+select,
+textarea {
+  min-height: var(--touch-target);
+}
+
+/* ----- Safe-area utilities (iOS notch / home indicator) ------------------ */
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.safe-area-top {
+  padding-top: env(safe-area-inset-top);
+}
+.safe-area-x {
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+}
+
+/* ----- Dynamic viewport units (iOS Safari fix para Hero full-bleed) ------ */
+.hero-fullbleed-mobile {
+  min-height: calc(100dvh - var(--header-height-mobile));
+}
+
+/* ----- Sticky-CTA mobile · coexistencia con sticky-form quiz/auditoria --
+   Cuando QuizCard o FormStep declaran body[data-has-sticky-form="true"],
+   la bottom-bar global se oculta para no encimar dos CTAs. */
+body[data-has-sticky-form="true"] .sticky-cta-mobile {
+  display: none !important;
+}
+
+/* Rutas thank-you no muestran la bottom-bar (el siguiente paso es WhatsApp) */
+body[data-no-sticky-cta="true"] .sticky-cta-mobile {
+  display: none !important;
+}
+
+/* ----- Padding-bottom global mobile para no tapar contenido --------------
+   Si la bottom-bar está visible, agregamos espacio al final del <main>.
+   Solo aplica en <768px (la bar solo aparece ahí). */
+@media (max-width: 767px) {
+  body:not([data-has-sticky-form="true"]):not([data-no-sticky-cta="true"]) main {
+    padding-bottom: calc(
+      var(--sticky-cta-mobile-h) + env(safe-area-inset-bottom) + var(--space-3)
+    );
+  }
+}
+
+/* ----- Guards anti-overflow horizontal en imágenes / media -------------- */
+img, video, iframe, svg {
+  max-width: 100%;
+}
+
+/* ----- Tablas largas: scroll horizontal local, no global ----------------- */
+.table-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}

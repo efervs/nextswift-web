@@ -76,6 +76,8 @@ const waPrefillUrl = buildWaUrl({
               <input
                 type="number"
                 inputmode={q.inputmode ?? 'numeric'}
+                enterkeyhint="next"
+                pattern="[0-9]*"
                 min={q.min}
                 max={q.max}
                 step={q.step}
@@ -124,6 +126,7 @@ const waPrefillUrl = buildWaUrl({
             name="email"
             class="quiz__input"
             inputmode="email"
+            enterkeyhint="next"
             autocomplete="email"
             placeholder="usted@surestaurante.com"
             required
@@ -140,7 +143,9 @@ const waPrefillUrl = buildWaUrl({
             name="whatsapp"
             class="quiz__input"
             inputmode="tel"
+            enterkeyhint="send"
             autocomplete="tel"
+            pattern="[0-9]*"
             placeholder="10 dígitos, ej. 8110425674"
             required
             aria-describedby="q-wa-error"
@@ -192,13 +197,13 @@ const waPrefillUrl = buildWaUrl({
 
       {/* Navegación */}
       <nav class="quiz__nav" aria-label="Navegación del quiz">
-        <button type="button" id="quiz-back" class="btn btn--ghost btn--md" hidden>
+        <button type="button" id="quiz-back" class="btn btn--ghost btn--md" enterkeyhint="previous" hidden>
           ← Atrás
         </button>
-        <button type="button" id="quiz-next" class="btn btn--primary btn--lg">
+        <button type="button" id="quiz-next" class="btn btn--primary btn--lg" enterkeyhint="next">
           Siguiente →
         </button>
-        <button type="button" id="quiz-submit" class="btn btn--primary btn--lg" hidden>
+        <button type="button" id="quiz-submit" class="btn btn--primary btn--lg" enterkeyhint="send" hidden>
           Ver mi diagnóstico
         </button>
       </nav>
@@ -229,6 +234,9 @@ const waPrefillUrl = buildWaUrl({
 
   const quizRoot = document.getElementById('quiz');
   if (!(quizRoot instanceof HTMLElement)) throw new Error('Quiz root missing');
+
+  // F22 — silencia el StickyCTAMobile global mientras el quiz está activo
+  document.body.dataset.hasStickyForm = 'true';
 
   const stepLabel = document.getElementById('quiz-step-label')!;
   const stepPct = document.getElementById('quiz-step-pct')!;

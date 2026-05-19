@@ -1,0 +1,158 @@
+---
+/**
+ * StickyCTAMobile — bottom-bar de conversión solo en <768px.
+ *
+ * Por qué existe: en mobile el .header-cta del Header.astro queda oculto
+ * (display:none vía media query del propio Header). Sin esta barra el
+ * usuario mobile no tiene CTA persistente debajo del fold. >70% del
+ * tráfico es mobile (ver PLAN_IMPLEMENTACION_NEXTSWIFT_INDEX.md §F22).
+ *
+ * Reglas de visibilidad (CSS + JS):
+ *   - Oculta en >=768px (CSS).
+ *   - Oculta si body[data-has-sticky-form="true"]  (QuizCard / FormStep).
+ *   - Oculta si body[data-no-sticky-cta="true"]    (rutas /gracias-*).
+ *   - Oculta mientras el CTA primario del Hero (data-cta-primary) sea
+ *     visible (IntersectionObserver). Cuando el hero sale del viewport,
+ *     se muestra.
+ *
+ * No reemplaza al .header-cta desktop; coexiste sin solaparse.
+ */
+
+interface Props {
+  href?: string;
+  label?: string;
+  ariaLabel?: string;
+}
+
+const {
+  href = '/auditoria',
+  label = 'Solicitar auditoría',
+  ariaLabel = 'Solicitar auditoría — abrir formulario',
+} = Astro.props;
+---
+
+<div
+  class="sticky-cta-mobile"
+  id="sticky-cta-mobile"
+  data-state="hidden"
+  aria-hidden="true"
+>
+  <a
+    href={href}
+    class="sticky-cta-mobile__btn"
+    data-cta="sticky-mobile-primary"
+    aria-label={ariaLabel}
+  >
+    {label}
+  </a>
+</div>
+
+<script>
+  // Mostrar la bottom-bar cuando el CTA primario del Hero sale del viewport.
+  // Si no hay [data-cta-primary] en la ruta (ej. /gracias-*, blog), no
+  // hacemos nada — el atributo data-no-sticky-cta del body o la ausencia
+  // del CTA primario mantiene la barra oculta.
+  const bar = document.getElementById('sticky-cta-mobile');
+  // Auto-hide en rutas thank-you (siguiente paso es WhatsApp / lectura del reporte)
+  if (bar && /^\/gracias-/.test(window.location.pathname)) {
+    document.body.dataset.noStickyCta = 'true';
+  }
+  if (bar) {
+    const primary = document.querySelector<HTMLElement>('[data-cta-primary]');
+
+    function show() {
+      bar!.dataset.state = 'visible';
+      bar!.setAttribute('aria-hidden', 'false');
+    }
+    function hide() {
+      bar!.dataset.state = 'hidden';
+      bar!.setAttribute('aria-hidden', 'true');
+    }
+
+    if (primary) {
+      const io = new IntersectionObserver(
+        ([entry]) => {
+          if (entry.isIntersecting) hide();
+          else show();
+        },
+        { threshold: 0.1 },
+      );
+      io.observe(primary);
+    } else {
+      // Sin CTA primario en la ruta: mostrar siempre tras 300ms de scroll-down.
+      let revealed = false;
+      window.addEventListener(
+        'scroll',
+        () => {
+          if (!revealed && window.scrollY > 300) {
+            show();
+            revealed = true;
+          } else if (revealed && window.scrollY <= 80) {
+            hide();
+            revealed = false;
+          }
+        },
+        { passive: true },
+      );
+    }
+  }
+</script>
+
+<style>
+  .sticky-cta-mobile {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: var(--z-sticky-cta-mobile, 90);
+    padding: var(--space-3) var(--space-4)
+      calc(var(--space-3) + env(safe-area-inset-bottom));
+    background: rgba(0, 51, 102, 0.96);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.35);
+    transform: translateY(110%);
+    transition: transform var(--dur-3, 320ms) var(--ease-out, ease-out);
+    display: none; /* default off; media query lo activa */
+  }
+  .sticky-cta-mobile[data-state="visible"] {
+    transform: translateY(0);
+  }
+
+  .sticky-cta-mobile__btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-height: var(--touch-target, 44px);
+    padding: var(--space-2) var(--space-5);
+    background: var(--color-accent);
+    color: var(--color-accent-ink);
+    font-family: var(--font-subheading);
+    font-weight: 700;
+    font-size: 1rem;
+    border-radius: var(--radius-pill, 999px);
+    text-decoration: none;
+    box-shadow: 0 4px 14px rgba(62, 234, 243, 0.35);
+    transition: filter 0.15s;
+  }
+  .sticky-cta-mobile__btn:hover,
+  .sticky-cta-mobile__btn:focus-visible {
+    filter: brightness(1.08);
+    color: var(--color-accent-ink);
+  }
+
+  /* Solo en mobile-tablet pequeña */
+  @media (max-width: 767px) {
+    .sticky-cta-mobile {
+      display: block;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .sticky-cta-mobile {
+      transition: none;
+    }
+  }
+</style>
