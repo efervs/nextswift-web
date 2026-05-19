@@ -1,8 +1,8 @@
 ---
 /**
- * /gracias-auditoria — Confirmación post-form auditoría (Fase 16).
- * Recibe ?eid=<event_id> del form para dedup de Pixel `CompleteRegistration`.
- * Dispara Google Ads conversion tag específico (env: PUBLIC_GOOGLE_ADS_LABEL_AUDITORIA).
+ * /gracias-quiz — Confirmación post-quiz (Fase 16).
+ * Recibe ?eid=<event_id> del quiz para dedup de Pixel `Lead`.
+ * Dispara Google Ads conversion tag específico (env: PUBLIC_GOOGLE_ADS_LABEL_QUIZ).
  */
 import Base from '../layouts/Base.astro';
 import Section from '../components/ui/Section.astro';
@@ -13,41 +13,42 @@ import ConversionTags from '../components/shared/ConversionTags.astro';
 import { buildWaUrl } from '../lib/whatsapp-url';
 
 const waUrl = buildWaUrl({
-  source: 'auditoria',
-  content: 'gracias_auditoria_cta_primary',
-  context: 'post_form',
+  source: 'quiz',
+  content: 'gracias_quiz_cta_secondary',
+  context: 'post_quiz',
   customMessage:
-    'Hola Efer, acabo de enviar mi solicitud de auditoría y quiero adelantar la sesión.',
+    'Hola Efer, acabo de terminar el diagnóstico de fuga de margen y quiero adelantar la conversación.',
 });
 ---
 
 <Base
-  title="Auditoría solicitada — NextSwift"
-  description="Recibimos su solicitud de auditoría. Efer le contactará dentro de las próximas 24 horas hábiles para agendar la sesión de 45 min."
+  title="Diagnóstico recibido — NextSwift"
+  description="Recibimos su diagnóstico de fuga de margen. Si su caso califica para el Acelerador, Efer le contactará dentro de 24 horas hábiles."
   noindex={true}
 >
   <Section width="narrow" spacing="lg">
     <header class="gracias-hero">
-      <Eyebrow tone="accent">Auditoría solicitada</Eyebrow>
+      <Eyebrow tone="accent">Diagnóstico recibido</Eyebrow>
       <Heading as="h1" size="h1">
-        Auditoría solicitada. Confirmado.
+        Listo. Su diagnóstico está siendo procesado.
       </Heading>
       <Body size="lead" tone="muted">
-        Efer revisa cada solicitud personalmente. Le escribirá por WhatsApp dentro
-        de las próximas <strong>24 horas hábiles</strong> para agendar la sesión
-        de auditoría operativa (45 min, sin compromiso). Si después de revisar su
-        caso no encaja con el Acelerador, también se lo diremos — sin perder su tiempo.
+        Recibirá un correo con su mapa de fugas y las 3 recomendaciones específicas
+        para su restaurante en los próximos minutos. Si su fuga estimada califica
+        para el Acelerador (ventas brutas ≥ $300k MXN/mes), Efer le escribirá por
+        WhatsApp dentro de las próximas <strong>24 horas hábiles</strong> para
+        validar el siguiente paso.
       </Body>
     </header>
 
     <div class="gracias-next">
-      <p class="gracias-next__lede">Si prefiere adelantar el contacto, escríbale directo:</p>
+      <p class="gracias-next__lede">Mientras tanto, vea cómo resolvimos casos similares:</p>
       <div class="gracias-next__ctas">
-        <a href={waUrl} class="btn btn--primary btn--lg" rel="noopener nofollow" target="_blank">
-          Adelantar por WhatsApp
+        <a href="/casos-de-exito" class="btn btn--primary btn--lg">
+          Ver casos reales
         </a>
-        <a href="/garantia" class="btn btn--ghost btn--lg">
-          Ver las 11 garantías
+        <a href={waUrl} class="btn btn--ghost btn--lg" rel="noopener nofollow" target="_blank">
+          Adelantar por WhatsApp
         </a>
       </div>
     </div>
@@ -57,7 +58,7 @@ const waUrl = buildWaUrl({
     </div>
   </Section>
 
-  <ConversionTags type="auditoria" />
+  <ConversionTags type="quiz" />
 </Base>
 
 <style>

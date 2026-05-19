@@ -14,25 +14,8 @@ import Badge from '../components/ui/Badge.astro';
 import Stakes from '../components/shared/Stakes.astro';
 import ThreeStepPlan from '../components/shared/ThreeStepPlan.astro';
 import CTAs from '../components/shared/CTAs.astro';
-
-const faqs = [
-  {
-    q: '¿Bonos por ticket promedio no incentivan a "upsell" forzado?',
-    a: 'No, si la rúbrica está bien diseñada. El bono se calcula sobre ticket promedio sostenido a 4 semanas, no por turno. El equipo aprende que insistir destruye el promedio en visitas siguientes, así que el incentivo natural es vender bien — no vender más.',
-  },
-  {
-    q: '¿Y si bajo rotación pero el personal sigue trabajando mal?',
-    a: 'Rotación baja sin desempeño es peor que rotación alta. Por eso instalamos política de retroalimentación documentada, evaluación trimestral con criterios objetivos, y separación rápida cuando los criterios no se cumplen. La meta es retención de A players, no retención total.',
-  },
-  {
-    q: '¿Cuánto cuesta cambiar el escalafón? ¿No me va a costar más?',
-    a: 'En la mayoría de casos cuesta igual o menos. Lo que se redistribuye es cómo se paga: sueldo base menor + bono variable atado a desempeño. El personal A gana más, el personal C gana lo mismo o menos. La rotación cae porque los A se quedan.',
-  },
-  {
-    q: '¿Cómo se manejan las propinas para que sean justas?',
-    a: 'Con política documentada que distribuye entre piso, cocina y barra según contribución medida. Sin "caja única" donde el de piso se lleva todo. Sin desigualdades arbitrarias. La política se firma con el equipo en una sesión — no se impone.',
-  },
-];
+import SocialProof from '../components/shared/SocialProof.astro';
+import FAQ from '../components/shared/FAQ.astro';
 ---
 
 <Base>
@@ -55,6 +38,8 @@ const faqs = [
       </div>
     </div>
   </Section>
+
+  <SocialProof variant="agregada" tone="alt" />
 
   <Stakes variant="landing" painSlug="personal" />
 
@@ -95,6 +80,8 @@ const faqs = [
 
   <ThreeStepPlan variant="landing" painContext="personal" />
 
+  <SocialProof variant="testimonios" />
+
   <Section spacing="md" tone="surface" id="oferta">
     <Eyebrow tone="accent">PROGRAMA</Eyebrow>
     <Heading as="h2" size="h2">El Acelerador 3 Palancas — paquete completo</Heading>
@@ -113,18 +100,7 @@ const faqs = [
     </div>
   </Section>
 
-  <Section spacing="md" tone="alt" id="faq">
-    <Eyebrow tone="neutral">PREGUNTAS DE DUEÑOS QUE YA NOS PREGUNTARON ESTO</Eyebrow>
-    <Heading as="h2" size="h3">FAQ — personal y rotación</Heading>
-    <div class="faq-list">
-      {faqs.map((item) => (
-        <details class="faq-item">
-          <summary>{item.q}</summary>
-          <Body size="base">{item.a}</Body>
-        </details>
-      ))}
-    </div>
-  </Section>
+  <FAQ variant="landing" painSlug="personal" tone="alt" />
 </Base>
 
 <style>
@@ -141,10 +117,4 @@ const faqs = [
   .caso-ancla__lbl { font-family: var(--font-subheading); font-size: 0.875rem; color: var(--color-text-muted); }
   .caso-ancla__cuerpo { display: grid; gap: var(--space-3); align-content: start; }
   .resumen-bullets { list-style: none; padding: 0; margin: var(--space-3) 0 0; display: grid; gap: var(--space-2); }
-  .faq-list { display: grid; gap: var(--space-2); margin-top: var(--space-3); }
-  .faq-item { border: 1px solid var(--color-border, rgba(0, 51, 102, 0.12)); border-radius: var(--radius-2); background: var(--color-bg); }
-  .faq-item summary { cursor: pointer; padding: var(--space-3); font-family: var(--font-subheading); font-weight: 600; color: var(--color-dark-1); list-style: none; }
-  .faq-item summary::-webkit-details-marker { display: none; }
-  .faq-item[open] summary { border-bottom: 1px solid var(--color-border, rgba(0, 51, 102, 0.08)); }
-  .faq-item :global(p) { padding: var(--space-3); margin: 0; }
 </style>

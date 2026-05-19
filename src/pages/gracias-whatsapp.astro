@@ -1,0 +1,91 @@
+---
+/**
+ * /gracias-whatsapp — Confirmación post-clic WhatsApp (Fase 16).
+ * Página de aterrizaje opcional con redirección visual a la conversación.
+ * Recibe ?eid=<event_id> del CTA WA para dedup de Pixel `Contact`.
+ * Dispara Google Ads conversion tag específico (env: PUBLIC_GOOGLE_ADS_LABEL_WHATSAPP).
+ */
+import Base from '../layouts/Base.astro';
+import Section from '../components/ui/Section.astro';
+import Heading from '../components/ui/Heading.astro';
+import Body from '../components/ui/Body.astro';
+import Eyebrow from '../components/ui/Eyebrow.astro';
+import ConversionTags from '../components/shared/ConversionTags.astro';
+---
+
+<Base
+  title="Conversación abierta en WhatsApp — NextSwift"
+  description="Su mensaje está en camino a Efer Lara. Horario hábil: lunes a viernes 9am-7pm Monterrey."
+  noindex={true}
+>
+  <Section width="narrow" spacing="lg">
+    <header class="gracias-hero">
+      <Eyebrow tone="accent">Mensaje enviado</Eyebrow>
+      <Heading as="h1" size="h1">
+        Su mensaje está en camino.
+      </Heading>
+      <Body size="lead" tone="muted">
+        Si la conversación ya se abrió en WhatsApp, Efer le responde personalmente
+        en horario hábil: <strong>lunes a viernes, 9:00am-7:00pm (hora Monterrey)</strong>.
+        Fuera de ese horario, recibirá respuesta el siguiente día hábil.
+      </Body>
+    </header>
+
+    <div class="gracias-next">
+      <p class="gracias-next__lede">
+        ¿Aún no hizo el diagnóstico gratuito? Le toma 3 minutos y le devuelve
+        un mapa específico de fugas para su restaurante:
+      </p>
+      <div class="gracias-next__ctas">
+        <a href="/diagnostico" class="btn btn--primary btn--lg">
+          Diagnóstico de fuga de margen
+        </a>
+        <a href="/casos-de-exito" class="btn btn--ghost btn--lg">
+          Ver casos reales
+        </a>
+      </div>
+    </div>
+
+    <div class="gracias-foot">
+      <a href="/" class="gracias-foot__back">← Volver al inicio</a>
+    </div>
+  </Section>
+
+  <ConversionTags type="whatsapp" />
+</Base>
+
+<style>
+  .gracias-hero {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+  .gracias-next {
+    margin-top: var(--space-7);
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+  .gracias-next__lede {
+    margin: 0;
+    font-family: var(--font-subheading);
+    color: var(--color-text-muted);
+    max-width: 42rem;
+    margin-inline: auto;
+  }
+  .gracias-next__ctas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    justify-content: center;
+  }
+  .gracias-foot {
+    margin-top: var(--space-6);
+    text-align: center;
+  }
+  .gracias-foot__back {
+    color: var(--color-text-muted, #555);
+  }
+</style>

@@ -14,25 +14,8 @@ import Badge from '../components/ui/Badge.astro';
 import Stakes from '../components/shared/Stakes.astro';
 import ThreeStepPlan from '../components/shared/ThreeStepPlan.astro';
 import CTAs from '../components/shared/CTAs.astro';
-
-const faqs = [
-  {
-    q: '¿Realmente puede mi restaurante operar 72 horas sin mí?',
-    a: 'Sí, si tres piezas existen y están probadas: un encargado entrenado con rúbrica clara, SOPs documentados para apertura/cierre/compras/conflictos, y una junta semanal con dueño que revise KPIs en lugar de operar. En semana 12 hacemos la prueba de ausencia controlada — no antes.',
-  },
-  {
-    q: '¿Cómo se entrena al encargado sin gastar 6 meses?',
-    a: 'Con una rúbrica de 8 competencias operativas y un plan de 8-10 semanas: shadowing, decisión asistida, decisión sola con auditoría, decisión sola con revisión semanal. La rúbrica se hace contigo en la primera semana — no es un manual genérico.',
-  },
-  {
-    q: '¿Qué pasa si mi encargado actual no da el ancho?',
-    a: 'El diagnóstico de 10 días identifica si el encargado actual es capacitable o si necesitas reemplazo. Si es lo segundo, te ayudamos a definir el perfil y el escalafón con bonos para atraer a la persona correcta — no a la barata.',
-  },
-  {
-    q: '¿Y si soy el chef y la operación depende de mi sazón?',
-    a: 'La sazón se documenta. Recetas estandarizadas con gramaje, tiempos y presentación, validadas por ti antes de soltar. La mayoría de chef-dueños descubren que el 80% de su sazón está en 6-8 platillos del menú, no en los 25.',
-  },
-];
+import SocialProof from '../components/shared/SocialProof.astro';
+import FAQ from '../components/shared/FAQ.astro';
 ---
 
 <Base>
@@ -54,6 +37,8 @@ const faqs = [
       </div>
     </div>
   </Section>
+
+  <SocialProof variant="agregada" tone="alt" />
 
   <Stakes variant="landing" painSlug="autonomia" />
 
@@ -93,6 +78,8 @@ const faqs = [
 
   <ThreeStepPlan variant="landing" painContext="autonomia" />
 
+  <SocialProof variant="testimonios" />
+
   <Section spacing="md" tone="surface" id="oferta">
     <Eyebrow tone="accent">PROGRAMA</Eyebrow>
     <Heading as="h2" size="h2">El Acelerador 3 Palancas — paquete completo</Heading>
@@ -111,18 +98,7 @@ const faqs = [
     </div>
   </Section>
 
-  <Section spacing="md" tone="alt" id="faq">
-    <Eyebrow tone="neutral">PREGUNTAS DE DUEÑOS QUE YA NOS PREGUNTARON ESTO</Eyebrow>
-    <Heading as="h2" size="h3">FAQ — autonomía y delegación</Heading>
-    <div class="faq-list">
-      {faqs.map((item) => (
-        <details class="faq-item">
-          <summary>{item.q}</summary>
-          <Body size="base">{item.a}</Body>
-        </details>
-      ))}
-    </div>
-  </Section>
+  <FAQ variant="landing" painSlug="autonomia" tone="alt" />
 </Base>
 
 <style>
@@ -139,10 +115,4 @@ const faqs = [
   .caso-ancla__lbl { font-family: var(--font-subheading); font-size: 0.875rem; color: var(--color-text-muted); }
   .caso-ancla__cuerpo { display: grid; gap: var(--space-3); align-content: start; }
   .resumen-bullets { list-style: none; padding: 0; margin: var(--space-3) 0 0; display: grid; gap: var(--space-2); }
-  .faq-list { display: grid; gap: var(--space-2); margin-top: var(--space-3); }
-  .faq-item { border: 1px solid var(--color-border, rgba(0, 51, 102, 0.12)); border-radius: var(--radius-2); background: var(--color-bg); }
-  .faq-item summary { cursor: pointer; padding: var(--space-3); font-family: var(--font-subheading); font-weight: 600; color: var(--color-dark-1); list-style: none; }
-  .faq-item summary::-webkit-details-marker { display: none; }
-  .faq-item[open] summary { border-bottom: 1px solid var(--color-border, rgba(0, 51, 102, 0.08)); }
-  .faq-item :global(p) { padding: var(--space-3); margin: 0; }
 </style>

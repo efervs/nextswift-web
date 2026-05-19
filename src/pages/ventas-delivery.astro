@@ -14,29 +14,8 @@ import Badge from '../components/ui/Badge.astro';
 import Stakes from '../components/shared/Stakes.astro';
 import ThreeStepPlan from '../components/shared/ThreeStepPlan.astro';
 import CTAs from '../components/shared/CTAs.astro';
-
-const faqs = [
-  {
-    q: '¿No es contradictorio bajarle a Rappi y Didi si ahí están las ventas?',
-    a: 'No bajamos volumen — bajamos dependencia. Migramos 15-20% de los pedidos a canal directo (pickup, página propia, llamada). Sigues vendiendo en marketplaces, pero el margen de ese 15-20% se duplica al evitar comisiones.',
-  },
-  {
-    q: '¿Cuándo lanzan tráfico pagado? ¿Y cuánto cuesta?',
-    a: 'Solo cuando la cocina está ordenada y el margen lo permite. Lanzar tráfico sobre operación rota es gasolina en motor fundido. El presupuesto inicial de prueba arranca en $1,000-$5,000 MXN/mes — escalamos solo si el costo por venta lo justifica contra utilidad, no contra ROAS.',
-  },
-  {
-    q: '¿Cómo construyo base de datos propia si todo me lo lleva la app?',
-    a: 'Con tres palancas: captura en mesa (QR + incentivo claro), reactivación post-entrega (mensaje con descuento a canal directo), y programa de recurrencia (no "lealtad" — recurrencia medible con métricas de visita).',
-  },
-  {
-    q: '¿Funciona esto para una dark kitchen sin local físico?',
-    a: 'Sí, con dos ajustes: el "canal directo" se construye sobre página propia + WhatsApp + reactivación de base. Y la dependencia de marketplaces se mide más fuerte — porque ahí estás 100%. Si tu dark kitchen factura menos de $300k MXN/mes, el Acelerador no es para ti todavía; primero hay que llegar a ese piso.',
-  },
-  {
-    q: '¿Cuánto tarda en notarse el cambio?',
-    a: '60-90 días para ver migración a canal directo. El tráfico pagado da señales en 14-21 días. La recurrencia se mide a partir del día 60. Todo se reporta cada lunes en el dashboard semanal.',
-  },
-];
+import SocialProof from '../components/shared/SocialProof.astro';
+import FAQ from '../components/shared/FAQ.astro';
 ---
 
 <Base>
@@ -58,6 +37,8 @@ const faqs = [
       </div>
     </div>
   </Section>
+
+  <SocialProof variant="agregada" tone="alt" />
 
   <Stakes variant="landing" painSlug="ventas-delivery" />
 
@@ -94,6 +75,8 @@ const faqs = [
 
   <ThreeStepPlan variant="landing" painContext="ventas-delivery" />
 
+  <SocialProof variant="testimonios" />
+
   <Section spacing="md" tone="surface" id="oferta">
     <Eyebrow tone="accent">PROGRAMA</Eyebrow>
     <Heading as="h2" size="h2">El Acelerador 3 Palancas — paquete completo</Heading>
@@ -113,18 +96,7 @@ const faqs = [
     </div>
   </Section>
 
-  <Section spacing="md" tone="alt" id="faq">
-    <Eyebrow tone="neutral">PREGUNTAS DE DUEÑOS QUE YA NOS PREGUNTARON ESTO</Eyebrow>
-    <Heading as="h2" size="h3">FAQ — ventas, delivery y dark kitchens</Heading>
-    <div class="faq-list">
-      {faqs.map((item) => (
-        <details class="faq-item">
-          <summary>{item.q}</summary>
-          <Body size="base">{item.a}</Body>
-        </details>
-      ))}
-    </div>
-  </Section>
+  <FAQ variant="landing" painSlug="ventas-delivery" tone="alt" />
 </Base>
 
 <style>
@@ -141,10 +113,4 @@ const faqs = [
   .caso-ancla__lbl { font-family: var(--font-subheading); font-size: 0.875rem; color: var(--color-text-muted); }
   .caso-ancla__cuerpo { display: grid; gap: var(--space-3); align-content: start; }
   .resumen-bullets { list-style: none; padding: 0; margin: var(--space-3) 0 0; display: grid; gap: var(--space-2); }
-  .faq-list { display: grid; gap: var(--space-2); margin-top: var(--space-3); }
-  .faq-item { border: 1px solid var(--color-border, rgba(0, 51, 102, 0.12)); border-radius: var(--radius-2); background: var(--color-bg); }
-  .faq-item summary { cursor: pointer; padding: var(--space-3); font-family: var(--font-subheading); font-weight: 600; color: var(--color-dark-1); list-style: none; }
-  .faq-item summary::-webkit-details-marker { display: none; }
-  .faq-item[open] summary { border-bottom: 1px solid var(--color-border, rgba(0, 51, 102, 0.08)); }
-  .faq-item :global(p) { padding: var(--space-3); margin: 0; }
 </style>

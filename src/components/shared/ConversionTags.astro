@@ -1,0 +1,102 @@
+---
+/**
+ * ConversionTags — dispara conversion tags refinados en /gracias-*.
+ * Fase 16 del PLAN_IMPLEMENTACION_NEXTSWIFT.
+ *
+ * Doble fuente:
+ *  1) Meta Pixel: refina el evento ORIGINAL emitido por F13/F14/F15 con event_id
+ *     leído de ?eid= (dedup en Events Manager).
+ *  2) Google Ads gtag: dispara conversión específica del canal (label de env vars).
+ *
+ * Guard: si ?eid= está ausente (acceso directo a /gracias-*), NO se dispara nada.
+ *        Evita inflado de conversiones.
+ *
+ * Loader: gtag se carga inline aquí (no en <head>) porque los slots no se
+ * propagan en componentes nested. Latencia añadida ~200ms — aceptable para
+ * conversion tracking post-submit. El Pixel ya está cargado por Base.astro.
+ */
+import { CONVERSION_MAP, type ConversionType } from '../../data/conversion-mapping';
+
+interface Props {
+  type: ConversionType;
+}
+
+const { type } = Astro.props;
+const mapping = CONVERSION_MAP[type];
+
+// Resolución client-side de los env vars (todos PUBLIC_).
+const googleAccountId = import.meta.env.PUBLIC_GOOGLE_ADS_ACCOUNT_ID ?? '';
+const googleLabel =
+  type === 'quiz'
+    ? (import.meta.env.PUBLIC_GOOGLE_ADS_LABEL_QUIZ ?? '')
+    : type === 'auditoria'
+      ? (import.meta.env.PUBLIC_GOOGLE_ADS_LABEL_AUDITORIA ?? '')
+      : (import.meta.env.PUBLIC_GOOGLE_ADS_LABEL_WHATSAPP ?? '');
+
+const hasGoogleAds = Boolean(googleAccountId && googleLabel);
+const sendTo = hasGoogleAds ? `${googleAccountId}/${googleLabel}` : '';
+---
+
+{hasGoogleAds && (
+  <Fragment>
+    <script
+      is:inline
+      async
+      src={`https://www.googletagmanager.com/gtag/js?id=${googleAccountId}`}
+    />
+    <script is:inline define:vars={{ googleAccountId }}>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = window.gtag || function () { window.dataLayer.push(arguments); };
+      window.gtag('js', new Date());
+      window.gtag('config', googleAccountId);
+    </script>
+  </Fragment>
+)}
+
+<script
+  is:inline
+  define:vars={{
+    metaEvent: mapping.meta_event,
+    value: mapping.value,
+    currency: mapping.currency,
+    sendTo: sendTo,
+    hasGoogleAds: hasGoogleAds,
+  }}
+>
+  (function () {
+    var params = new URLSearchParams(window.location.search);
+    var eid = params.get('eid');
+    if (!eid) {
+      // Acceso directo a /gracias-* sin pasar por quiz/form/wa => NO disparar.
+      return;
+    }
+
+    // (1) Meta Pixel refinement con event_id deduplicado.
+    if (typeof window.fbq === 'function') {
+      try {
+        window.fbq(
+          'track',
+          metaEvent,
+          { value: value, currency: currency },
+          { eventID: eid }
+        );
+      } catch (_e) {
+        // fbq no listo: no es crítico, el evento original ya fue.
+      }
+    }
+
+    // (2) Google Ads conversion (si env vars configurados).
+    if (hasGoogleAds && typeof window.gtag === 'function') {
+      try {
+        window.gtag('event', 'conversion', {
+          send_to: sendTo,
+          transaction_id: eid,
+          value: value,
+          currency: currency,
+        });
+      } catch (_e) {
+        // gtag no listo: no crítico.
+      }
+    }
+  })();
+</script>

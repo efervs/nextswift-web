@@ -14,25 +14,8 @@ import Badge from '../components/ui/Badge.astro';
 import Stakes from '../components/shared/Stakes.astro';
 import ThreeStepPlan from '../components/shared/ThreeStepPlan.astro';
 import CTAs from '../components/shared/CTAs.astro';
-
-const faqs = [
-  {
-    q: '¿Cómo sé si mi restaurante está listo para una segunda sucursal?',
-    a: 'Tres condiciones: el actual opera 72 horas sin tu presencia, el margen está documentado y estable a 6 meses, y la economía unitaria por turno está medida. Si falta alguno, abrir la segunda sucursal multiplica problemas en vez de utilidad.',
-  },
-  {
-    q: '¿Franquicia o sucursal propia? ¿Qué conviene más?',
-    a: 'Depende del nivel de control que quieres y del capital disponible. Sucursal propia preserva margen completo pero requiere capital y operación replicable. Franquicia escala más rápido pero exige manual operativo blindado y soporte estructurado. El plan de expansión por escenarios compara ambos contra tu situación específica.',
-  },
-  {
-    q: '¿Qué es la "economía unitaria" y por qué importa?',
-    a: 'Es saber cuánto cuesta y cuánto deja cada unidad de venta: un platillo, un turno, una sucursal. Sin ella, decidir abrir una segunda sucursal es apostar — porque no sabes si lo que ganas por unidad cubre los costos fijos adicionales. El Acelerador documenta esta economía en 90 días.',
-  },
-  {
-    q: '¿Me sirve si quiero abrir una dark kitchen como segunda operación?',
-    a: 'Sí. Dark kitchen como expansión de un restaurante físico exitoso es una de las tres opciones que evaluamos en el plan por escenarios. Las otras dos: segunda sucursal completa, o modelo de franquicia. Cada una con su economía unitaria proyectada.',
-  },
-];
+import SocialProof from '../components/shared/SocialProof.astro';
+import FAQ from '../components/shared/FAQ.astro';
 ---
 
 <Base>
@@ -55,6 +38,8 @@ const faqs = [
       </div>
     </div>
   </Section>
+
+  <SocialProof variant="agregada" tone="alt" />
 
   <Stakes variant="landing" painSlug="crecimiento-controlado" />
 
@@ -95,6 +80,8 @@ const faqs = [
 
   <ThreeStepPlan variant="landing" painContext="crecimiento-controlado" />
 
+  <SocialProof variant="testimonios" />
+
   <Section spacing="md" tone="surface" id="oferta">
     <Eyebrow tone="accent">PROGRAMA</Eyebrow>
     <Heading as="h2" size="h2">El Acelerador 3 Palancas — paquete completo</Heading>
@@ -114,18 +101,7 @@ const faqs = [
     </div>
   </Section>
 
-  <Section spacing="md" tone="alt" id="faq">
-    <Eyebrow tone="neutral">PREGUNTAS DE DUEÑOS QUE YA NOS PREGUNTARON ESTO</Eyebrow>
-    <Heading as="h2" size="h3">FAQ — expansión y replicabilidad</Heading>
-    <div class="faq-list">
-      {faqs.map((item) => (
-        <details class="faq-item">
-          <summary>{item.q}</summary>
-          <Body size="base">{item.a}</Body>
-        </details>
-      ))}
-    </div>
-  </Section>
+  <FAQ variant="landing" painSlug="crecimiento-controlado" tone="alt" />
 </Base>
 
 <style>
@@ -142,10 +118,4 @@ const faqs = [
   .caso-ancla__lbl { font-family: var(--font-subheading); font-size: 0.875rem; color: var(--color-text-muted); }
   .caso-ancla__cuerpo { display: grid; gap: var(--space-3); align-content: start; }
   .resumen-bullets { list-style: none; padding: 0; margin: var(--space-3) 0 0; display: grid; gap: var(--space-2); }
-  .faq-list { display: grid; gap: var(--space-2); margin-top: var(--space-3); }
-  .faq-item { border: 1px solid var(--color-border, rgba(0, 51, 102, 0.12)); border-radius: var(--radius-2); background: var(--color-bg); }
-  .faq-item summary { cursor: pointer; padding: var(--space-3); font-family: var(--font-subheading); font-weight: 600; color: var(--color-dark-1); list-style: none; }
-  .faq-item summary::-webkit-details-marker { display: none; }
-  .faq-item[open] summary { border-bottom: 1px solid var(--color-border, rgba(0, 51, 102, 0.08)); }
-  .faq-item :global(p) { padding: var(--space-3); margin: 0; }
 </style>

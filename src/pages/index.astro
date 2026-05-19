@@ -1,28 +1,37 @@
 ---
+/**
+ * Home (/) — orquestación principal.
+ * Inyecta P14 (Fase 17 SocialProof + Fase 18 FAQ global).
+ * ProofBar legacy (P4) reemplazado por <SocialProof variant="agregada"/> + variant="logos".
+ */
 import Base from '../layouts/Base.astro';
-import Section from '../components/ui/Section.astro';
 import Hero from '../components/home/Hero.astro';
-import ProofBar from '../components/home/ProofBar.astro';
+import SocialProof from '../components/shared/SocialProof.astro';
 import ThreeStepPlan from '../components/shared/ThreeStepPlan.astro';
 import Stakes from '../components/shared/Stakes.astro';
 import OfertaResumen from '../components/home/OfertaResumen.astro';
 import GarantiasResumen from '../components/shared/GarantiasResumen.astro';
+import FAQ from '../components/shared/FAQ.astro';
+import Section from '../components/ui/Section.astro';
 ---
 
 <Base>
   <Section spacing="lg" tone="surface">
     <Hero />
+    <SocialProof variant="agregada" tone="transparent" />
   </Section>
 
-  <Section spacing="md" tone="alt">
-    <ProofBar />
-  </Section>
+  <SocialProof variant="logos" tone="alt" />
 
   <Stakes variant="home" />
 
   <ThreeStepPlan variant="home" />
 
+  <SocialProof variant="testimonios" />
+
   <OfertaResumen />
 
   <GarantiasResumen tone="light" />
+
+  <FAQ variant="global" tone="alt" />
 </Base>

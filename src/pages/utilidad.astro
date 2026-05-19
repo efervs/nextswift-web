@@ -14,25 +14,8 @@ import Badge from '../components/ui/Badge.astro';
 import Stakes from '../components/shared/Stakes.astro';
 import ThreeStepPlan from '../components/shared/ThreeStepPlan.astro';
 import CTAs from '../components/shared/CTAs.astro';
-
-const faqs = [
-  {
-    q: '¿Cómo saben que mi problema es de margen y no de ventas?',
-    a: 'Los primeros 10 días son diagnóstico forense. Revisamos costo real por platillo, mermas medibles, descuentos no autorizados, mix por margen y ticket promedio. Si el diagnóstico muestra que el cuello es de tráfico y no de margen, lo decimos antes de firmar (garantía 1 y 2).',
-  },
-  {
-    q: '¿Necesito cambiar mi sistema de punto de venta?',
-    a: 'No. Trabajamos con el POS que ya tienes. Si tu POS no exporta lo que necesitamos, te enseñamos a vaciarlo en una plantilla semanal manual — sin software adicional.',
-  },
-  {
-    q: '¿Cuánto margen puedo recuperar realmente?',
-    a: '3 a 7 puntos de margen real en 90 días en restaurantes con operación promedio. Restaurantes con merma alta no auditada recuperan más; restaurantes ya optimizados recuperan menos. El dashboard semanal valida el avance — no es estimación.',
-  },
-  {
-    q: '¿Qué pasa si subimos precios y se van los clientes?',
-    a: 'No subimos precios a ciegas. Primero rediseñamos el menú por margen — bajamos el peso visual de platillos de baja rentabilidad y subimos el de los rentables. El precio sube solo donde la elasticidad lo permite.',
-  },
-];
+import SocialProof from '../components/shared/SocialProof.astro';
+import FAQ from '../components/shared/FAQ.astro';
 ---
 
 <Base>
@@ -55,6 +38,8 @@ const faqs = [
       </div>
     </div>
   </Section>
+
+  <SocialProof variant="agregada" tone="alt" />
 
   <Stakes variant="landing" painSlug="utilidad" />
 
@@ -95,6 +80,8 @@ const faqs = [
 
   <ThreeStepPlan variant="landing" painContext="utilidad" />
 
+  <SocialProof variant="testimonios" />
+
   <Section spacing="md" tone="surface" id="oferta">
     <Eyebrow tone="accent">PROGRAMA</Eyebrow>
     <Heading as="h2" size="h2">El Acelerador 3 Palancas — paquete completo</Heading>
@@ -113,18 +100,7 @@ const faqs = [
     </div>
   </Section>
 
-  <Section spacing="md" tone="alt" id="faq">
-    <Eyebrow tone="neutral">PREGUNTAS DE DUEÑOS QUE YA NOS PREGUNTARON ESTO</Eyebrow>
-    <Heading as="h2" size="h3">FAQ — margen y utilidad</Heading>
-    <div class="faq-list">
-      {faqs.map((item) => (
-        <details class="faq-item">
-          <summary>{item.q}</summary>
-          <Body size="base">{item.a}</Body>
-        </details>
-      ))}
-    </div>
-  </Section>
+  <FAQ variant="landing" painSlug="utilidad" tone="alt" />
 </Base>
 
 <style>
@@ -207,33 +183,5 @@ const faqs = [
     margin: var(--space-3) 0 0;
     display: grid;
     gap: var(--space-2);
-  }
-  .faq-list {
-    display: grid;
-    gap: var(--space-2);
-    margin-top: var(--space-3);
-  }
-  .faq-item {
-    border: 1px solid var(--color-border, rgba(0, 51, 102, 0.12));
-    border-radius: var(--radius-2);
-    background: var(--color-bg);
-  }
-  .faq-item summary {
-    cursor: pointer;
-    padding: var(--space-3);
-    font-family: var(--font-subheading);
-    font-weight: 600;
-    color: var(--color-dark-1);
-    list-style: none;
-  }
-  .faq-item summary::-webkit-details-marker {
-    display: none;
-  }
-  .faq-item[open] summary {
-    border-bottom: 1px solid var(--color-border, rgba(0, 51, 102, 0.08));
-  }
-  .faq-item :global(p) {
-    padding: var(--space-3);
-    margin: 0;
   }
 </style>

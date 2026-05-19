@@ -1,0 +1,192 @@
+---
+/**
+ * FAQ — accordion semántico con Schema.org FAQPage.
+ * Fase 18 del PLAN_IMPLEMENTACION_NEXTSWIFT.
+ *
+ * Variants:
+ *  - 'global'  -> FAQ de home (8-10 preguntas, scope='home').
+ *  - 'landing' -> FAQ por dolor (3-5 preguntas, scope=<painSlug>). Requiere `painSlug`.
+ *
+ * Regla anti-duplicación: cada PÁGINA emite UNA SOLA instancia de Schema.org FAQPage.
+ * NO incluir <FAQ variant="global"/> Y <FAQ variant="landing" .../> en la misma página.
+ *
+ * A11y: <details>/<summary> nativos. NO usa JS pesado. Foco visible vía CSS tokens.
+ */
+import { faqsByScope, type FaqScope } from '../../data/faq';
+import Section from '../ui/Section.astro';
+import Eyebrow from '../ui/Eyebrow.astro';
+import Heading from '../ui/Heading.astro';
+
+interface Props {
+  variant: 'global' | 'landing';
+  painSlug?: Exclude<FaqScope, 'home'>;
+  tone?: 'surface' | 'alt';
+  /** Si true, el primer item arranca abierto (orientación al usuario). */
+  defaultOpenFirst?: boolean;
+}
+
+const { variant, painSlug, tone = 'alt', defaultOpenFirst = true } = Astro.props;
+
+if (variant === 'landing' && !painSlug) {
+  throw new Error('FAQ: variant="landing" requiere prop painSlug.');
+}
+
+const scope: FaqScope = variant === 'global' ? 'home' : (painSlug as FaqScope);
+const entries = faqsByScope(scope);
+
+const eyebrow = variant === 'global'
+  ? 'PREGUNTAS DE DUEÑOS QUE YA NOS PREGUNTARON ESTO'
+  : 'FAQ ESPECÍFICA AL DOLOR';
+
+const titulo = variant === 'global' ? 'Preguntas frecuentes' : 'FAQ — preguntas específicas';
+
+const headingLevel: 'h2' | 'h3' = variant === 'global' ? 'h2' : 'h3';
+
+// Schema.org FAQPage — UNA emisión por página.
+const faqSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: entries.map((e) => ({
+    '@type': 'Question',
+    name: e.pregunta,
+    acceptedAnswer: {
+      '@type': 'Answer',
+      text: e.respuesta,
+    },
+  })),
+};
+---
+
+{entries.length > 0 && (
+  <Section spacing="md" tone={tone} as="section" id="faq">
+    <Eyebrow tone="neutral">{eyebrow}</Eyebrow>
+    <Heading as={headingLevel} size={headingLevel === 'h2' ? 'h2' : 'h3'}>
+      {titulo}
+    </Heading>
+
+    <dl class="faq-list" aria-label="Preguntas frecuentes">
+      {entries.map((item, idx) => (
+        <details
+          class="faq-item"
+          name={variant === 'global' ? 'faq-global' : `faq-${painSlug}`}
+          open={defaultOpenFirst && idx === 0}
+        >
+          <summary class="faq-item__q">
+            <span class="faq-item__icon" aria-hidden="true"></span>
+            <span>{item.pregunta}</span>
+          </summary>
+          <div class="faq-item__a">
+            <p>{item.respuesta}</p>
+          </div>
+        </details>
+      ))}
+    </dl>
+
+    {/* JSON-LD FAQPage — Rich Results elegible. */}
+    <script
+      type="application/ld+json"
+      is:inline
+      set:html={JSON.stringify(faqSchema)}
+    />
+  </Section>
+)}
+
+<style>
+  .faq-list {
+    display: grid;
+    gap: var(--space-2);
+    margin: var(--space-4) 0 0;
+    padding: 0;
+  }
+
+  .faq-item {
+    border: 1px solid var(--color-border, rgba(0, 51, 102, 0.12));
+    border-radius: var(--radius-2);
+    background: var(--color-bg, #fff);
+    transition: border-color var(--dur-2, 180ms) var(--ease-out, ease-out);
+  }
+
+  .faq-item:hover,
+  .faq-item:focus-within {
+    border-color: var(--color-accent, #003366);
+  }
+
+  .faq-item__q {
+    cursor: pointer;
+    padding: var(--space-3) var(--space-4);
+    font-family: var(--font-subheading);
+    font-weight: 600;
+    color: var(--color-dark-1, #0a2540);
+    list-style: none;
+    display: grid;
+    grid-template-columns: 1.25rem 1fr;
+    gap: var(--space-3);
+    align-items: center;
+    min-height: 44px; /* WCAG target táctil */
+  }
+
+  .faq-item__q::-webkit-details-marker {
+    display: none;
+  }
+
+  .faq-item__q:focus-visible {
+    outline: 2px solid var(--color-accent, #003366);
+    outline-offset: 2px;
+    border-radius: var(--radius-2);
+  }
+
+  .faq-item__icon {
+    width: 1rem;
+    height: 1rem;
+    position: relative;
+    flex-shrink: 0;
+  }
+
+  .faq-item__icon::before,
+  .faq-item__icon::after {
+    content: '';
+    position: absolute;
+    background: var(--color-accent, #003366);
+    border-radius: 1px;
+    transition: transform var(--dur-2, 180ms) var(--ease-out, ease-out);
+  }
+
+  .faq-item__icon::before {
+    inset: 50% 0 50% 0;
+    height: 2px;
+    transform: translateY(-1px);
+  }
+
+  .faq-item__icon::after {
+    inset: 0 50% 0 50%;
+    width: 2px;
+    transform: translateX(-1px);
+  }
+
+  .faq-item[open] .faq-item__icon::after {
+    transform: translateX(-1px) scaleY(0);
+  }
+
+  .faq-item[open] .faq-item__q {
+    border-bottom: 1px solid var(--color-border, rgba(0, 51, 102, 0.08));
+  }
+
+  .faq-item__a {
+    padding: var(--space-3) var(--space-4) var(--space-4);
+  }
+
+  .faq-item__a p {
+    margin: 0;
+    font-family: var(--font-body);
+    color: var(--color-text, #2a3447);
+    line-height: var(--line-base, 1.6);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .faq-item,
+    .faq-item__icon::before,
+    .faq-item__icon::after {
+      transition: none;
+    }
+  }
+</style>

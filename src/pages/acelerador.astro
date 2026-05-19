@@ -13,6 +13,7 @@ import GarantiasResumen from '../components/shared/GarantiasResumen.astro';
 import Stakes from '../components/shared/Stakes.astro';
 import ThreeStepPlan from '../components/shared/ThreeStepPlan.astro';
 import CTAs from '../components/shared/CTAs.astro';
+import SocialProof from '../components/shared/SocialProof.astro';
 
 const palancas = [
   {
@@ -126,9 +127,13 @@ const cuposLeyenda =
     </div>
   </section>
 
+  <SocialProof variant="agregada" tone="alt" />
+
   <Stakes variant="landing" painSlug="utilidad" />
 
   <ThreeStepPlan variant="landing" />
+
+  <SocialProof variant="testimonios" />
 
   <section class="bonos" aria-labelledby="bonos-heading">
     <div class="bonos__inner">
