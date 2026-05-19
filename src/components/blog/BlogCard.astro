@@ -25,7 +25,7 @@ const meta = readingTime(body ?? '');
 <Card interactive padding={compact ? 'sm' : 'md'} class="blog-card">
   <a href={href} class="blog-card__link">
     <div class="blog-card__cover" aria-hidden="true">
-      <img src={data.cover} alt="" loading="lazy" decoding="async" />
+      <img src={data.cover} alt="" loading="lazy" decoding="async" width="640" height="360" />
     </div>
     <div class="blog-card__body">
       <div class="blog-card__meta">

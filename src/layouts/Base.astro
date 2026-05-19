@@ -8,6 +8,13 @@ import Header from '../components/layout/Header.astro';
 import Footer from '../components/layout/Footer.astro';
 import StickyCTAMobile from '../components/layout/StickyCTAMobile.astro';
 
+// Font preloads — Vite resuelve URL con content-hash; reduce FOUT en LCP.
+import oswald from '@fontsource-variable/oswald/files/oswald-latin-wght-normal.woff2?url';
+import sspN from '@fontsource/source-sans-pro/files/source-sans-pro-latin-400-normal.woff2?url';
+import sspSb from '@fontsource/source-sans-pro/files/source-sans-pro-latin-600-normal.woff2?url';
+import latoN from '@fontsource/lato/files/lato-latin-400-normal.woff2?url';
+import latoBd from '@fontsource/lato/files/lato-latin-700-normal.woff2?url';
+
 interface Props {
   title?: string;
   description?: string;
@@ -20,7 +27,7 @@ const {
   title = 'NextSwift — Consultoría B2B para restaurantes en México',
   description = 'Rehabilitamos restaurantes que venden pero no ganan dinero. Diagnóstico, plan y ejecución en 10 días hábiles. 11 garantías formales. Dueño dentro de la cabina.',
   canonical = new URL(Astro.url.pathname, 'https://www.nextswift.mx').toString(),
-  ogImage,
+  ogImage = 'https://www.nextswift.mx/images/og/default.png',
   noindex = false,
 } = Astro.props;
 
@@ -61,20 +68,31 @@ const orgSchema = {
     {/* Open Graph */}
     <meta property="og:type" content="website" />
     <meta property="og:locale" content="es_MX" />
+    <meta property="og:site_name" content="NextSwift" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
-    {ogImage && <meta property="og:image" content={ogImage} />}
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:type" content="image/png" />
 
     {/* Twitter */}
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
-    {ogImage && <meta name="twitter:image" content={ogImage} />}
+    <meta name="twitter:image" content={ogImage} />
 
     {/* Iconos */}
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="icon" href="/favicon.ico" />
+
+    {/* Preload fuentes críticas — subset latin, pesos usados en ATF */}
+    <link rel="preload" as="font" type="font/woff2" crossorigin href={oswald} />
+    <link rel="preload" as="font" type="font/woff2" crossorigin href={sspN} />
+    <link rel="preload" as="font" type="font/woff2" crossorigin href={sspSb} />
+    <link rel="preload" as="font" type="font/woff2" crossorigin href={latoN} />
+    <link rel="preload" as="font" type="font/woff2" crossorigin href={latoBd} />
 
     {/* JSON-LD Organization schema */}
     <script type="application/ld+json" is:inline set:html={JSON.stringify(orgSchema)} />
