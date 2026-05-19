@@ -1,0 +1,48 @@
+---
+/**
+ * /gracias-auditoria — Placeholder hasta P14 (Fase 16).
+ * P13 entrega solo confirmación + CTA WA. P14/P21 agregan conversion tags
+ * Google Ads + eventos refinados Meta (Purchase/Lead).
+ */
+import Base from '../layouts/Base.astro';
+import Section from '../components/ui/Section.astro';
+import Heading from '../components/ui/Heading.astro';
+import Body from '../components/ui/Body.astro';
+import Eyebrow from '../components/ui/Eyebrow.astro';
+import { buildWaUrl } from '../lib/whatsapp-url';
+
+const waUrl = buildWaUrl({
+  source: 'auditoria',
+  content: 'gracias_auditoria_thanks',
+  context: 'post_form',
+  customMessage: 'Hola Efer, acabo de enviar mi solicitud de auditoría. Mi caso es',
+});
+---
+
+<Base
+  title="Solicitud recibida — NextSwift"
+  description="Recibimos su solicitud de auditoría. Efer le contactará dentro de las próximas 24 horas hábiles."
+  noindex={true}
+>
+  <Section width="narrow" spacing="lg">
+    <header style="text-align: center;">
+      <Eyebrow>Solicitud recibida</Eyebrow>
+      <Heading as="h1" size="h1">Solicitud recibida. Le contactamos en menos de 24 horas hábiles.</Heading>
+      <Body size="lead" tone="muted">
+        Efer revisa cada solicitud personalmente. Si su caso califica, le escribimos al WhatsApp
+        que dejó para agendar la auditoría de viabilidad (45 min, sin compromiso). Si no califica,
+        también le avisamos — sin perder su tiempo.
+      </Body>
+    </header>
+
+    <div style="text-align: center; margin-top: 2rem;">
+      <a href={waUrl} class="btn btn--primary btn--lg" rel="noopener nofollow" target="_blank">
+        Adelantar el contacto por WhatsApp
+      </a>
+    </div>
+
+    <div style="text-align: center; margin-top: 1.5rem;">
+      <a href="/" style="color: var(--color-text-muted, #555);">← Volver al inicio</a>
+    </div>
+  </Section>
+</Base>

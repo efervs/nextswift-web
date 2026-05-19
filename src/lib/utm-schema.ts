@@ -13,7 +13,8 @@ export type UtmCampaign =
   | 'about'
   | 'guarantee'
   | 'quiz'
-  | 'oferta';
+  | 'oferta'
+  | 'auditoria';
 
 export interface UtmSet {
   source: UtmSource;

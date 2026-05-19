@@ -1,0 +1,774 @@
+---
+/**
+ * /auditoria — Form multi-step de calificación dura.
+ * P13 / Fase 15. Spec: PLAN_IMPLEMENTACION_NEXTSWIFT_CONDENSADO.md §P13.
+ *
+ * 6 pasos:
+ *   1) Rango de ventas brutas mensuales ($MXN) — piso $300k (rebote inline).
+ *   2) Cuello principal (6 dolores de nav-orden-dolores.md).
+ *   3) Unidades / sucursales.
+ *   4) Rol del decisor.
+ *   5) Ventana de implementación.
+ *   6) Email + WhatsApp.
+ *
+ * Fricción positiva intencional (Hormozi vetting + Beaudoin single-CTA).
+ * Selección "<$300k" -> pantalla no-fit (sin POST a HubSpot).
+ * UTM se persiste como hidden inputs leyendo sessionStorage (lib/utm.ts).
+ */
+import Base from '../layouts/Base.astro';
+import Section from '../components/ui/Section.astro';
+import Heading from '../components/ui/Heading.astro';
+import Body from '../components/ui/Body.astro';
+import Eyebrow from '../components/ui/Eyebrow.astro';
+import { buildWaUrl } from '../lib/whatsapp-url';
+
+const waFallbackUrl = buildWaUrl({
+  source: 'auditoria',
+  content: 'audit_form_fallback',
+  context: 'sin_form',
+  customMessage: 'Hola Efer, prefiero coordinar la auditoría directo por aquí. Vendo mensualmente',
+});
+
+const SALES_OPTIONS = [
+  { value: '<300k', label: 'Menos de $300,000 / mes', disqualify: true },
+  { value: '300k-500k', label: '$300,000 – $500,000 / mes' },
+  { value: '500k-1M', label: '$500,000 – $1,000,000 / mes' },
+  { value: '1M-2M', label: '$1,000,000 – $2,000,000 / mes' },
+  { value: '>2M', label: 'Más de $2,000,000 / mes' },
+];
+
+const PAIN_OPTIONS = [
+  { value: 'utilidad', label: 'Vendo pero no gano dinero' },
+  { value: 'ventas-delivery', label: 'Las ventas están flojas' },
+  { value: 'autonomia', label: 'El negocio depende demasiado de mí' },
+  { value: 'personal', label: 'Mi personal es un desmadre' },
+  { value: 'metricas-control', label: 'No tengo claridad real de números' },
+  { value: 'crecimiento-controlado', label: 'Quiero crecer sin caos' },
+];
+
+const ROLE_OPTIONS = [
+  { value: 'dueno', label: 'Dueño' },
+  { value: 'socio', label: 'Socio' },
+  { value: 'gerente_operativo', label: 'Gerente operativo' },
+  { value: 'otro', label: 'Otro' },
+];
+
+const TIMING_OPTIONS = [
+  { value: 'inmediata', label: 'Inmediata — en los próximos 30 días' },
+  { value: '60d', label: 'En los próximos 60 días' },
+  { value: '90d', label: 'En los próximos 90 días' },
+  { value: 'explorando', label: 'Solo estoy explorando' },
+];
+
+const TOTAL_STEPS = 6;
+---
+
+<Base
+  title="Auditoría de viabilidad — NextSwift"
+  description="Solicite una auditoría de viabilidad. 6 preguntas. Calificamos su caso antes de agendar. Solo restaurantes con $300k+/mes de ventas brutas."
+  noindex={true}
+>
+  <Section width="narrow" spacing="lg" id="audit-section">
+    <header class="audit__header">
+      <Eyebrow>Solicitud de auditoría · 2 minutos</Eyebrow>
+      <Heading as="h1" size="h1">Verifique si su restaurante califica</Heading>
+      <Body size="lead" tone="muted">
+        El Acelerador de 3 Palancas no es para todos. Estas {TOTAL_STEPS} preguntas nos dicen, en menos de
+        2 minutos, si su caso es viable. Si no califica, se lo decimos sin rodeos.
+      </Body>
+    </header>
+
+    <div
+      id="audit"
+      class="audit"
+      data-total-steps={TOTAL_STEPS}
+      aria-live="polite"
+    >
+      <div class="audit__progress" role="group" aria-label="Progreso del formulario">
+        <div class="audit__progress-meta">
+          <span id="audit-step-label">Paso 1 de {TOTAL_STEPS}</span>
+          <span id="audit-step-pct">0%</span>
+        </div>
+        <progress id="audit-progress" max="100" value="0" aria-label="Progreso"></progress>
+      </div>
+
+      <form id="audit-form" novalidate>
+        {/* Paso 1 — Sales range */}
+        <section class="audit__step" data-step="1">
+          <h2 class="audit__q-label"><span class="audit__q-num">1.</span> ¿Cuánto vende su restaurante al mes (bruto, todas las plataformas)?</h2>
+          <p class="audit__q-helper">Tomamos el bruto promedio de los últimos 3 meses.</p>
+          <fieldset class="audit__radios" id="q-salesrange" aria-describedby="q-salesrange-error">
+            <legend class="sr-only">Rango de ventas mensuales</legend>
+            {SALES_OPTIONS.map((opt) => (
+              <label class="audit__radio">
+                <input
+                  type="radio"
+                  name="salesrange"
+                  value={opt.value}
+                  data-disqualify={opt.disqualify ? 'true' : 'false'}
+                  required
+                />
+                <span>{opt.label}</span>
+              </label>
+            ))}
+          </fieldset>
+          <p class="audit__error" id="q-salesrange-error" role="alert" aria-live="polite"></p>
+        </section>
+
+        {/* Paso 2 — Pain */}
+        <section class="audit__step" data-step="2" hidden>
+          <h2 class="audit__q-label"><span class="audit__q-num">2.</span> ¿Cuál es el cuello principal hoy?</h2>
+          <p class="audit__q-helper">Elija el dolor más urgente. No el más bonito de admitir — el real.</p>
+          <fieldset class="audit__radios" id="q-painprimary" aria-describedby="q-painprimary-error">
+            <legend class="sr-only">Cuello principal</legend>
+            {PAIN_OPTIONS.map((opt) => (
+              <label class="audit__radio">
+                <input type="radio" name="painprimary" value={opt.value} required />
+                <span>{opt.label}</span>
+              </label>
+            ))}
+          </fieldset>
+          <p class="audit__error" id="q-painprimary-error" role="alert" aria-live="polite"></p>
+        </section>
+
+        {/* Paso 3 — Units */}
+        <section class="audit__step" data-step="3" hidden>
+          <h2 class="audit__q-label"><span class="audit__q-num">3.</span> ¿Cuántas unidades o sucursales opera?</h2>
+          <p class="audit__q-helper">Incluya dark kitchens y sucursales en franquicia que controle.</p>
+          <div class="audit__input-row">
+            <input
+              type="number"
+              id="q-units"
+              name="units"
+              class="audit__input"
+              inputmode="numeric"
+              min="1"
+              max="999"
+              step="1"
+              required
+              autocomplete="off"
+              aria-describedby="q-units-error"
+            />
+          </div>
+          <p class="audit__error" id="q-units-error" role="alert" aria-live="polite"></p>
+        </section>
+
+        {/* Paso 4 — Decisor role */}
+        <section class="audit__step" data-step="4" hidden>
+          <h2 class="audit__q-label"><span class="audit__q-num">4.</span> ¿Cuál es su rol en el negocio?</h2>
+          <p class="audit__q-helper">Hablamos directo con quien firma. Si no es usted, lo coordinamos.</p>
+          <fieldset class="audit__radios" id="q-decisor_role" aria-describedby="q-decisor_role-error">
+            <legend class="sr-only">Rol del decisor</legend>
+            {ROLE_OPTIONS.map((opt) => (
+              <label class="audit__radio">
+                <input type="radio" name="decisor_role" value={opt.value} required />
+                <span>{opt.label}</span>
+              </label>
+            ))}
+          </fieldset>
+          <p class="audit__error" id="q-decisor_role-error" role="alert" aria-live="polite"></p>
+        </section>
+
+        {/* Paso 5 — Timing */}
+        <section class="audit__step" data-step="5" hidden>
+          <h2 class="audit__q-label"><span class="audit__q-num">5.</span> ¿En qué ventana quiere implementar?</h2>
+          <p class="audit__q-helper">El Acelerador arranca en 10 días hábiles. Si no es ahora, lo agendamos.</p>
+          <fieldset class="audit__radios" id="q-timing" aria-describedby="q-timing-error">
+            <legend class="sr-only">Ventana de implementación</legend>
+            {TIMING_OPTIONS.map((opt) => (
+              <label class="audit__radio">
+                <input type="radio" name="timing" value={opt.value} required />
+                <span>{opt.label}</span>
+              </label>
+            ))}
+          </fieldset>
+          <p class="audit__error" id="q-timing-error" role="alert" aria-live="polite"></p>
+        </section>
+
+        {/* Paso 6 — Email + WA */}
+        <section class="audit__step" data-step="6" hidden>
+          <h2 class="audit__q-label"><span class="audit__q-num">6.</span> ¿Cómo lo contactamos?</h2>
+          <p class="audit__q-helper">Confidencial. Solo Efer ve estos datos. Sin SPAM.</p>
+
+          <div class="audit__field">
+            <label for="q-firstname" class="audit__q-label as-label">Nombre (opcional)</label>
+            <input
+              type="text"
+              id="q-firstname"
+              name="firstname"
+              class="audit__input"
+              autocomplete="given-name"
+              placeholder="Ej. Alejandro"
+            />
+          </div>
+
+          <div class="audit__field">
+            <label for="q-email" class="audit__q-label as-label">Correo electrónico</label>
+            <input
+              type="email"
+              id="q-email"
+              name="email"
+              class="audit__input"
+              inputmode="email"
+              autocomplete="email"
+              placeholder="usted@surestaurante.com"
+              required
+              aria-describedby="q-email-error"
+            />
+            <p class="audit__error" id="q-email-error" role="alert" aria-live="polite"></p>
+          </div>
+
+          <div class="audit__field">
+            <label for="q-whatsapp" class="audit__q-label as-label">WhatsApp</label>
+            <input
+              type="tel"
+              id="q-whatsapp"
+              name="whatsapp"
+              class="audit__input"
+              inputmode="tel"
+              autocomplete="tel"
+              placeholder="10 dígitos, ej. 8110425674"
+              required
+              aria-describedby="q-whatsapp-error"
+            />
+            <p class="audit__error" id="q-whatsapp-error" role="alert" aria-live="polite"></p>
+          </div>
+
+          <p class="audit__legal">
+            Al enviar, acepta que Efer le contacte por correo y WhatsApp para coordinar la auditoría.
+          </p>
+        </section>
+
+        {/* Pantalla no-fit */}
+        <section class="audit__step audit__step--nofit" data-step="nofit" hidden>
+          <h2 class="audit__nofit-title">Hoy no encajamos — y se lo decimos sin rodeos.</h2>
+          <p class="audit__nofit-copy">
+            El Acelerador de 3 Palancas está diseñado para restaurantes con $300,000+/mes de ventas brutas.
+            Debajo de ese piso, el ROI no se sostiene y le saldría más caro contratarnos que el problema mismo.
+          </p>
+          <p class="audit__nofit-copy">
+            Lo que sí puede hacer hoy, gratis:
+          </p>
+          <ul class="audit__nofit-list">
+            <li>
+              <a href="/diagnostico" class="audit__nofit-link">
+                Tomar el diagnóstico de fuga de margen
+              </a> — 10 preguntas, recibe estimado + 3 recomendaciones.
+            </li>
+            <li>
+              <a href="/blog" class="audit__nofit-link">
+                Leer el blog de NextSwift
+              </a> — material operativo para restaurantes en crecimiento.
+            </li>
+            <li>
+              <a href={waFallbackUrl} class="audit__nofit-link" rel="noopener nofollow" target="_blank">
+                Escribirle a Efer directo
+              </a> si quiere una segunda opinión informal.
+            </li>
+          </ul>
+        </section>
+
+        {/* Hidden — UTM persistidos desde sessionStorage en client-side */}
+        <input type="hidden" name="utm_source" id="utm_source" />
+        <input type="hidden" name="utm_medium" id="utm_medium" />
+        <input type="hidden" name="utm_campaign" id="utm_campaign" />
+        <input type="hidden" name="utm_landing" id="utm_landing" />
+        <input type="hidden" name="quiz_event_id" id="quiz_event_id" />
+
+        {/* Navegación */}
+        <nav class="audit__nav" aria-label="Navegación del formulario">
+          <button type="button" id="audit-back" class="btn btn--ghost btn--md" hidden>
+            ← Atrás
+          </button>
+          <button type="button" id="audit-next" class="btn btn--primary btn--lg">
+            Siguiente →
+          </button>
+          <button type="submit" id="audit-submit" class="btn btn--primary btn--lg" hidden>
+            Solicitar auditoría
+          </button>
+        </nav>
+      </form>
+
+      <p class="audit__abandon">
+        ¿Prefiere hablar directo? <a href={waFallbackUrl} rel="noopener nofollow" target="_blank">Escríbale a Efer</a>.
+      </p>
+    </div>
+  </Section>
+</Base>
+
+<script>
+  import { readUTMFromSessionStorage } from '../lib/utm';
+
+  const PIXEL_EVENT = 'CompleteRegistration';
+  const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  const root = document.getElementById('audit');
+  const form = document.getElementById('audit-form') as HTMLFormElement | null;
+  if (!root || !form) throw new Error('Audit root missing');
+
+  const steps = Array.from(root.querySelectorAll<HTMLElement>('.audit__step'));
+  const stepLabel = document.getElementById('audit-step-label')!;
+  const stepPct = document.getElementById('audit-step-pct')!;
+  const progress = document.getElementById('audit-progress') as HTMLProgressElement;
+  const btnBack = document.getElementById('audit-back') as HTMLButtonElement;
+  const btnNext = document.getElementById('audit-next') as HTMLButtonElement;
+  const btnSubmit = document.getElementById('audit-submit') as HTMLButtonElement;
+
+  const TOTAL_STEPS = Number(root.dataset.totalSteps ?? 6);
+
+  // Hidratar UTMs desde sessionStorage y URL params (?eid= viene del quiz)
+  const utm = readUTMFromSessionStorage();
+  if (utm) {
+    (document.getElementById('utm_source') as HTMLInputElement).value = utm.source;
+    (document.getElementById('utm_medium') as HTMLInputElement).value = utm.medium;
+    (document.getElementById('utm_campaign') as HTMLInputElement).value = utm.campaign;
+    (document.getElementById('utm_landing') as HTMLInputElement).value = utm.landing;
+  }
+  const urlParams = new URLSearchParams(window.location.search);
+  const eidFromQuiz = urlParams.get('eid');
+  if (eidFromQuiz) {
+    (document.getElementById('quiz_event_id') as HTMLInputElement).value = eidFromQuiz;
+  }
+
+  type State = { step: number; nofit: boolean };
+  let state: State = { step: 1, nofit: false };
+
+  function stepEl(n: number | 'nofit'): HTMLElement | undefined {
+    return steps.find((s) => s.dataset.step === String(n));
+  }
+
+  function render(): void {
+    steps.forEach((s) => (s.hidden = true));
+    if (state.nofit) {
+      stepEl('nofit')!.hidden = false;
+      btnBack.hidden = true;
+      btnNext.hidden = true;
+      btnSubmit.hidden = true;
+      stepLabel.textContent = 'No es fit con el Acelerador';
+      stepPct.textContent = '';
+      progress.value = 0;
+      return;
+    }
+    stepEl(state.step)!.hidden = false;
+    btnBack.hidden = state.step === 1;
+    btnNext.hidden = state.step === TOTAL_STEPS;
+    btnSubmit.hidden = state.step !== TOTAL_STEPS;
+    stepLabel.textContent = `Paso ${state.step} de ${TOTAL_STEPS}`;
+    const pct = Math.round(((state.step - 1) / TOTAL_STEPS) * 100);
+    stepPct.textContent = `${pct}%`;
+    progress.value = pct;
+    // Foco al primer input visible
+    const visibleInput = stepEl(state.step)!.querySelector<HTMLInputElement>('input:not([type=hidden])');
+    if (visibleInput) visibleInput.focus({ preventScroll: false });
+  }
+
+  function clearError(stepNum: number): void {
+    const el = stepEl(stepNum);
+    if (!el) return;
+    el.querySelectorAll('.audit__error').forEach((p) => (p.textContent = ''));
+  }
+
+  function setError(stepNum: number, errorId: string, msg: string): void {
+    const el = stepEl(stepNum);
+    if (!el) return;
+    const errEl = el.querySelector<HTMLElement>(`#${errorId}`);
+    if (errEl) errEl.textContent = msg;
+  }
+
+  function getRadioValue(name: string): string | null {
+    const checked = form!.querySelector<HTMLInputElement>(`input[name="${name}"]:checked`);
+    return checked ? checked.value : null;
+  }
+
+  function validateStep(n: number): boolean {
+    clearError(n);
+    if (n === 1) {
+      const v = getRadioValue('salesrange');
+      if (!v) { setError(1, 'q-salesrange-error', 'Elija un rango.'); return false; }
+      return true;
+    }
+    if (n === 2) {
+      const v = getRadioValue('painprimary');
+      if (!v) { setError(2, 'q-painprimary-error', 'Elija el cuello principal.'); return false; }
+      return true;
+    }
+    if (n === 3) {
+      const v = (form!.elements.namedItem('units') as HTMLInputElement).value.trim();
+      const num = Number(v);
+      if (!v || !Number.isFinite(num) || num < 1 || num > 999) {
+        setError(3, 'q-units-error', 'Ingrese un número entre 1 y 999.');
+        return false;
+      }
+      return true;
+    }
+    if (n === 4) {
+      const v = getRadioValue('decisor_role');
+      if (!v) { setError(4, 'q-decisor_role-error', 'Elija su rol.'); return false; }
+      return true;
+    }
+    if (n === 5) {
+      const v = getRadioValue('timing');
+      if (!v) { setError(5, 'q-timing-error', 'Elija una ventana.'); return false; }
+      return true;
+    }
+    if (n === 6) {
+      const email = (form!.elements.namedItem('email') as HTMLInputElement).value.trim().toLowerCase();
+      const wa = (form!.elements.namedItem('whatsapp') as HTMLInputElement).value.trim();
+      let ok = true;
+      if (!email || !EMAIL_RE.test(email)) {
+        setError(6, 'q-email-error', 'Correo inválido.');
+        ok = false;
+      }
+      const digits = wa.replace(/\D/g, '');
+      const tenDigits = digits.length === 10 || (digits.length === 12 && digits.startsWith('52'));
+      if (!wa || !tenDigits) {
+        setError(6, 'q-whatsapp-error', 'WhatsApp: 10 dígitos (con o sin +52).');
+        ok = false;
+      }
+      return ok;
+    }
+    return true;
+  }
+
+  // Step 1: si elige "<300k" -> rebote inmediato a pantalla no-fit
+  form.addEventListener('change', (ev) => {
+    const t = ev.target as HTMLInputElement;
+    if (t.name === 'salesrange' && t.dataset.disqualify === 'true') {
+      state.nofit = true;
+      render();
+    }
+  });
+
+  btnNext.addEventListener('click', () => {
+    if (!validateStep(state.step)) return;
+    state.step = Math.min(state.step + 1, TOTAL_STEPS);
+    render();
+  });
+
+  btnBack.addEventListener('click', () => {
+    state.step = Math.max(state.step - 1, 1);
+    render();
+  });
+
+  // Enter avanza salvo en radio fieldset (que ya tiene su navegación natural)
+  form.addEventListener('keydown', (ev) => {
+    if (ev.key !== 'Enter') return;
+    const target = ev.target as HTMLElement;
+    if (target.tagName === 'TEXTAREA') return;
+    if (target.tagName === 'INPUT' && (target as HTMLInputElement).type === 'submit') return;
+    ev.preventDefault();
+    if (!btnSubmit.hidden) {
+      btnSubmit.click();
+    } else if (!btnNext.hidden) {
+      btnNext.click();
+    }
+  });
+
+  form.addEventListener('submit', async (ev) => {
+    ev.preventDefault();
+    if (!validateStep(TOTAL_STEPS)) return;
+    btnSubmit.disabled = true;
+    btnSubmit.textContent = 'Enviando…';
+
+    const eventId = generateEventId();
+
+    const emailRaw = (form.elements.namedItem('email') as HTMLInputElement).value.trim().toLowerCase();
+    const waRaw = (form.elements.namedItem('whatsapp') as HTMLInputElement).value.trim();
+    const waDigits = waRaw.replace(/\D/g, '');
+    const whatsapp = waDigits.length === 10 ? `+52${waDigits}` : `+${waDigits}`;
+
+    const payload = {
+      source: 'form_auditoria' as const,
+      event_id: eventId,
+      email: emailRaw,
+      whatsapp,
+      firstname: (form.elements.namedItem('firstname') as HTMLInputElement).value.trim(),
+      salesrange: getRadioValue('salesrange'),
+      painprimary: getRadioValue('painprimary'),
+      units: (form.elements.namedItem('units') as HTMLInputElement).value.trim(),
+      decisor_role: getRadioValue('decisor_role'),
+      timing: getRadioValue('timing'),
+      utm_source: (form.elements.namedItem('utm_source') as HTMLInputElement).value,
+      utm_medium: (form.elements.namedItem('utm_medium') as HTMLInputElement).value,
+      utm_campaign: (form.elements.namedItem('utm_campaign') as HTMLInputElement).value,
+      utm_landing: (form.elements.namedItem('utm_landing') as HTMLInputElement).value,
+      quiz_event_id: (form.elements.namedItem('quiz_event_id') as HTMLInputElement).value,
+    };
+
+    let redirectTo = '/gracias-auditoria';
+    try {
+      const res = await fetch('/api/lead', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const data = (await res.json().catch(() => ({}))) as { success?: boolean; redirect?: string; error?: string };
+      if (!res.ok || !data.success) {
+        console.error('[audit] /api/lead falló', res.status, data);
+        btnSubmit.disabled = false;
+        btnSubmit.textContent = 'Solicitar auditoría';
+        setError(TOTAL_STEPS, 'q-email-error', data.error ?? 'No pudimos enviar la solicitud. Intente de nuevo o escriba a Efer.');
+        return;
+      }
+      if (data.redirect) redirectTo = data.redirect;
+    } catch (err) {
+      console.error('[audit] network error', err);
+      btnSubmit.disabled = false;
+      btnSubmit.textContent = 'Solicitar auditoría';
+      setError(TOTAL_STEPS, 'q-email-error', 'Sin conexión. Intente de nuevo en unos segundos.');
+      return;
+    }
+
+    // Pixel CompleteRegistration (client) — mismo event_id que CAPI server
+    try {
+      const fbq = (window as unknown as { fbq?: (...args: unknown[]) => void }).fbq;
+      if (typeof fbq === 'function') {
+        fbq(
+          'track',
+          PIXEL_EVENT,
+          {
+            content_name: 'form_auditoria',
+            salesrange: payload.salesrange,
+            painprimary: payload.painprimary,
+          },
+          { eventID: eventId },
+        );
+      }
+    } catch (err) {
+      console.warn('[audit] fbq CompleteRegistration falló.', err);
+    }
+
+    window.location.assign(redirectTo);
+  });
+
+  function generateEventId(): string {
+    const c = window.crypto;
+    if (c && typeof c.randomUUID === 'function') {
+      return c.randomUUID().replace(/-/g, '').slice(0, 16);
+    }
+    return Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-6);
+  }
+
+  render();
+</script>
+
+<style>
+  .audit__header {
+    text-align: center;
+    margin-bottom: var(--space-xl, 2rem);
+  }
+
+  .audit {
+    max-width: 640px;
+    margin: 0 auto;
+  }
+
+  .audit__progress {
+    margin-bottom: var(--space-lg, 1.5rem);
+  }
+
+  .audit__progress-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.875rem;
+    color: var(--color-text-muted, #555);
+    margin-bottom: 0.5rem;
+  }
+
+  .audit__progress progress {
+    width: 100%;
+    height: 6px;
+    appearance: none;
+  }
+
+  .audit__progress progress::-webkit-progress-bar {
+    background: var(--color-surface-2, #eee);
+    border-radius: 999px;
+  }
+
+  .audit__progress progress::-webkit-progress-value {
+    background: var(--color-primary, #003366);
+    border-radius: 999px;
+    transition: width 0.2s ease;
+  }
+
+  .audit__progress progress::-moz-progress-bar {
+    background: var(--color-primary, #003366);
+    border-radius: 999px;
+  }
+
+  .audit__step {
+    padding: var(--space-md, 1rem) 0;
+  }
+
+  .audit__q-label {
+    font-size: 1.125rem;
+    font-weight: 600;
+    line-height: 1.4;
+    margin: 0 0 0.5rem;
+  }
+
+  .audit__q-num {
+    color: var(--color-primary, #003366);
+    margin-right: 0.25rem;
+  }
+
+  .audit__q-helper {
+    color: var(--color-text-muted, #555);
+    font-size: 0.95rem;
+    margin: 0 0 1rem;
+  }
+
+  .audit__radios {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    border: 0;
+    padding: 0;
+    margin: 0;
+  }
+
+  .audit__radio {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.875rem 1rem;
+    border: 1px solid var(--color-border, #d0d7de);
+    border-radius: 8px;
+    cursor: pointer;
+    min-height: 44px;
+    transition: border-color 0.15s ease, background 0.15s ease;
+  }
+
+  .audit__radio:hover {
+    border-color: var(--color-primary, #003366);
+  }
+
+  .audit__radio:has(input:checked) {
+    border-color: var(--color-primary, #003366);
+    background: var(--color-primary-soft, #f0f4f8);
+  }
+
+  .audit__radio input[type="radio"] {
+    margin: 0;
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+  }
+
+  .audit__input-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .audit__input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--color-border, #d0d7de);
+    border-radius: 8px;
+    font-size: 1rem;
+    min-height: 44px;
+    background: #fff;
+  }
+
+  .audit__input:focus {
+    outline: 2px solid var(--color-primary, #003366);
+    outline-offset: 2px;
+    border-color: var(--color-primary, #003366);
+  }
+
+  .audit__field {
+    margin-bottom: 1rem;
+  }
+
+  .audit__q-label.as-label {
+    font-size: 0.95rem;
+    font-weight: 500;
+    margin-bottom: 0.375rem;
+    display: block;
+  }
+
+  .audit__error {
+    color: var(--color-error, #b00020);
+    font-size: 0.875rem;
+    margin: 0.5rem 0 0;
+    min-height: 1.25rem;
+  }
+
+  .audit__legal {
+    margin-top: 1rem;
+    font-size: 0.85rem;
+    color: var(--color-text-muted, #555);
+  }
+
+  .audit__nav {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-top: var(--space-lg, 1.5rem);
+  }
+
+  .audit__nav .btn {
+    min-height: 44px;
+    flex: 1;
+  }
+
+  .audit__abandon {
+    text-align: center;
+    margin-top: var(--space-md, 1rem);
+    font-size: 0.9rem;
+    color: var(--color-text-muted, #555);
+  }
+
+  .audit__nofit-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0 0 1rem;
+  }
+
+  .audit__nofit-copy {
+    color: var(--color-text, #1a1a1a);
+    margin: 0 0 0.75rem;
+    line-height: 1.6;
+  }
+
+  .audit__nofit-list {
+    list-style: disc;
+    padding-left: 1.25rem;
+    margin: 1rem 0 0;
+  }
+
+  .audit__nofit-list li {
+    margin-bottom: 0.5rem;
+  }
+
+  .audit__nofit-link {
+    color: var(--color-primary, #003366);
+    font-weight: 600;
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  @media (max-width: 480px) {
+    .audit__q-label {
+      font-size: 1.05rem;
+    }
+    .audit__nav {
+      flex-direction: column-reverse;
+    }
+    .audit__nav .btn {
+      width: 100%;
+    }
+  }
+</style>
