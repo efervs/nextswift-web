@@ -4,6 +4,8 @@
  * Slots: `head` (override SEO específico), `default` (contenido principal).
  */
 import '../styles/global.css';
+import Header from '../components/layout/Header.astro';
+import Footer from '../components/layout/Footer.astro';
 
 interface Props {
   title?: string;
@@ -120,10 +122,10 @@ const orgSchema = {
 
   <body>
     <a href="#main" class="skip-link">Saltar al contenido</a>
-    <slot name="header" />
+    <Header />
     <main id="main">
       <slot />
     </main>
-    <slot name="footer" />
+    <Footer />
   </body>
 </html>
