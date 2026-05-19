@@ -1,0 +1,464 @@
+---
+/**
+ * /legales/aviso-de-privacidad
+ * Aviso de Privacidad conforme a LFPDPPP arts. 15-18 (8 elementos art. 16).
+ * DH-09: revisión por abogado mexicano pendiente antes de go-live (Fase 29).
+ */
+import Base from '../../layouts/Base.astro';
+
+const LAST_UPDATED = '19 de mayo de 2026';
+const RESPONSIBLE_EMAIL = 'hola@nextswift.mx';
+const RESPONSIBLE_PHONE = '+52 811 042 5674';
+---
+
+<Base
+  title="Aviso de Privacidad — NextSwift"
+  description="Aviso de Privacidad de NextSwift conforme a la Ley Federal de Protección de Datos Personales en Posesión de Particulares (LFPDPPP)."
+  noindex={true}
+>
+  <div class="legal-page">
+    <div class="legal-container">
+      <header class="legal-header">
+        <p class="legal-eyebrow">Legal</p>
+        <h1 class="legal-title">Aviso de Privacidad</h1>
+        <p class="legal-meta">Última actualización: {LAST_UPDATED}</p>
+        <p class="legal-note">
+          <strong>Nota DH-09:</strong> Este documento está pendiente de revisión por abogado mexicano antes del go-live del sitio. No sustituye asesoría jurídica profesional.
+        </p>
+      </header>
+
+      {/* ── 1. Identidad y domicilio del responsable ─────────────────────────── */}
+      <section class="legal-section">
+        <h2 class="legal-h2">1. Identidad y domicilio del responsable</h2>
+        <p>
+          <strong>NextSwift</strong> (nombre comercial), operado por <strong>Efer Vázquez</strong>, con domicilio en
+          Monterrey, Nuevo León, México, es responsable del tratamiento de sus datos personales.
+        </p>
+        <p>
+          Para cualquier asunto relacionado con este Aviso de Privacidad, puede contactarnos en:
+        </p>
+        <ul>
+          <li>Correo electrónico: <a href={`mailto:${RESPONSIBLE_EMAIL}`}>{RESPONSIBLE_EMAIL}</a></li>
+          <li>Teléfono / WhatsApp: <a href="https://wa.me/528110425674" target="_blank" rel="noopener">{RESPONSIBLE_PHONE}</a></li>
+        </ul>
+      </section>
+
+      {/* ── 2. Datos personales que se recaban ───────────────────────────────── */}
+      <section class="legal-section">
+        <h2 class="legal-h2">2. Datos personales que se recaban</h2>
+        <p>NextSwift recaba las siguientes categorías de datos personales:</p>
+        <table class="legal-table">
+          <thead>
+            <tr>
+              <th>Categoría</th>
+              <th>Datos</th>
+              <th>Forma de obtención</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Identificación</td>
+              <td>Nombre, apellido (opcional)</td>
+              <td>Formulario de auditoría / quiz de diagnóstico</td>
+            </tr>
+            <tr>
+              <td>Contacto</td>
+              <td>Correo electrónico, número de WhatsApp</td>
+              <td>Formulario de auditoría / quiz de diagnóstico</td>
+            </tr>
+            <tr>
+              <td>Información del negocio</td>
+              <td>Rango de ventas brutas mensuales, número de unidades, rol del decisor, dolor principal, ventana de implementación</td>
+              <td>Formulario de calificación (auditoría)</td>
+            </tr>
+            <tr>
+              <td>Datos técnicos</td>
+              <td>Dirección IP, tipo de navegador, sistema operativo, páginas visitadas, duración de la visita, parámetros UTM</td>
+              <td>Cookies y tecnologías de rastreo (sección 7)</td>
+            </tr>
+          </tbody>
+        </table>
+        <p>
+          <strong>Datos sensibles:</strong> NextSwift <em>no</em> recaba datos personales sensibles en los términos del art. 3 fracc. VI de la LFPDPPP (salud, origen racial, creencias religiosas, etc.).
+        </p>
+      </section>
+
+      {/* ── 3. Finalidades del tratamiento ───────────────────────────────────── */}
+      <section class="legal-section">
+        <h2 class="legal-h2">3. Finalidades del tratamiento</h2>
+
+        <h3 class="legal-h3">Finalidades primarias (necesarias para la relación jurídica)</h3>
+        <ul>
+          <li>Evaluar la viabilidad del caso y calificar si el restaurante cumple los criterios del servicio Acelerador 3 Palancas.</li>
+          <li>Contactarle por correo electrónico y/o WhatsApp para coordinar la auditoría inicial o comunicar el resultado de la calificación.</li>
+          <li>Ejecutar, administrar y dar seguimiento al servicio contratado.</li>
+          <li>Cumplir obligaciones legales y contractuales derivadas de la relación comercial.</li>
+        </ul>
+
+        <h3 class="legal-h3">Finalidades secundarias (opcionales — puede oponerse sin afectar el servicio)</h3>
+        <ul>
+          <li>Envío de comunicaciones de marketing sobre nuevos servicios, casos de éxito o contenido relevante para dueños de restaurantes.</li>
+          <li>Análisis estadístico y mejora del sitio web mediante herramientas de analítica.</li>
+          <li>Retargeting publicitario en plataformas de redes sociales (Meta/Facebook).</li>
+        </ul>
+        <p>
+          Si no desea que sus datos sean tratados para las finalidades secundarias, puede oponerse en cualquier momento enviando un correo a <a href={`mailto:${RESPONSIBLE_EMAIL}`}>{RESPONSIBLE_EMAIL}</a> con el asunto <em>"Oposición finalidades secundarias"</em>.
+        </p>
+      </section>
+
+      {/* ── 4. Transferencias de datos ────────────────────────────────────────── */}
+      <section class="legal-section">
+        <h2 class="legal-h2">4. Transferencias de datos personales</h2>
+        <p>
+          NextSwift puede transferir sus datos personales a terceros en los siguientes casos, sin que se requiera su consentimiento conforme al art. 37 de la LFPDPPP, excepto donde se indique:
+        </p>
+        <table class="legal-table">
+          <thead>
+            <tr>
+              <th>Tercero / Encargado</th>
+              <th>País</th>
+              <th>Finalidad</th>
+              <th>Requiere consentimiento</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>HubSpot, Inc.</strong></td>
+              <td>Estados Unidos</td>
+              <td>Gestión CRM, seguimiento de leads, pipeline comercial</td>
+              <td>No (encargado de tratamiento)</td>
+            </tr>
+            <tr>
+              <td><strong>Meta Platforms, Inc.</strong> (Facebook Pixel / Conversions API)</td>
+              <td>Estados Unidos</td>
+              <td>Medición de conversiones, retargeting publicitario</td>
+              <td>Sí (requiere aceptar cookies de análisis/marketing)</td>
+            </tr>
+            <tr>
+              <td><strong>Google LLC</strong> (Google Analytics 4)</td>
+              <td>Estados Unidos</td>
+              <td>Analítica del sitio web, comportamiento del usuario</td>
+              <td>Sí (requiere aceptar cookies de análisis/marketing)</td>
+            </tr>
+            <tr>
+              <td><strong>Cloudflare, Inc.</strong></td>
+              <td>Estados Unidos</td>
+              <td>Hosting, CDN, protección DDoS (acceso técnico limitado a datos de tráfico)</td>
+              <td>No (infraestructura técnica)</td>
+            </tr>
+          </tbody>
+        </table>
+        <p>
+          Para transferencias a países sin nivel adecuado de protección (como EE.UU.), NextSwift celebra cláusulas contractuales tipo o se ampara en las excepciones del art. 37 fracc. I y V de la LFPDPPP. Puede solicitar información sobre las salvaguardas adoptadas escribiendo a <a href={`mailto:${RESPONSIBLE_EMAIL}`}>{RESPONSIBLE_EMAIL}</a>.
+        </p>
+      </section>
+
+      {/* ── 5. Mecanismo para limitar uso o divulgación ──────────────────────── */}
+      <section class="legal-section">
+        <h2 class="legal-h2">5. Mecanismo para limitar el uso o divulgación de sus datos</h2>
+        <p>
+          Para limitar el uso o divulgación de sus datos personales, incluyendo su exclusión de listas de contacto comercial, puede:
+        </p>
+        <ol>
+          <li>Enviar un correo a <a href={`mailto:${RESPONSIBLE_EMAIL}`}>{RESPONSIBLE_EMAIL}</a> con el asunto <em>"Solicitud de exclusión"</em>.</li>
+          <li>Utilizar el enlace de baja incluido en cualquier correo electrónico de marketing que reciba de NextSwift.</li>
+          <li>Escribir al número de WhatsApp <a href="https://wa.me/528110425674" target="_blank" rel="noopener">{RESPONSIBLE_PHONE}</a> indicando su solicitud.</li>
+        </ol>
+        <p>
+          Atenderemos su solicitud en un plazo máximo de 10 días hábiles.
+        </p>
+      </section>
+
+      {/* ── 6. Derechos ARCO ──────────────────────────────────────────────────── */}
+      <section class="legal-section">
+        <h2 class="legal-h2">6. Derechos ARCO</h2>
+        <p>
+          Usted tiene derecho a <strong>Acceder, Rectificar, Cancelar u Oponerse</strong> (derechos ARCO) al tratamiento de sus datos personales conforme a los arts. 28-37 de la LFPDPPP.
+        </p>
+
+        <h3 class="legal-h3">¿Qué puede solicitar?</h3>
+        <ul>
+          <li><strong>Acceso:</strong> Conocer qué datos personales suyos tenemos, para qué los usamos y las condiciones del tratamiento.</li>
+          <li><strong>Rectificación:</strong> Corregir datos inexactos o incompletos.</li>
+          <li><strong>Cancelación:</strong> Solicitar que sus datos sean eliminados de nuestra base (puede llevar a la terminación de la relación comercial).</li>
+          <li><strong>Oposición:</strong> Oponerse al tratamiento para finalidades secundarias o cuando exista causa legítima.</li>
+        </ul>
+
+        <h3 class="legal-h3">¿Cómo ejercer sus derechos?</h3>
+        <p>
+          Envíe su solicitud a <a href={`mailto:${RESPONSIBLE_EMAIL}`}>{RESPONSIBLE_EMAIL}</a> con:
+        </p>
+        <ol>
+          <li>Nombre completo y datos de contacto.</li>
+          <li>Descripción clara y precisa del derecho que desea ejercer.</li>
+          <li>Documentación que acredite su identidad (INE, pasaporte u otro).</li>
+          <li>Cualquier elemento que facilite la localización de sus datos.</li>
+        </ol>
+        <p>
+          Daremos respuesta a su solicitud en un plazo de 20 días hábiles a partir de su recepción, pudiendo ampliarse 20 días más por causa justificada (art. 32 LFPDPPP).
+        </p>
+        <p>
+          Si considera que su solicitud no fue atendida adecuadamente, puede presentar una queja ante el <strong>Instituto Nacional de Transparencia, Acceso a la Información y Protección de Datos Personales (INAI)</strong> en <a href="https://www.inai.org.mx" target="_blank" rel="noopener">www.inai.org.mx</a>.
+        </p>
+      </section>
+
+      {/* ── 7. Tecnologías de rastreo (cookies) ─────────────────────────────── */}
+      <section class="legal-section">
+        <h2 class="legal-h2">7. Uso de cookies y tecnologías de rastreo</h2>
+        <p>
+          El sitio web <strong>nextswift.mx</strong> utiliza las siguientes tecnologías de rastreo:
+        </p>
+        <table class="legal-table">
+          <thead>
+            <tr>
+              <th>Tecnología</th>
+              <th>Tipo</th>
+              <th>Proveedor</th>
+              <th>Finalidad</th>
+              <th>Duración</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>cookieConsent</td>
+              <td>Necesaria (localStorage)</td>
+              <td>NextSwift</td>
+              <td>Almacena la preferencia de consentimiento del usuario</td>
+              <td>Persistente (hasta que el usuario la borre)</td>
+            </tr>
+            <tr>
+              <td>_fbp / _fbc</td>
+              <td>Marketing</td>
+              <td>Meta Platforms</td>
+              <td>Identificar visitantes para retargeting y medir conversiones</td>
+              <td>90 días</td>
+            </tr>
+            <tr>
+              <td>_ga / _ga_* </td>
+              <td>Análisis</td>
+              <td>Google Analytics 4</td>
+              <td>Analítica del sitio web, comportamiento del usuario</td>
+              <td>2 años / 1 año</td>
+            </tr>
+          </tbody>
+        </table>
+        <p>
+          Puede gestionar sus preferencias de cookies en cualquier momento a través del banner de cookies visible en su primera visita al sitio, o modificando la configuración de su navegador. Tenga en cuenta que deshabilitar todas las cookies puede afectar la funcionalidad del sitio.
+        </p>
+      </section>
+
+      {/* ── 8. Cambios al aviso ───────────────────────────────────────────────── */}
+      <section class="legal-section">
+        <h2 class="legal-h2">8. Cambios al Aviso de Privacidad</h2>
+        <p>
+          NextSwift se reserva el derecho de modificar este Aviso de Privacidad en cualquier momento para reflejar cambios en la legislación aplicable, en nuestras prácticas de privacidad o en los servicios que ofrecemos.
+        </p>
+        <p>
+          Cualquier modificación será notificada mediante:
+        </p>
+        <ul>
+          <li>Publicación de la versión actualizada en esta misma página (<code>nextswift.mx/legales/aviso-de-privacidad</code>) con la fecha de última actualización visible en el encabezado.</li>
+          <li>Aviso por correo electrónico si usted ha proporcionado sus datos de contacto y el cambio es sustancial.</li>
+        </ul>
+        <p>
+          Le recomendamos revisar este aviso periódicamente. El uso continuado del sitio o del servicio después de la publicación de cambios constituye su aceptación de dichos cambios.
+        </p>
+      </section>
+
+      {/* ── Política WhatsApp Business ────────────────────────────────────────── */}
+      <section class="legal-section">
+        <h2 class="legal-h2">9. Política de uso de WhatsApp Business</h2>
+        <p>
+          NextSwift utiliza WhatsApp Business como canal de comunicación con prospectos y clientes activos. Al proporcionar su número de WhatsApp en nuestros formularios, usted acepta lo siguiente:
+        </p>
+        <ul>
+          <li>
+            <strong>Número de contacto:</strong> {RESPONSIBLE_PHONE}. Este es el único número oficial de NextSwift en WhatsApp. No autorizamos el uso de números alternativos en nuestro nombre.
+          </li>
+          <li>
+            <strong>Uso del número:</strong> Solo utilizaremos su número para coordinar la auditoría inicial, el seguimiento del proceso de calificación y la prestación del servicio contratado. No lo compartiremos con terceros ajenos a los encargados de tratamiento declarados en la sección 4.
+          </li>
+          <li>
+            <strong>Retención del historial:</strong> Los mensajes de WhatsApp relacionados con la relación comercial se conservan mientras exista la relación contractual y hasta 3 años después de su terminación, salvo que usted solicite su cancelación anticipada conforme a sus derechos ARCO (sección 6).
+          </li>
+          <li>
+            <strong>Posibilidad de baja:</strong> Para dejar de recibir mensajes de WhatsApp de NextSwift, puede responder <em>"BAJA"</em> en cualquier mensaje recibido, o enviar un correo a <a href={`mailto:${RESPONSIBLE_EMAIL}`}>{RESPONSIBLE_EMAIL}</a>. Procesaremos su solicitud en los siguientes 3 días hábiles.
+          </li>
+          <li>
+            <strong>Cumplimiento con Meta:</strong> NextSwift cumple con las <a href="https://www.whatsapp.com/legal/business-policy" target="_blank" rel="noopener">Políticas de Empresa de WhatsApp</a> de Meta Platforms. El contenido enviado no incluirá comunicaciones no solicitadas ni spam.
+          </li>
+        </ul>
+      </section>
+
+      <footer class="legal-footer">
+        <p>
+          Para cualquier duda sobre este Aviso de Privacidad, escríbanos a <a href={`mailto:${RESPONSIBLE_EMAIL}`}>{RESPONSIBLE_EMAIL}</a>.
+        </p>
+        <p>
+          <a href="/" class="legal-back">← Regresar a nextswift.mx</a>
+        </p>
+      </footer>
+    </div>
+  </div>
+</Base>
+
+<style>
+  .legal-page {
+    background: var(--color-surface-1, #f8f9fa);
+    min-height: 60vh;
+    padding: var(--space-10, 4rem) 0 var(--space-12, 6rem);
+  }
+
+  .legal-container {
+    max-width: 800px;
+    margin-inline: auto;
+    padding-inline: var(--space-6, 1.5rem);
+  }
+
+  .legal-header {
+    border-bottom: 2px solid var(--color-accent, #f4a822);
+    padding-bottom: var(--space-6, 1.5rem);
+    margin-bottom: var(--space-8, 2rem);
+  }
+
+  .legal-eyebrow {
+    font-family: var(--font-subheading, sans-serif);
+    font-size: var(--fs-eyebrow, 0.75rem);
+    font-weight: 600;
+    letter-spacing: var(--tracking-eyebrow, 0.12em);
+    text-transform: uppercase;
+    color: var(--color-accent, #f4a822);
+    margin: 0 0 var(--space-2, 0.5rem);
+  }
+
+  .legal-title {
+    font-family: var(--font-heading, sans-serif);
+    font-size: clamp(1.75rem, 4vw, 2.5rem);
+    font-weight: 700;
+    color: var(--color-dark-1, #001a33);
+    margin: 0 0 var(--space-3, 0.75rem);
+  }
+
+  .legal-meta {
+    font-size: 0.875rem;
+    color: var(--color-muted, #666);
+    margin: 0 0 var(--space-4, 1rem);
+  }
+
+  .legal-note {
+    background: #fff8e1;
+    border-left: 3px solid #f4a822;
+    padding: var(--space-3, 0.75rem) var(--space-4, 1rem);
+    border-radius: 0 var(--radius-2, 4px) var(--radius-2, 4px) 0;
+    font-size: 0.875rem;
+    color: #5c4a00;
+    margin: 0;
+  }
+
+  .legal-section {
+    margin-bottom: var(--space-8, 2rem);
+  }
+
+  .legal-h2 {
+    font-family: var(--font-heading, sans-serif);
+    font-size: clamp(1.1rem, 2.5vw, 1.375rem);
+    font-weight: 700;
+    color: var(--color-dark-1, #001a33);
+    margin: 0 0 var(--space-4, 1rem);
+    padding-bottom: var(--space-2, 0.5rem);
+    border-bottom: 1px solid var(--color-border, #e0e4ea);
+  }
+
+  .legal-h3 {
+    font-family: var(--font-subheading, sans-serif);
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--color-dark-2, #002244);
+    margin: var(--space-5, 1.25rem) 0 var(--space-3, 0.75rem);
+  }
+
+  .legal-page p,
+  .legal-page li {
+    font-size: clamp(0.9rem, 1.5vw, 1rem);
+    line-height: 1.7;
+    color: var(--color-text, #1a1a1a);
+  }
+
+  .legal-page p {
+    margin: 0 0 var(--space-4, 1rem);
+  }
+
+  .legal-page ul,
+  .legal-page ol {
+    margin: 0 0 var(--space-4, 1rem);
+    padding-left: var(--space-6, 1.5rem);
+  }
+
+  .legal-page li {
+    margin-bottom: var(--space-2, 0.5rem);
+  }
+
+  .legal-page a {
+    color: var(--color-primary, #003366);
+    text-decoration: underline;
+  }
+
+  .legal-page a:hover {
+    color: var(--color-accent, #f4a822);
+  }
+
+  .legal-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+    margin-bottom: var(--space-4, 1rem);
+    overflow-x: auto;
+    display: block;
+  }
+
+  .legal-table th {
+    background: var(--color-dark-1, #001a33);
+    color: #fff;
+    padding: var(--space-3, 0.75rem) var(--space-4, 1rem);
+    text-align: left;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  .legal-table td {
+    padding: var(--space-3, 0.75rem) var(--space-4, 1rem);
+    border-bottom: 1px solid var(--color-border, #e0e4ea);
+    vertical-align: top;
+    line-height: 1.5;
+    color: var(--color-text, #1a1a1a);
+  }
+
+  .legal-table tr:nth-child(even) td {
+    background: var(--color-surface-1, #f8f9fa);
+  }
+
+  .legal-page code {
+    font-family: monospace;
+    font-size: 0.85em;
+    background: #f0f0f0;
+    padding: 0.1em 0.4em;
+    border-radius: 3px;
+  }
+
+  .legal-footer {
+    border-top: 1px solid var(--color-border, #e0e4ea);
+    padding-top: var(--space-6, 1.5rem);
+    margin-top: var(--space-8, 2rem);
+  }
+
+  .legal-back {
+    font-weight: 600;
+    font-size: 0.9rem;
+  }
+
+  @media (max-width: 640px) {
+    .legal-page {
+      padding-top: var(--space-8, 2rem);
+    }
+  }
+</style>

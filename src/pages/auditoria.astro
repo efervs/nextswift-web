@@ -241,9 +241,26 @@ const TOTAL_STEPS = 6;
             <p class="audit__error" id="q-whatsapp-error" role="alert" aria-live="polite"></p>
           </div>
 
-          <p class="audit__legal">
-            Al enviar, acepta que Efer le contacte por correo y WhatsApp para coordinar la auditoría.
-          </p>
+          <div class="audit__field audit__privacy-check">
+            <label class="audit__privacy-label">
+              <input
+                type="checkbox"
+                id="q-privacy"
+                name="privacy_accepted"
+                value="true"
+                required
+                aria-describedby="q-privacy-error"
+              />
+              <span>
+                He leído y acepto el{' '}
+                <a href="/legales/aviso-de-privacidad" target="_blank" rel="noopener" class="audit__privacy-link">
+                  Aviso de Privacidad
+                </a>{' '}
+                y autorizo a Efer contactarme por correo y WhatsApp para coordinar la auditoría.
+              </span>
+            </label>
+            <p class="audit__error" id="q-privacy-error" role="alert" aria-live="polite"></p>
+          </div>
         </section>
 
         {/* Pantalla no-fit */}
@@ -430,6 +447,7 @@ const TOTAL_STEPS = 6;
     if (n === 6) {
       const email = (form!.elements.namedItem('email') as HTMLInputElement).value.trim().toLowerCase();
       const wa = (form!.elements.namedItem('whatsapp') as HTMLInputElement).value.trim();
+      const privacy = (form!.elements.namedItem('privacy_accepted') as HTMLInputElement)?.checked;
       let ok = true;
       if (!email || !EMAIL_RE.test(email)) {
         setError(6, 'q-email-error', 'Correo inválido.');
@@ -439,6 +457,10 @@ const TOTAL_STEPS = 6;
       const tenDigits = digits.length === 10 || (digits.length === 12 && digits.startsWith('52'));
       if (!wa || !tenDigits) {
         setError(6, 'q-whatsapp-error', 'WhatsApp: 10 dígitos (con o sin +52).');
+        ok = false;
+      }
+      if (!privacy) {
+        setError(6, 'q-privacy-error', 'Debe aceptar el Aviso de Privacidad para continuar.');
         ok = false;
       }
       return ok;
@@ -712,10 +734,37 @@ const TOTAL_STEPS = 6;
     min-height: 1.25rem;
   }
 
-  .audit__legal {
-    margin-top: 1rem;
-    font-size: 0.85rem;
-    color: var(--color-text-muted, #555);
+  .audit__privacy-check {
+    margin-top: 1.25rem;
+  }
+
+  .audit__privacy-label {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.625rem;
+    cursor: pointer;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    color: var(--color-text, #1a1a1a);
+  }
+
+  .audit__privacy-label input[type="checkbox"] {
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+    margin-top: 0.1rem;
+    accent-color: var(--color-primary, #003366);
+    cursor: pointer;
+  }
+
+  .audit__privacy-link {
+    color: var(--color-primary, #003366);
+    font-weight: 600;
+    text-decoration: underline;
+  }
+
+  .audit__privacy-link:hover {
+    color: var(--color-accent, #f4a822);
   }
 
   .audit__nav {
