@@ -92,7 +92,7 @@ const TOTAL_STEPS = 6;
         <progress id="audit-progress" max="100" value="0" aria-label="Progreso"></progress>
       </div>
 
-      <form id="audit-form" novalidate>
+      <form id="audit-form" novalidate aria-label="Formulario de solicitud de auditoría">
         {/* Paso 1 — Sales range */}
         <section class="audit__step" data-step="1">
           <h2 class="audit__q-label"><span class="audit__q-num">1.</span> ¿Cuánto vende su restaurante al mes (bruto, todas las plataformas)?</h2>
@@ -133,7 +133,7 @@ const TOTAL_STEPS = 6;
 
         {/* Paso 3 — Units */}
         <section class="audit__step" data-step="3" hidden>
-          <h2 class="audit__q-label"><span class="audit__q-num">3.</span> ¿Cuántas unidades o sucursales opera?</h2>
+          <h2 class="audit__q-label" id="audit-q-units-label"><span class="audit__q-num">3.</span> ¿Cuántas unidades o sucursales opera?</h2>
           <p class="audit__q-helper">Incluya dark kitchens y sucursales en franquicia que controle.</p>
           <div class="audit__input-row">
             <input
@@ -149,6 +149,7 @@ const TOTAL_STEPS = 6;
               step="1"
               required
               autocomplete="off"
+              aria-labelledby="audit-q-units-label"
               aria-describedby="q-units-error"
             />
           </div>
@@ -347,9 +348,13 @@ const TOTAL_STEPS = 6;
   }
 
   function render(): void {
-    steps.forEach((s) => (s.hidden = true));
+    steps.forEach((s) => {
+      s.hidden = true;
+      s.removeAttribute('aria-current');
+    });
     if (state.nofit) {
       stepEl('nofit')!.hidden = false;
+      stepEl('nofit')!.setAttribute('aria-current', 'step');
       btnBack.hidden = true;
       btnNext.hidden = true;
       btnSubmit.hidden = true;
@@ -358,7 +363,9 @@ const TOTAL_STEPS = 6;
       progress.value = 0;
       return;
     }
-    stepEl(state.step)!.hidden = false;
+    const activeStep = stepEl(state.step)!;
+    activeStep.hidden = false;
+    activeStep.setAttribute('aria-current', 'step');
     btnBack.hidden = state.step === 1;
     btnNext.hidden = state.step === TOTAL_STEPS;
     btnSubmit.hidden = state.step !== TOTAL_STEPS;
@@ -367,7 +374,7 @@ const TOTAL_STEPS = 6;
     stepPct.textContent = `${pct}%`;
     progress.value = pct;
     // Foco al primer input visible
-    const visibleInput = stepEl(state.step)!.querySelector<HTMLInputElement>('input:not([type=hidden])');
+    const visibleInput = activeStep.querySelector<HTMLInputElement>('input:not([type=hidden])');
     if (visibleInput) visibleInput.focus({ preventScroll: false });
   }
 

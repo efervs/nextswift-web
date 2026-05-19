@@ -64,7 +64,7 @@ const faqSchema = {
       {titulo}
     </Heading>
 
-    <dl class="faq-list" aria-label="Preguntas frecuentes">
+    <div class="faq-list" aria-label="Preguntas frecuentes" role="list">
       {entries.map((item, idx) => (
         <details
           class="faq-item"
@@ -80,7 +80,7 @@ const faqSchema = {
           </div>
         </details>
       ))}
-    </dl>
+    </div>
 
     {/* JSON-LD FAQPage — Rich Results elegible. */}
     <script

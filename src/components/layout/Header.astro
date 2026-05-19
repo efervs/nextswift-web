@@ -124,6 +124,19 @@ const MENU_BTN_ID = 'mobile-menu-btn';
   const dropdownBtn = header.querySelector<HTMLButtonElement>('.header-nav__dropdown-btn')!;
   const dropdown = document.getElementById('servicios-dropdown')!;
 
+  // En mobile, la nav se oculta visualmente pero sigue siendo accesible por teclado.
+  // `inert` la elimina del árbol de accesibilidad y del tab order cuando está cerrada.
+  const mobileQuery = window.matchMedia('(max-width: 820px)');
+  function syncNavInert(): void {
+    if (mobileQuery.matches && !nav.classList.contains('is-open')) {
+      nav.setAttribute('inert', '');
+    } else {
+      nav.removeAttribute('inert');
+    }
+  }
+  mobileQuery.addEventListener('change', syncNavInert);
+  syncNavInert();
+
   // ── Sticky shrink al scroll (CSS-driven via data attribute) ──────────────
   const observer = new IntersectionObserver(
     ([entry]) => {
@@ -139,6 +152,7 @@ const MENU_BTN_ID = 'mobile-menu-btn';
 
   // ── Hamburguesa mobile ───────────────────────────────────────────────────
   function openMenu() {
+    nav.removeAttribute('inert');
     nav.classList.add('is-open');
     backdrop.classList.add('is-visible');
     menuBtn.setAttribute('aria-expanded', 'true');
@@ -154,6 +168,7 @@ const MENU_BTN_ID = 'mobile-menu-btn';
     menuBtn.setAttribute('aria-label', 'Abrir menú');
     menuBtn.classList.remove('is-open');
     document.body.style.overflow = '';
+    if (mobileQuery.matches) nav.setAttribute('inert', '');
     // Cerrar dropdown si estaba abierto
     closeDropdown();
   }

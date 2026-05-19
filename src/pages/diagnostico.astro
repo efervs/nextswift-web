@@ -65,7 +65,7 @@ const waPrefillUrl = buildWaUrl({
           data-question-type={q.type}
           hidden
         >
-          <h2 class="quiz__q-label">
+          <h2 class="quiz__q-label" id={`q-${q.id}-label`}>
             <span class="quiz__q-num">{idx + 1}.</span> {q.label}
           </h2>
           {q.helper && <p class="quiz__q-helper">{q.helper}</p>}
@@ -86,6 +86,7 @@ const waPrefillUrl = buildWaUrl({
                 class="quiz__input"
                 required
                 autocomplete="off"
+                aria-labelledby={`q-${q.id}-label`}
                 aria-describedby={`q-${q.id}-error`}
               />
             </div>
@@ -736,7 +737,8 @@ const waPrefillUrl = buildWaUrl({
     min-height: 3rem;
   }
   .quiz__input:focus-visible {
-    outline: none;
+    outline: 3px solid var(--color-accent);
+    outline-offset: 2px;
     border-color: var(--color-accent);
     box-shadow: var(--shadow-focus);
   }
