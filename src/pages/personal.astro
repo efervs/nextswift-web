@@ -9,16 +9,11 @@ import Section from '../components/ui/Section.astro';
 import Eyebrow from '../components/ui/Eyebrow.astro';
 import Heading from '../components/ui/Heading.astro';
 import Body from '../components/ui/Body.astro';
-import Button from '../components/ui/Button.astro';
 import Card from '../components/ui/Card.astro';
 import Badge from '../components/ui/Badge.astro';
 import Stakes from '../components/shared/Stakes.astro';
 import ThreeStepPlan from '../components/shared/ThreeStepPlan.astro';
-import { buildWaUrl } from '../lib/whatsapp-url';
-
-const SLUG = 'personal';
-const waHero = buildWaUrl({ source: 'pain', content: `${SLUG}_hero_wa`, context: `pain:${SLUG}` });
-const waBottom = buildWaUrl({ source: 'pain', content: `${SLUG}_bottom_wa`, context: `pain:${SLUG}` });
+import CTAs from '../components/shared/CTAs.astro';
 
 const faqs = [
   {
@@ -56,8 +51,7 @@ const faqs = [
         <li>Encargado formado para sostener el sistema, sin depender del dueño.</li>
       </ul>
       <div class="hero-landing__ctas">
-        <Button variant="primary" size="lg" href={waHero} target="_blank" rel="noopener">Habla por WhatsApp con Efer</Button>
-        <Button variant="ghost" size="lg" href="#oferta">Agenda diagnóstico de 30 min</Button>
+        <CTAs variant="all" pain="personal" landing="personal" />
       </div>
     </div>
   </Section>
@@ -115,8 +109,7 @@ const faqs = [
       <li><strong>Comercial:</strong> tráfico directo, recurrencia y reducción de marketplaces.</li>
     </ul>
     <div class="resumen-ctas">
-      <Button variant="primary" size="lg" href="/acelerador">Ver el Acelerador 3 Palancas</Button>
-      <Button variant="ghost" size="lg" href={waBottom} target="_blank" rel="noopener">Habla por WhatsApp con Efer</Button>
+      <CTAs variant="all" pain="personal" landing="personal" />
     </div>
   </Section>
 

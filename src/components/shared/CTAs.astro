@@ -1,0 +1,250 @@
+---
+/**
+ * CTAs — Trio bifurcado canónico de NextSwift (P12 / Fase 14).
+ *
+ * Tres CTAs estructurados en orden de Hormozi vetting:
+ *  1. PRIMARY (vetting):       "Verificar si su restaurante califica" → /auditoria
+ *  2. GHOST (transicional):    "Diagnostique gratis su fuga de margen" → /diagnostico
+ *  3. WHATSAPP (BOFU directo): botón verde + "Hablar con Efer ahora"
+ *
+ * Orden FIJO (regla del prompt): el vetting va PRIMERO. El WA verde nunca
+ * encima del primary en el hero.
+ *
+ * Variantes:
+ *  - 'primary'   → solo el CTA de vetting
+ *  - 'ghost'     → solo el CTA de diagnóstico
+ *  - 'whatsapp'  → solo el botón WA verde
+ *  - 'all'       → los tres, en orden Hormozi
+ *
+ * Props:
+ *  - pain?:    slug del dolor para customizar content_name y prefilled WA
+ *  - landing?: slug explícito de la landing; default = path actual
+ *  - size?:    'md' | 'lg' (default 'lg', usado en heros y bottom CTAs)
+ *
+ * Tracking WhatsApp (al click, JS-side):
+ *  - Lee UTM de sessionStorage (capturado por Base.astro).
+ *  - Genera event_id deduplicado (crypto.randomUUID).
+ *  - Dispara fbq('track', 'Contact', ..., { eventID }) — Pixel client.
+ *  - sendBeacon → /api/capi con mismo event_id — CAPI server.
+ *  - Sustituye href just-in-time con UTM-rich URL antes de la navegación.
+ *
+ * Cloud API descartado (DH-06). Atribución para Efer vía prefilled `[ref: ...]`.
+ */
+import { buildWaUrl } from '../../lib/wa';
+
+type Variant = 'primary' | 'ghost' | 'whatsapp' | 'all';
+type Size = 'md' | 'lg';
+
+interface Props {
+  variant: Variant;
+  pain?: string;
+  landing?: string;
+  size?: Size;
+}
+
+const { variant, pain, landing, size = 'lg' } = Astro.props;
+
+const computedLanding =
+  landing ??
+  (Astro.url.pathname.replace(/^\//, '').replace(/\/$/, '') || 'home');
+
+const showPrimary = variant === 'primary' || variant === 'all';
+const showGhost = variant === 'ghost' || variant === 'all';
+const showWa = variant === 'whatsapp' || variant === 'all';
+
+const contentName = pain ? `pain_${pain}` : computedLanding || 'home';
+
+// Fallback wa.me URL (sin UTM, sin pain en mensaje). El click-handler lo
+// sustituye just-in-time con la URL UTM-rich leída de sessionStorage.
+const waFallbackHref = buildWaUrl({
+  source: 'site',
+  landing: computedLanding,
+  messageTemplate: pain
+    ? `Hola Efer, vengo de la página de ${pain} y quiero...`
+    : undefined,
+});
+
+const sizeClass = size === 'md' ? 'btn--md' : 'btn--lg';
+---
+
+<div class="ctas-trio" data-cta-trio={variant}>
+  {showPrimary && (
+    <a
+      href="/auditoria"
+      class:list={['btn', 'btn--primary', sizeClass, 'ctas-trio__primary']}
+      data-cta="vetting"
+      data-cta-content={contentName}
+      data-cta-landing={computedLanding}
+    >
+      Verificar si su restaurante califica
+      <span aria-hidden="true">&nbsp;&rarr;</span>
+    </a>
+  )}
+
+  {showGhost && (
+    <a
+      href="/diagnostico"
+      class:list={['btn', 'btn--ghost', sizeClass, 'ctas-trio__ghost']}
+      data-cta="diagnostico"
+      data-cta-content={contentName}
+      data-cta-landing={computedLanding}
+    >
+      Diagnostique gratis su fuga de margen
+    </a>
+  )}
+
+  {showWa && (
+    <a
+      href={waFallbackHref}
+      class:list={['btn', sizeClass, 'ctas-trio__wa']}
+      target="_blank"
+      rel="noopener"
+      data-wa-cta
+      data-cta-content={contentName}
+      data-cta-landing={computedLanding}
+      data-cta-pain={pain ?? ''}
+      aria-label="Hablar con Efer por WhatsApp (abre en pestaña nueva)"
+    >
+      <svg class="ctas-trio__wa-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.94.51 3.83 1.48 5.49L2 22l4.74-1.24a9.9 9.9 0 0 0 5.3 1.52h.01c5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.02A9.84 9.84 0 0 0 12.04 2zm0 18.03h-.01a8.16 8.16 0 0 1-4.17-1.14l-.3-.18-3.09.81.82-3.01-.19-.31a8.18 8.18 0 0 1-1.25-4.3c0-4.51 3.68-8.19 8.2-8.19a8.14 8.14 0 0 1 5.79 2.4 8.14 8.14 0 0 1 2.4 5.8c0 4.51-3.68 8.19-8.2 8.19zm4.5-6.13c-.25-.12-1.46-.72-1.69-.8-.23-.08-.39-.12-.56.12-.16.25-.64.8-.78.96-.14.16-.29.18-.54.06-.25-.12-1.04-.38-1.99-1.22a7.45 7.45 0 0 1-1.38-1.71c-.14-.25-.02-.38.1-.5.11-.11.25-.29.37-.43.12-.14.16-.25.24-.41.08-.17.04-.31-.02-.43-.06-.12-.56-1.34-.76-1.84-.2-.48-.4-.42-.56-.42h-.48a.91.91 0 0 0-.66.31c-.23.25-.86.84-.86 2.05 0 1.21.89 2.38 1.01 2.55.12.16 1.75 2.67 4.23 3.74.59.26 1.05.41 1.41.52.59.19 1.13.16 1.55.1.47-.07 1.46-.6 1.67-1.18.21-.58.21-1.07.14-1.18-.06-.1-.22-.16-.47-.28z" />
+      </svg>
+      <span>Hablar con Efer ahora</span>
+    </a>
+  )}
+</div>
+
+<script>
+  import { buildWaUrl } from '../../lib/wa';
+
+  /**
+   * Delegación global de click para todos los `[data-wa-cta]` del documento.
+   * Hoisted por Astro: corre UNA vez por página, no por componente.
+   *
+   * Al click:
+   *  1. Reconstruye wa.me URL con UTMs frescos de sessionStorage.
+   *  2. Genera event_id único (crypto.randomUUID).
+   *  3. Pixel client + CAPI server con mismo event_id → dedupe Meta.
+   *  4. Sustituye el href del anchor antes de que el browser navegue.
+   *
+   * El handler corre SÍNCRONO. setHref + sendBeacon + fbq se ejecutan antes
+   * de la navegación natural del `<a target="_blank">`.
+   */
+  function generateEventId(): string {
+    const c = window.crypto;
+    if (c && typeof c.randomUUID === 'function') return c.randomUUID();
+    return `wa-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+  }
+
+  document.addEventListener(
+    'click',
+    (ev) => {
+      const target = ev.target;
+      if (!(target instanceof Element)) return;
+      const cta = target.closest('[data-wa-cta]');
+      if (!(cta instanceof HTMLAnchorElement)) return;
+
+      const pain = cta.dataset.ctaPain ?? '';
+      const contentName = cta.dataset.ctaContent ?? 'home';
+      const landing = cta.dataset.ctaLanding ?? 'home';
+
+      // 1. Reconstruir URL con UTMs frescos.
+      try {
+        const freshUrl = buildWaUrl({
+          source: 'site',
+          landing,
+          messageTemplate: pain
+            ? `Hola Efer, vengo de la página de ${pain} y quiero...`
+            : undefined,
+        });
+        cta.href = freshUrl;
+      } catch {
+        // Si falla, queda el fallback SSR. La navegación sigue.
+      }
+
+      // 2. event_id deduplicado.
+      const eventId = generateEventId();
+
+      // 3. Pixel client.
+      try {
+        const fbq = (window as unknown as { fbq?: (...args: unknown[]) => void }).fbq;
+        if (typeof fbq === 'function') {
+          fbq(
+            'track',
+            'Contact',
+            { content_name: contentName, source: landing },
+            { eventID: eventId },
+          );
+        }
+      } catch {
+        /* noop */
+      }
+
+      // 4. CAPI server vía sendBeacon (fire-and-forget, no bloquea navegación).
+      try {
+        const payload = JSON.stringify({
+          event_name: 'Contact',
+          event_id: eventId,
+          url: window.location.href,
+          user_data: {},
+          custom_data: { content_name: contentName, source: landing },
+        });
+        if (typeof navigator.sendBeacon === 'function') {
+          const blob = new Blob([payload], { type: 'application/json' });
+          navigator.sendBeacon('/api/capi', blob);
+        } else {
+          // Fallback: fetch con keepalive (no bloquea unload).
+          fetch('/api/capi', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: payload,
+            keepalive: true,
+          }).catch(() => undefined);
+        }
+      } catch {
+        /* noop */
+      }
+    },
+    { capture: false, passive: true },
+  );
+</script>
+
+<style>
+  .ctas-trio {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    margin-top: var(--space-2);
+  }
+
+  /* Botón WhatsApp BOFU — verde institucional (#25D366), no token base. */
+  .ctas-trio__wa {
+    background: #25D366;
+    color: #ffffff;
+    border-color: #25D366;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+  .ctas-trio__wa:hover {
+    background: #1FAD52;
+    border-color: #1FAD52;
+    color: #ffffff;
+  }
+  .ctas-trio__wa:active {
+    transform: translateY(1px);
+  }
+  .ctas-trio__wa:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(37, 211, 102, 0.45);
+  }
+
+  .ctas-trio__wa-icon {
+    width: 1.25rem;
+    height: 1.25rem;
+    flex-shrink: 0;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ctas-trio__wa { transition: none; }
+  }
+</style>

@@ -106,6 +106,14 @@ const orgSchema = {
       /></noscript
     >
 
+    {/* UTM capture — P12. Corre ANTES de cualquier CTA (clicks tempranos
+       en bottom-CTAs mobile lo necesitan). Lee ?utm_*= y guarda en
+       sessionStorage para que buildWaUrl los inyecte en el prefilled WA. */}
+    <script>
+      import { captureUTMFromURL } from '../lib/utm';
+      captureUTMFromURL();
+    </script>
+
     {/* Slot SEO override por página */}
     <slot name="head" />
   </head>

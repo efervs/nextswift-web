@@ -8,12 +8,11 @@ import Base from '../layouts/Base.astro';
 import Eyebrow from '../components/ui/Eyebrow.astro';
 import Heading from '../components/ui/Heading.astro';
 import Body from '../components/ui/Body.astro';
-import Button from '../components/ui/Button.astro';
 import GuideBlock from '../components/shared/GuideBlock.astro';
 import GarantiasResumen from '../components/shared/GarantiasResumen.astro';
 import Stakes from '../components/shared/Stakes.astro';
 import ThreeStepPlan from '../components/shared/ThreeStepPlan.astro';
-import { buildWaUrl } from '../lib/whatsapp-url';
+import CTAs from '../components/shared/CTAs.astro';
 
 const palancas = [
   {
@@ -76,7 +75,6 @@ const criterios = [
 const cuposLeyenda =
   'Aceptamos máximo 8 restaurantes por trimestre. La auditoría inicial confirma si hay cupo disponible este trimestre.';
 
-const waFallback = buildWaUrl({ source: 'oferta', content: 'cta_secondary_wa' });
 ---
 
 <Base
@@ -93,13 +91,7 @@ const waFallback = buildWaUrl({ source: 'oferta', content: 'cta_secondary_wa' })
         Para restaurantes con ventas brutas &ge; $300,000 MXN/mes que requieren ingeniería operativa, no asesoría.
       </Body>
       <div class="acelerador-hero__cta-stack">
-        <Button variant="primary" size="lg" href="/auditoria" data-cta="acelerador-qualify">
-          Verificar si su restaurante califica
-          <span aria-hidden="true">&nbsp;&rarr;</span>
-        </Button>
-        <Button variant="ghost" size="lg" href={waFallback} target="_blank" rel="noopener">
-          Pregunta por WhatsApp
-        </Button>
+        <CTAs variant="all" landing="acelerador" />
       </div>
     </div>
   </section>
@@ -171,13 +163,7 @@ const waFallback = buildWaUrl({ source: 'oferta', content: 'cta_secondary_wa' })
       </ul>
       <p class="calificacion__cupos">{cuposLeyenda}</p>
       <div class="calificacion__cta-stack">
-        <Button variant="primary" size="lg" href="/auditoria" data-cta="acelerador-qualify-bottom">
-          Verificar si su restaurante califica
-          <span aria-hidden="true">&nbsp;&rarr;</span>
-        </Button>
-        <Button variant="ghost" size="lg" href={waFallback} target="_blank" rel="noopener">
-          Pregunta por WhatsApp
-        </Button>
+        <CTAs variant="all" landing="acelerador" />
       </div>
     </div>
   </section>

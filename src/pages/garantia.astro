@@ -16,10 +16,9 @@ import Base from '../layouts/Base.astro';
 import Heading from '../components/ui/Heading.astro';
 import Body from '../components/ui/Body.astro';
 import Eyebrow from '../components/ui/Eyebrow.astro';
-import Button from '../components/ui/Button.astro';
 import Badge from '../components/ui/Badge.astro';
+import CTAs from '../components/shared/CTAs.astro';
 import { GARANTIAS, SLA_DEFAULT, type GarantiaTipo } from '../data/garantias';
-import { buildWaUrl } from '../lib/whatsapp-url';
 
 const tipoLabel: Record<GarantiaTipo, string> = {
   previa: 'Pre-venta',
@@ -29,12 +28,6 @@ const tipoLabel: Record<GarantiaTipo, string> = {
   comunicacion: 'Comunicación',
   gobernanza: 'Gobernanza',
 };
-
-const waUrl = buildWaUrl({
-  source: 'guarantee',
-  content: 'cta_inferior_garantia',
-  customMessage: 'Hola Efer, vi las 11 garantías del Acelerador y quiero conversar.',
-});
 
 const faqSchema = {
   '@context': 'https://schema.org',
@@ -150,13 +143,7 @@ const breadcrumbSchema = {
         Si su restaurante califica (≥ $300k MXN/mes), agendamos 30 minutos por WhatsApp. Si no aplica el programa, se lo decimos — esa es la garantía #2.
       </Body>
       <div class="garantia-cta__stack">
-        <Button variant="primary" size="lg" href="/acelerador" data-cta="garantia-acelerador">
-          Ver el Acelerador 3 Palancas
-          <span aria-hidden="true">&nbsp;&rarr;</span>
-        </Button>
-        <Button variant="wa" size="lg" href={waUrl} target="_blank" rel="noopener" data-cta="garantia-wa">
-          Pedir auditoría por WhatsApp
-        </Button>
+        <CTAs variant="all" landing="garantia" />
       </div>
     </div>
   </section>

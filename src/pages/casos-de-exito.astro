@@ -19,9 +19,8 @@ import Heading from '../components/ui/Heading.astro';
 import Body from '../components/ui/Body.astro';
 import Eyebrow from '../components/ui/Eyebrow.astro';
 import Card from '../components/ui/Card.astro';
-import Button from '../components/ui/Button.astro';
 import Badge from '../components/ui/Badge.astro';
-import { buildWaUrl } from '../lib/whatsapp-url.ts';
+import CTAs from '../components/shared/CTAs.astro';
 
 const cases = await getCollection('cases', (entry) => entry.data.authorized);
 
@@ -37,13 +36,6 @@ const logos = [
   { src: '/images/logos/hare-krishna.webp', alt: 'Hare Krishna' },
   { src: '/images/logos/sr-boneless.webp', alt: 'Sr. Boneless' },
 ];
-
-const waCasos = buildWaUrl({
-  source: 'cases',
-  content: 'cta-casos',
-  customMessage:
-    'Hola, vi los casos de éxito de NextSwift y quiero hablar de mi restaurante.',
-});
 
 const reviewsSchema = cases.map((c) => ({
   '@type': 'Review',
@@ -179,12 +171,7 @@ const itemListSchema = {
       lo decimos en la primera reunión.
     </Body>
     <div class="casos-cta-row">
-      <Button variant="primary" size="lg" href="/acelerador">
-        Aplicar al Acelerador
-      </Button>
-      <Button variant="wa" size="lg" href={waCasos} rel="noopener" target="_blank">
-        Hablar con Efer ahora
-      </Button>
+      <CTAs variant="all" landing="casos-de-exito" />
     </div>
   </Section>
 </Base>
