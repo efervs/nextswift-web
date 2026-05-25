@@ -4,8 +4,6 @@
  * Copy verbatim brief §9.1. CTAs bifurcados Ciancio (brief §5).
  * Tracking dual Pixel + CAPI con dedup event_id (fire-and-forget, no bloquea redirect).
  */
-import { Image } from 'astro:assets';
-import fotoEfer from '../../assets/foto-efer.webp';
 import Heading from '../ui/Heading.astro';
 import Body from '../ui/Body.astro';
 import Eyebrow from '../ui/Eyebrow.astro';
@@ -53,17 +51,18 @@ const {
 
   <div class="hero__visual">
     <div class="hero__visual-frame">
-      <Image
-        src={fotoEfer}
+      <img
+        src="/images/foto-efer.webp"
         alt="Efer Lara, fundador de NextSwift — operador de restaurantes y consultor B2B"
-        widths={[400, 640, 800, 1024]}
-        sizes="(max-width: 768px) 70vw, 40vw"
+        width="480"
+        height="480"
         loading="eager"
         fetchpriority="high"
+        decoding="async"
         class="hero__visual-img"
       />
-      <span class="hero__visual-anchor">Operador antes que consultor</span>
     </div>
+    <span class="hero__visual-anchor">Operador antes que consultor</span>
   </div>
 </section>
 
@@ -142,6 +141,7 @@ const {
 
   .hero__visual {
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
     min-width: 0;
@@ -154,7 +154,7 @@ const {
     aspect-ratio: 1 / 1;
     border-radius: var(--radius-5);
     overflow: hidden;
-    background: var(--color-surface-alt);
+    background: linear-gradient(135deg, var(--color-dark-1, #001a33), var(--color-primary-dark, #003366));
     box-shadow: var(--shadow-3);
   }
 
@@ -163,22 +163,20 @@ const {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    border-radius: inherit;
   }
 
   .hero__visual-anchor {
-    position: absolute;
-    inset: auto var(--space-4) var(--space-4) var(--space-4);
-    display: inline-block;
+    display: block;
+    margin-top: var(--space-3);
+    text-align: center;
     padding: var(--space-2) var(--space-4);
-    background: rgba(0, 51, 102, 0.92);
-    color: var(--color-text-on-dark);
+    color: var(--color-text-muted, #6b7280);
     font-family: var(--font-subheading);
-    font-size: 0.875rem;
+    font-size: 0.8125rem;
     font-weight: 600;
     letter-spacing: var(--tracking-wide);
     text-transform: uppercase;
-    border-radius: var(--radius-2);
-    backdrop-filter: blur(4px);
   }
 
   @media (prefers-reduced-motion: reduce) {
