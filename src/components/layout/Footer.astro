@@ -12,7 +12,7 @@
     <!-- Marca + claim -->
     <div class="footer-brand">
       <a href="/" class="footer-logo" aria-label="NextSwift — inicio">
-        <span class="footer-logo__wordmark">NextSwift</span>
+        <img src="/images/logo-nextswift.webp" alt="NextSwift" width="200" height="50" loading="lazy" class="footer-logo__img" />
       </a>
       <p class="footer-claim">Partner operativo B2B para restaurantes</p>
 
@@ -147,13 +147,14 @@
     text-decoration: none;
     margin-bottom: var(--space-3);
   }
-  .footer-logo__wordmark {
-    font-family: var(--font-heading);
-    font-size: clamp(1.5rem, 1.35rem + 0.6vw, 2rem);
-    font-weight: 700;
-    letter-spacing: var(--tracking-wide);
-    color: var(--color-accent);
-    text-transform: uppercase;
+  .footer-logo__img {
+    height: clamp(36px, 3vw, 48px);
+    width: auto;
+    display: block;
+    transition: filter 0.15s;
+  }
+  .footer-logo:hover .footer-logo__img {
+    filter: brightness(1.15);
   }
   .footer-claim {
     font-family: var(--font-subheading);

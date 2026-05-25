@@ -88,6 +88,9 @@ const orgSchema = {
     {/* Iconos */}
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png" />
+    <link rel="icon" type="image/png" sizes="512x512" href="/favicon-512.png" />
 
     {/* Preload fuentes críticas — subset latin, pesos usados en ATF */}
     <link rel="preload" as="font" type="font/woff2" crossorigin href={oswald} />
@@ -156,7 +159,11 @@ const orgSchema = {
         }
         window.__ns_loadTracking = initTracking;
         try {
-          if (localStorage.getItem('cookieConsent') === 'all') initTracking();
+          var _nc = localStorage.getItem('nx-consent');
+          if (_nc) {
+            var _np = JSON.parse(_nc);
+            if (_np && _np.analytics) initTracking();
+          }
         } catch (e) { /* private mode */ }
       })();
     </script>

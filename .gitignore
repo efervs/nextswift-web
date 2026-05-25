@@ -27,3 +27,8 @@ pnpm-debug.log*
 
 # jetbrains setting folder
 .idea/
+
+# Playwright / Lighthouse CI artifacts (Fase 28 / P23)
+test-results/
+playwright-report/
+.lighthouseci/

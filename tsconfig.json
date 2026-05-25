@@ -10,6 +10,11 @@
     "./worker-configuration.d.ts"
   ],
   "exclude": [
-    "dist"
+    "dist",
+    "tests",
+    "playwright.config.ts",
+    "test-results",
+    "playwright-report",
+    ".lighthouseci"
   ]
 }

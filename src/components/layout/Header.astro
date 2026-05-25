@@ -16,7 +16,7 @@ const MENU_BTN_ID = 'mobile-menu-btn';
 
     <!-- Logo -->
     <a href="/" class="header-logo" aria-label="NextSwift — inicio">
-      <span class="header-logo__wordmark">NextSwift</span>
+      <img src="/images/logo-nextswift.webp" alt="NextSwift" width="160" height="40" loading="eager" fetchpriority="high" class="header-logo__img" />
     </a>
 
     <!-- Nav desktop -->
@@ -259,17 +259,17 @@ const MENU_BTN_ID = 'mobile-menu-btn';
     text-decoration: none;
     flex-shrink: 0;
   }
-  .header-logo__wordmark {
-    font-family: var(--font-heading);
-    font-size: clamp(1.25rem, 1.15rem + 0.5vw, 1.625rem);
-    font-weight: 700;
-    letter-spacing: var(--tracking-wide);
-    color: var(--color-accent);
-    text-transform: uppercase;
-    transition: color 0.15s;
+  .header-logo__img {
+    height: clamp(28px, 2.5vw, 36px);
+    width: auto;
+    display: block;
+    transition: filter 0.15s;
   }
-  .header-logo:hover .header-logo__wordmark {
-    color: #fff;
+  .site-header[data-scrolled="true"] .header-logo__img {
+    height: clamp(22px, 2vw, 28px);
+  }
+  .header-logo:hover .header-logo__img {
+    filter: brightness(1.15);
   }
 
   /* ── Nav desktop ─────────────────────────────────────────────────────────── */
@@ -540,7 +540,7 @@ const MENU_BTN_ID = 'mobile-menu-btn';
   @media (prefers-reduced-motion: reduce) {
     .site-header,
     .header-inner,
-    .header-logo__wordmark,
+    .header-logo__img,
     .header-nav__link,
     .header-nav__chevron,
     .header-dropdown,

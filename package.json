@@ -12,7 +12,11 @@
     "preview": "astro preview",
     "astro": "astro",
     "check": "astro check",
-    "generate-types": "wrangler types"
+    "generate-types": "wrangler types",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:smoke": "playwright test --project=desktop-chromium",
+    "lhci": "lhci autorun --config=lighthouserc.json"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.9",
@@ -31,5 +35,10 @@
   },
   "overrides": {
     "vite": "^7"
+  },
+  "devDependencies": {
+    "@lhci/cli": "^0.14.0",
+    "@playwright/test": "^1.48.0",
+    "@resvg/resvg-js": "^2.6.2"
   }
 }
