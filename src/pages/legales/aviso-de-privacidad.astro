@@ -6,7 +6,7 @@
  */
 import Base from '../../layouts/Base.astro';
 
-const LAST_UPDATED = '19 de mayo de 2026';
+const LAST_UPDATED = '24 de mayo de 2026';
 const RESPONSIBLE_EMAIL = 'hola@nextswift.mx';
 const RESPONSIBLE_PHONE = '+52 811 042 5674';
 ---
@@ -206,7 +206,11 @@ const RESPONSIBLE_PHONE = '+52 811 042 5674';
       <section class="legal-section">
         <h2 class="legal-h2">7. Uso de cookies y tecnologías de rastreo</h2>
         <p>
-          El sitio web <strong>nextswift.mx</strong> utiliza las siguientes tecnologías de rastreo:
+          El sitio web <strong>nextswift.mx</strong> utiliza cookies y tecnologías similares con base en el
+          artículo 8, párrafo segundo, de la LFPDPPP (consentimiento tácito): <strong>al continuar
+          navegando este sitio usted acepta el uso de las cookies descritas a continuación.</strong> Puede
+          revocar o ajustar su preferencia en cualquier momento mediante el panel "Personalizar" disponible
+          en el aviso inferior del sitio.
         </p>
         <table class="legal-table">
           <thead>
@@ -220,10 +224,10 @@ const RESPONSIBLE_PHONE = '+52 811 042 5674';
           </thead>
           <tbody>
             <tr>
-              <td>cookieConsent</td>
-              <td>Necesaria (localStorage)</td>
+              <td>nx-consent</td>
+              <td>Funcional (localStorage)</td>
               <td>NextSwift</td>
-              <td>Almacena la preferencia de consentimiento del usuario</td>
+              <td>Almacena la preferencia de cookies del usuario (analíticas / marketing)</td>
               <td>Persistente (hasta que el usuario la borre)</td>
             </tr>
             <tr>
@@ -234,7 +238,7 @@ const RESPONSIBLE_PHONE = '+52 811 042 5674';
               <td>90 días</td>
             </tr>
             <tr>
-              <td>_ga / _ga_* </td>
+              <td>_ga / _ga_*</td>
               <td>Análisis</td>
               <td>Google Analytics 4</td>
               <td>Analítica del sitio web, comportamiento del usuario</td>
@@ -243,7 +247,10 @@ const RESPONSIBLE_PHONE = '+52 811 042 5674';
           </tbody>
         </table>
         <p>
-          Puede gestionar sus preferencias de cookies en cualquier momento a través del banner de cookies visible en su primera visita al sitio, o modificando la configuración de su navegador. Tenga en cuenta que deshabilitar todas las cookies puede afectar la funcionalidad del sitio.
+          Para revocar su consentimiento o ajustar categorías individuales (analíticas / marketing), haga clic
+          en "Personalizar" en el aviso de cookies visible en la parte inferior del sitio, o elimine la clave
+          <code>nx-consent</code> del almacenamiento local de su navegador. Deshabilitar todas las cookies
+          puede afectar la funcionalidad del sitio.
         </p>
       </section>
 

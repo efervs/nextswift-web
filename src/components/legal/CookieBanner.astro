@@ -1,397 +1,453 @@
 ---
-/**
- * CookieBanner — Consent manager LFPDPPP-compliant.
- * Checks localStorage['cookieConsent'] on load:
- *   - undefined → shows banner (first visit)
- *   - 'all'       → fires window.__ns_loadTracking() (called from Base.astro)
- *   - 'necessary' → no tracking
- * NO dark patterns: reject is as visible as accept.
- */
+// CookieBanner — notice bar informativo (modelo opt-out, LFPDPPP art. 8 pár. 2).
+// Al cargar, acepta todo automáticamente si no hay preferencia guardada.
+// Storage: localStorage['nx-consent'] = JSON { v:1, analytics:bool, marketing:bool }
+// El usuario puede ajustar o revocar en cualquier momento con "Personalizar".
 ---
 
+<!-- ── Notice bar informativo ────────────────────────────────────────────── -->
 <div
-  id="cookie-banner"
-  class="cookie-banner"
-  role="dialog"
-  aria-modal="true"
-  aria-label="Preferencias de cookies"
-  aria-describedby="cookie-banner-desc"
+  id="ns-cbar"
+  class="ns-cbar"
+  role="region"
+  aria-label="Aviso de cookies"
   hidden
 >
-  <div class="cookie-banner__inner">
-    <!-- Main panel -->
-    <div id="cookie-main" class="cookie-panel">
-      <p class="cookie-banner__title">Este sitio usa cookies</p>
-      <p id="cookie-banner-desc" class="cookie-banner__desc">
-        Usamos cookies necesarias para que el sitio funcione y, con tu permiso, cookies de análisis
-        y marketing (Meta Pixel, Google Analytics). Puedes aceptar todo, elegir solo las necesarias
-        o personalizar tu elección. Ver <a href="/legales/aviso-de-privacidad" target="_blank" rel="noopener" class="cookie-banner__link">Aviso de Privacidad</a>.
-      </p>
-      <div class="cookie-banner__actions">
-        <button id="cookie-necessary" class="cookie-btn cookie-btn--secondary" type="button">
-          Solo necesarias
-        </button>
-        <button id="cookie-configure" class="cookie-btn cookie-btn--secondary" type="button">
-          Configurar
-        </button>
-        <button id="cookie-accept-all" class="cookie-btn cookie-btn--primary" type="button">
-          Aceptar todas
-        </button>
+  <div class="ns-cbar__inner">
+    <p class="ns-cbar__copy">
+      Usamos cookies analíticas y de marketing para mejorar tu experiencia.
+      Al navegar este sitio aceptas su uso.
+      <a
+        href="/legales/aviso-de-privacidad"
+        class="ns-cbar__link"
+        target="_blank"
+        rel="noopener noreferrer"
+      >Ver Aviso de Privacidad</a>.
+    </p>
+    <div class="ns-cbar__actions">
+      <button id="ns-cbar-custom" class="ns-cb ns-cb--ghost" type="button">
+        Personalizar
+      </button>
+      <button id="ns-cbar-dismiss" class="ns-cb ns-cb--icon" type="button" aria-label="Cerrar aviso">
+        ✕
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Panel de preferencias (no backdrop bloqueante) ───────────────────── -->
+<div
+  id="ns-cpanel"
+  class="ns-cpanel"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="ns-cpanel-title"
+  hidden
+>
+  <div class="ns-cpanel__card">
+    <h2 id="ns-cpanel-title" class="ns-cpanel__title">Preferencias de cookies</h2>
+
+    <div class="ns-cpanel__rows">
+      <!-- Funcionales: siempre ON -->
+      <div class="ns-crow">
+        <div class="ns-crow__info">
+          <span class="ns-crow__name">Funcionales</span>
+          <span class="ns-crow__desc">Necesarias para el sitio. Siempre activas.</span>
+        </div>
+        <span class="ns-sw ns-sw--on ns-sw--locked" role="img" aria-label="Siempre activas"></span>
       </div>
+
+      <!-- Analíticas: opt-out -->
+      <label class="ns-crow ns-crow--interactive">
+        <div class="ns-crow__info">
+          <span class="ns-crow__name">Analíticas</span>
+          <span class="ns-crow__desc">Meta Pixel y Google Analytics.</span>
+        </div>
+        <input type="checkbox" id="ns-ck-analytics" class="ns-sw-input" aria-label="Cookies analíticas">
+        <span class="ns-sw" aria-hidden="true"></span>
+      </label>
+
+      <!-- Marketing: opt-out -->
+      <label class="ns-crow ns-crow--interactive">
+        <div class="ns-crow__info">
+          <span class="ns-crow__name">Marketing</span>
+          <span class="ns-crow__desc">Pixel CAPI para anuncios relevantes.</span>
+        </div>
+        <input type="checkbox" id="ns-ck-marketing" class="ns-sw-input" aria-label="Cookies de marketing">
+        <span class="ns-sw" aria-hidden="true"></span>
+      </label>
     </div>
 
-    <!-- Configure panel (hidden by default) -->
-    <div id="cookie-config-panel" class="cookie-panel" hidden>
-      <p class="cookie-banner__title">Configurar preferencias</p>
-
-      <div class="cookie-toggle-group">
-        <label class="cookie-toggle">
-          <span class="cookie-toggle__info">
-            <strong>Necesarias</strong>
-            <span class="cookie-toggle__desc">Requeridas para el funcionamiento del sitio. No se pueden desactivar.</span>
-          </span>
-          <input type="checkbox" checked disabled aria-label="Cookies necesarias (siempre activas)" />
-          <span class="cookie-toggle__slider cookie-toggle__slider--locked" aria-hidden="true"></span>
-        </label>
-
-        <label class="cookie-toggle" id="analytics-toggle-row">
-          <span class="cookie-toggle__info">
-            <strong>Análisis y marketing</strong>
-            <span class="cookie-toggle__desc">Meta Pixel, Google Analytics. Nos ayudan a medir el tráfico y mejorar el sitio.</span>
-          </span>
-          <input type="checkbox" id="cookie-analytics-toggle" aria-label="Cookies de análisis y marketing" />
-          <span class="cookie-toggle__slider" aria-hidden="true"></span>
-        </label>
-      </div>
-
-      <div class="cookie-banner__actions">
-        <button id="cookie-config-back" class="cookie-btn cookie-btn--ghost" type="button">
-          ← Atrás
-        </button>
-        <button id="cookie-config-save" class="cookie-btn cookie-btn--primary" type="button">
-          Guardar preferencias
-        </button>
-      </div>
+    <div class="ns-cpanel__actions">
+      <button id="ns-cp-save" class="ns-cb ns-cb--ghost" type="button">
+        Guardar selección
+      </button>
+      <button id="ns-cp-all" class="ns-cb ns-cb--primary" type="button">
+        Aceptar todas
+      </button>
     </div>
   </div>
 </div>
 
 <script>
-  const STORAGE_KEY = 'cookieConsent';
+  const CONSENT_KEY = 'nx-consent';
 
-  const banner = document.getElementById('cookie-banner');
-  const mainPanel = document.getElementById('cookie-main');
-  const configPanel = document.getElementById('cookie-config-panel');
-  const analyticsToggle = document.getElementById('cookie-analytics-toggle') as HTMLInputElement | null;
-
-  function getConsent(): string | null {
-    try { return localStorage.getItem(STORAGE_KEY); } catch { return null; }
+  interface ConsentData {
+    v: number;
+    analytics: boolean;
+    marketing: boolean;
   }
 
-  function setConsent(value: 'all' | 'necessary'): void {
-    try { localStorage.setItem(STORAGE_KEY, value); } catch { /* private mode */ }
-  }
-
-  function hideBanner(): void {
-    if (!banner) return;
-    banner.hidden = true;
-    banner.removeAttribute('aria-modal');
-  }
-
-  function showBanner(): void {
-    if (!banner) return;
-    banner.hidden = false;
-  }
-
-  function activateTracking(): void {
-    if (typeof (window as unknown as { __ns_loadTracking?: () => void }).__ns_loadTracking === 'function') {
-      (window as unknown as { __ns_loadTracking: () => void }).__ns_loadTracking();
+  function getConsent(): ConsentData | null {
+    try {
+      const raw = localStorage.getItem(CONSENT_KEY);
+      if (!raw) return null;
+      return JSON.parse(raw) as ConsentData;
+    } catch {
+      return null;
     }
+  }
+
+  function setConsent(analytics: boolean, marketing: boolean): void {
+    try {
+      localStorage.setItem(CONSENT_KEY, JSON.stringify({ v: 1, analytics, marketing }));
+    } catch { /* modo privado */ }
+  }
+
+  function fireTracking(analytics: boolean): void {
+    if (!analytics) return;
+    const w = window as unknown as { __ns_loadTracking?: () => void };
+    if (typeof w.__ns_loadTracking === 'function') w.__ns_loadTracking();
+  }
+
+  function dismissBar(): void {
+    const bar = document.getElementById('ns-cbar');
+    if (bar) bar.hidden = true;
+  }
+
+  function hideAll(): void {
+    dismissBar();
+    const panel = document.getElementById('ns-cpanel');
+    if (panel) { panel.hidden = true; panel.setAttribute('aria-modal', 'false'); }
+  }
+
+  function openPanel(): void {
+    const panel = document.getElementById('ns-cpanel');
+    if (!panel) return;
+    const c = getConsent();
+    const analyticsEl = document.getElementById('ns-ck-analytics') as HTMLInputElement | null;
+    const marketingEl = document.getElementById('ns-ck-marketing') as HTMLInputElement | null;
+    if (analyticsEl) analyticsEl.checked = c?.analytics ?? true;
+    if (marketingEl) marketingEl.checked = c?.marketing ?? true;
+    panel.hidden = false;
+    panel.setAttribute('aria-modal', 'true');
+    (panel.querySelector('button') as HTMLButtonElement | null)?.focus();
   }
 
   function acceptAll(): void {
-    setConsent('all');
-    activateTracking();
-    hideBanner();
+    setConsent(true, true);
+    fireTracking(true);
+    hideAll();
   }
 
-  function acceptNecessary(): void {
-    setConsent('necessary');
-    hideBanner();
+  function saveSelection(): void {
+    const analyticsEl = document.getElementById('ns-ck-analytics') as HTMLInputElement | null;
+    const marketingEl = document.getElementById('ns-ck-marketing') as HTMLInputElement | null;
+    const analytics = analyticsEl?.checked ?? false;
+    const marketing = marketingEl?.checked ?? false;
+    setConsent(analytics, marketing);
+    fireTracking(analytics);
+    hideAll();
   }
 
-  function saveConfig(): void {
-    const wantsAnalytics = analyticsToggle?.checked ?? false;
-    if (wantsAnalytics) {
-      acceptAll();
-    } else {
-      acceptNecessary();
+  document.addEventListener('keydown', (e) => {
+    const panel = document.getElementById('ns-cpanel');
+    if (e.key === 'Escape' && panel && !panel.hidden) {
+      panel.hidden = true;
+      panel.setAttribute('aria-modal', 'false');
+      (document.getElementById('ns-cbar-custom') as HTMLButtonElement | null)?.focus();
     }
-  }
+  });
 
-  function showConfig(): void {
-    if (!mainPanel || !configPanel) return;
-    mainPanel.hidden = true;
-    configPanel.hidden = false;
-    if (analyticsToggle) {
-      analyticsToggle.checked = getConsent() === 'all';
-    }
-  }
-
-  function showMain(): void {
-    if (!mainPanel || !configPanel) return;
-    configPanel.hidden = true;
-    mainPanel.hidden = false;
-  }
-
-  // Init: show banner only on first visit
+  // ── Init: auto-accept en primera visita (modelo opt-out LFPDPPP) ──────────
   const existing = getConsent();
   if (!existing) {
-    showBanner();
-  } else if (existing === 'all') {
-    activateTracking();
+    // Primera visita: acepta todo automáticamente y muestra aviso informativo
+    setConsent(true, true);
+    fireTracking(true);
+    const bar = document.getElementById('ns-cbar');
+    if (bar) bar.hidden = false;
+  } else if (existing.analytics) {
+    fireTracking(true);
   }
 
-  document.getElementById('cookie-accept-all')?.addEventListener('click', acceptAll);
-  document.getElementById('cookie-necessary')?.addEventListener('click', acceptNecessary);
-  document.getElementById('cookie-configure')?.addEventListener('click', showConfig);
-  document.getElementById('cookie-config-back')?.addEventListener('click', showMain);
-  document.getElementById('cookie-config-save')?.addEventListener('click', saveConfig);
+  document.getElementById('ns-cbar-dismiss')?.addEventListener('click', dismissBar);
+  document.getElementById('ns-cbar-custom')?.addEventListener('click', openPanel);
+  document.getElementById('ns-cp-all')?.addEventListener('click', acceptAll);
+  document.getElementById('ns-cp-save')?.addEventListener('click', saveSelection);
 
-  // Expose reset function for preferences link (future use)
-  (window as unknown as { __ns_resetConsent?: () => void }).__ns_resetConsent = function () {
-    try { localStorage.removeItem(STORAGE_KEY); } catch { /* noop */ }
-    showMain();
-    showBanner();
+  (window as unknown as { __ns_resetConsent?: () => void }).__ns_resetConsent = () => {
+    try { localStorage.removeItem(CONSENT_KEY); } catch { /* noop */ }
+    const bar = document.getElementById('ns-cbar');
+    if (bar) bar.hidden = false;
   };
 </script>
 
 <style>
-  .cookie-banner {
+  /* ── Bar slim ────────────────────────────────────────────────────────────── */
+  .ns-cbar {
     position: fixed;
     bottom: 0;
     left: 0;
     right: 0;
-    z-index: 9999;
-    background: var(--color-dark-1, #001a33);
+    z-index: 1000;
+    background: var(--color-dark-4, #233043);
     color: #fff;
-    box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.35);
-    border-top: 2px solid var(--color-accent, #f4a822);
+    box-shadow: 0 -2px 16px rgba(0, 0, 0, 0.4);
+    border-top: 2px solid var(--color-accent, #3eeaf3);
   }
 
-  .cookie-banner__inner {
-    max-width: var(--content-max, 1200px);
-    margin-inline: auto;
-    padding: var(--space-5, 1.25rem) var(--space-6, 1.5rem);
-  }
-
-  .cookie-panel {
+  .ns-cbar__inner {
     display: flex;
-    flex-direction: column;
-    gap: var(--space-4, 1rem);
-  }
-
-  .cookie-banner__title {
-    font-family: var(--font-subheading, sans-serif);
-    font-size: 1rem;
-    font-weight: 700;
-    margin: 0;
-    color: #fff;
-  }
-
-  .cookie-banner__desc {
-    font-size: 0.875rem;
-    line-height: 1.6;
-    color: var(--color-neutral-300, #b0b8c4);
-    margin: 0;
-    max-width: 70ch;
-  }
-
-  .cookie-banner__link {
-    color: var(--color-accent, #f4a822);
-    text-decoration: underline;
-  }
-
-  .cookie-banner__link:hover {
-    opacity: 0.85;
-  }
-
-  .cookie-banner__actions {
-    display: flex;
-    gap: var(--space-3, 0.75rem);
-    flex-wrap: wrap;
     align-items: center;
+    gap: 1rem;
+    max-width: 1200px;
+    margin-inline: auto;
+    padding: 0.5rem 1.25rem;
+    min-height: 4rem; /* 64px */
   }
 
-  /* ── Buttons — equal visual weight, no dark patterns ─────────────────────── */
-  .cookie-btn {
+  .ns-cbar__copy {
+    flex: 1;
+    font-size: 0.875rem;
+    line-height: 1.4;
+    color: var(--color-neutral-200, #d0d8e4);
+    margin: 0;
+  }
+
+  .ns-cbar__link {
+    color: var(--color-accent, #3eeaf3);
+    text-underline-offset: 2px;
+  }
+  .ns-cbar__link:hover { opacity: 0.85; }
+
+  .ns-cbar__actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-shrink: 0;
+  }
+
+  /* ── Buttons ─────────────────────────────────────────────────────────────── */
+  .ns-cb {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    padding: 0.5rem 1.25rem;
-    border-radius: var(--radius-3, 6px);
+    min-height: 3rem;
+    padding: 0 1.375rem;
     font-family: var(--font-subheading, sans-serif);
-    font-size: 0.875rem;
+    font-size: 0.9375rem;
     font-weight: 600;
-    cursor: pointer;
-    min-height: 40px;
+    border-radius: var(--radius-3, 6px);
     border: 2px solid transparent;
-    transition: background 0.15s, color 0.15s, border-color 0.15s;
+    cursor: pointer;
     white-space: nowrap;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+    line-height: 1;
   }
 
-  .cookie-btn--primary {
-    background: var(--color-accent, #f4a822);
-    color: #001a33;
-    border-color: var(--color-accent, #f4a822);
+  .ns-cb--primary {
+    background: var(--color-accent, #3eeaf3);
+    color: var(--color-accent-ink, #003366);
+    border-color: var(--color-accent, #3eeaf3);
   }
+  .ns-cb--primary:hover { filter: brightness(1.08); }
+  .ns-cb--primary:active { transform: translateY(1px); }
 
-  .cookie-btn--primary:hover {
-    filter: brightness(1.08);
-  }
-
-  /* Reject / necessary — same size, bordered, clearly visible */
-  .cookie-btn--secondary {
+  .ns-cb--ghost {
     background: transparent;
     color: #fff;
-    border-color: rgba(255, 255, 255, 0.4);
+    border-color: rgba(255, 255, 255, 0.35);
+  }
+  .ns-cb--ghost:hover {
+    border-color: rgba(255, 255, 255, 0.75);
+    background: rgba(255, 255, 255, 0.07);
   }
 
-  .cookie-btn--secondary:hover {
-    border-color: rgba(255, 255, 255, 0.8);
-    background: rgba(255, 255, 255, 0.06);
-  }
-
-  .cookie-btn--ghost {
+  /* × dismiss icon button */
+  .ns-cb--icon {
     background: transparent;
-    color: var(--color-neutral-300, #b0b8c4);
+    color: rgba(255, 255, 255, 0.55);
     border-color: transparent;
-    padding-left: 0;
+    padding: 0 0.5rem;
+    min-height: 2.5rem;
+    font-size: 1rem;
+  }
+  .ns-cb--icon:hover { color: #fff; }
+
+  .ns-cb:focus-visible {
+    outline: 3px solid var(--color-accent, #3eeaf3);
+    outline-offset: 2px;
   }
 
-  .cookie-btn--ghost:hover {
+  /* ── Preferences panel ──────────────────────────────────────────────────── */
+  .ns-cpanel {
+    position: fixed;
+    bottom: 5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    width: min(440px, calc(100vw - 2rem));
+    z-index: 1001;
+    background: var(--color-dark-4, #233043);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 12px;
+    box-shadow: 0 8px 48px rgba(0, 0, 0, 0.55);
+    padding: 1.25rem;
+  }
+
+  .ns-cpanel__title {
+    font-family: var(--font-subheading, sans-serif);
+    font-size: 1rem;
+    font-weight: 700;
     color: #fff;
+    margin: 0 0 1rem;
   }
 
-  /* ── Toggle group ─────────────────────────────────────────────────────────── */
-  .cookie-toggle-group {
+  .ns-cpanel__rows {
     display: flex;
     flex-direction: column;
-    gap: var(--space-4, 1rem);
+    gap: 0.875rem;
+    margin-bottom: 1.125rem;
   }
 
-  .cookie-toggle {
+  .ns-cpanel__actions {
     display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: var(--space-4, 1rem);
-    cursor: pointer;
+    gap: 0.625rem;
+    justify-content: flex-end;
   }
 
-  .cookie-toggle input[type="checkbox"] {
+  .ns-cpanel__actions .ns-cb {
+    min-height: 2.5rem;
+    font-size: 0.875rem;
+    padding: 0 1.125rem;
+  }
+
+  /* ── Cookie row ─────────────────────────────────────────────────────────── */
+  .ns-crow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.625rem 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  .ns-crow:last-child { border-bottom: none; }
+  .ns-crow--interactive { cursor: pointer; }
+  .ns-crow--interactive:hover .ns-crow__name { color: var(--color-accent, #3eeaf3); }
+
+  .ns-crow__info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .ns-crow__name {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #fff;
+    transition: color 0.15s;
+  }
+
+  .ns-crow__desc {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.5);
+    line-height: 1.3;
+  }
+
+  /* ── Toggle switch ──────────────────────────────────────────────────────── */
+  .ns-sw-input {
     position: absolute;
     opacity: 0;
     width: 0;
     height: 0;
+    pointer-events: none;
   }
 
-  .cookie-toggle__info {
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-    flex: 1;
-  }
-
-  .cookie-toggle__info strong {
-    font-size: 0.9rem;
-    color: #fff;
-  }
-
-  .cookie-toggle__desc {
-    font-size: 0.8rem;
-    color: var(--color-neutral-300, #b0b8c4);
-    line-height: 1.4;
-  }
-
-  /* Custom toggle switch */
-  .cookie-toggle__slider {
+  .ns-sw {
+    display: block;
     flex-shrink: 0;
-    width: 44px;
+    width: 42px;
     height: 24px;
-    border-radius: 999px;
+    border-radius: 12px;
     background: rgba(255, 255, 255, 0.2);
-    border: 2px solid rgba(255, 255, 255, 0.3);
+    border: 1.5px solid rgba(255, 255, 255, 0.25);
     position: relative;
     transition: background 0.2s, border-color 0.2s;
-    margin-top: 2px;
   }
 
-  .cookie-toggle__slider::after {
+  .ns-sw::after {
     content: '';
     position: absolute;
-    top: 2px;
-    left: 2px;
-    width: 16px;
-    height: 16px;
+    top: 3px;
+    left: 3px;
+    width: 14px;
+    height: 14px;
     border-radius: 50%;
     background: #fff;
     transition: transform 0.2s;
   }
 
-  .cookie-toggle__slider--locked {
-    background: var(--color-accent, #f4a822);
-    border-color: var(--color-accent, #f4a822);
-    opacity: 0.7;
-    cursor: not-allowed;
+  .ns-sw-input:checked ~ .ns-sw {
+    background: var(--color-accent, #3eeaf3);
+    border-color: var(--color-accent, #3eeaf3);
   }
+  .ns-sw-input:checked ~ .ns-sw::after { transform: translateX(18px); }
 
-  .cookie-toggle__slider--locked::after {
-    transform: translateX(20px);
-  }
-
-  /* Toggle checked state */
-  .cookie-toggle input:checked ~ .cookie-toggle__slider:not(.cookie-toggle__slider--locked) {
-    background: var(--color-accent, #f4a822);
-    border-color: var(--color-accent, #f4a822);
-  }
-
-  .cookie-toggle input:checked ~ .cookie-toggle__slider:not(.cookie-toggle__slider--locked)::after {
-    transform: translateX(20px);
-  }
-
-  /* Focus visible on toggle */
-  .cookie-toggle input:focus-visible ~ .cookie-toggle__slider {
-    outline: 2px solid var(--color-accent, #f4a822);
+  .ns-sw-input:focus-visible ~ .ns-sw {
+    outline: 3px solid var(--color-accent, #3eeaf3);
     outline-offset: 2px;
   }
 
-  /* ── Desktop: horizontal layout ──────────────────────────────────────────── */
-  @media (min-width: 768px) {
-    .cookie-panel:not(#cookie-config-panel) {
-      flex-direction: row;
-      align-items: center;
-      justify-content: space-between;
-      gap: var(--space-6, 1.5rem);
+  .ns-sw--on {
+    background: var(--color-accent, #3eeaf3);
+    border-color: var(--color-accent, #3eeaf3);
+  }
+  .ns-sw--on::after { transform: translateX(18px); }
+  .ns-sw--locked { opacity: 0.6; cursor: not-allowed; }
+
+  /* ── Mobile ─────────────────────────────────────────────────────────────── */
+  @media (max-width: 767px) {
+    .ns-cbar__inner {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0.5rem;
+      padding: 0.625rem 1rem;
+      min-height: unset;
     }
 
-    .cookie-panel:not(#cookie-config-panel) .cookie-banner__title {
-      white-space: nowrap;
-      align-self: flex-start;
-      padding-top: 0.15rem;
+    .ns-cbar__copy { font-size: 0.8125rem; }
+
+    .ns-cbar__actions { justify-content: flex-end; }
+
+    .ns-cbar__actions .ns-cb {
+      min-height: 2.5rem;
+      font-size: 0.875rem;
+      padding: 0 1rem;
     }
 
-    .cookie-panel:not(#cookie-config-panel) .cookie-banner__desc {
-      flex: 1;
-    }
-
-    .cookie-banner__actions {
-      flex-shrink: 0;
+    .ns-cpanel {
+      bottom: 0;
+      left: 0;
+      right: 0;
+      transform: none;
+      width: 100%;
+      border-radius: 12px 12px 0 0;
     }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .cookie-btn,
-    .cookie-toggle__slider,
-    .cookie-toggle__slider::after { transition: none; }
+    .ns-cb, .ns-sw, .ns-sw::after, .ns-crow__name { transition: none; }
   }
 </style>
