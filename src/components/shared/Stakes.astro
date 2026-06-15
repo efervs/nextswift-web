@@ -13,6 +13,7 @@
  * - Mercado público (comisiones delivery MX: Rappi/UberEats/DiDi 23-35%).
  *
  * Cifras: rangos con asunción declarada. Sin invenciones puntuales.
+ * Iconografía: SVG inline 32×32 (lucide-style, stroke). Provisional hasta M18.
  */
 import Eyebrow from '../ui/Eyebrow.astro';
 import Heading from '../ui/Heading.astro';
@@ -27,6 +28,8 @@ type Dolor =
   | 'metricas-control'
   | 'crecimiento-controlado';
 
+type IconKey = 'calculator-down' | 'delivery-out' | 'person-cycle' | 'lock-open';
+
 interface Props {
   variant?: Variant;
   painSlug?: Dolor;
@@ -37,6 +40,7 @@ const { variant = 'home', painSlug, class: className = '' } = Astro.props;
 
 interface Leak {
   id: string;
+  icon: IconKey;
   metric: string;
   title: string;
   body: string;
@@ -47,41 +51,52 @@ interface Leak {
 const leaks: Leak[] = [
   {
     id: 'promociones-sin-roi',
-    metric: '$60k-$120k MXN/mes',
+    icon: 'calculator-down',
+    metric: '$60k-$120k',
     title: 'Promociones sin ROI medido',
     body:
-      'Una promo 2x1 o 30% off sin costeo previo, corriendo 4 semanas en un negocio de $2M MXN/mes, regala entre $60k y $120k de utilidad neta — y casi nunca compensa con clientes nuevos recurrentes. Sin medir ticket pre/post promo, la decisión se repite el mes siguiente.',
+      'Una promo 2x1 o 30% off sin costeo previo, 4 semanas en un negocio de $2M MXN/mes, regala $60k-$120k de utilidad neta. Sin medir ticket pre/post promo, la decisión se repite cada mes.',
     doloresPrimario: 'utilidad',
     doloresSecundarios: ['metricas-control', 'ventas-delivery'],
   },
   {
     id: 'comisiones-delivery',
-    metric: '25-35% ticket bruto',
+    icon: 'delivery-out',
+    metric: '25-35%',
     title: 'Comisiones de marketplaces sin canal directo',
     body:
-      'Rappi, UberEats y DiDi Food cobran entre 25% y 35% por orden. Si el delivery suma 20-25% de un negocio de $2M MXN/mes ($400k-$500k bruto), la comisión se lleva $100k-$175k mensuales que nunca tocan tu utilidad — y crecen con cada nuevo cliente que no es tuyo.',
+      'Rappi, UberEats y DiDi cobran 25-35% por orden. Si el delivery vale 20-25% de un negocio de $2M MXN/mes, la comisión se lleva $100k-$175k mensuales que nunca tocan tu utilidad.',
     doloresPrimario: 'ventas-delivery',
     doloresSecundarios: ['utilidad'],
   },
   {
     id: 'rotacion-personal',
-    metric: '0.5-1.5 sueldos por reemplazo',
+    icon: 'person-cycle',
+    metric: '0.5-1.5×',
     title: 'Rotación de personal sin estructura',
     body:
-      'Cada salida cuesta entre medio y un sueldo y medio del puesto entre reclutamiento, formación, errores de servicio e ineficiencia inicial. En un equipo de 15 con 30-50% rotación anual, son $30k-$100k al año en costo directo — sin contar reseñas bajas ni caída de ticket por mal servicio.',
+      'Cada salida cuesta 0.5-1.5 sueldos del puesto entre reclutamiento, formación y errores iniciales. Equipo de 15 con 30-50% rotación anual: $30k-$100k al año en costo directo.',
     doloresPrimario: 'personal',
     doloresSecundarios: ['utilidad', 'autonomia'],
   },
   {
     id: 'dependencia-dueno',
-    metric: '0 días fuera',
+    icon: 'lock-open',
+    metric: '0 días',
     title: 'Dependencia operativa del dueño',
     body:
-      'Si no puedes ausentarte 72 horas sin que caiga ticket, merma o satisfacción, el negocio no es un activo — es un empleo caro. Sin SOPs ni encargado entrenado, el techo de crecimiento es tu propia agenda.',
+      'Si no puedes ausentarte 72 horas sin que caiga ticket, merma o satisfacción, el negocio no es un activo: es un empleo caro. Sin SOPs ni encargado, el techo es tu propia agenda.',
     doloresPrimario: 'autonomia',
     doloresSecundarios: ['crecimiento-controlado'],
   },
 ];
+
+const metricUnitMap: Record<string, string> = {
+  'promociones-sin-roi': 'MXN/mes',
+  'comisiones-delivery': 'ticket bruto',
+  'rotacion-personal': 'sueldos por reemplazo',
+  'dependencia-dueno': 'fuera sin caída',
+};
 
 function selectLeaks(): Leak[] {
   if (variant === 'home' || !painSlug) return leaks;
@@ -109,7 +124,7 @@ const subhead =
     : 'Mismas cifras del diagnóstico inicial NextSwift. Cada fuga es un cálculo aplicable a tu propio P&L — no una promesa genérica.';
 
 const reframe =
-  'Verlo así: una consultoría que recupera 3-7 puntos de margen en 90 días sobre tu base actual paga su propio costo dentro del primer trimestre. No es gasto discrecional — es gasto de protección sobre la utilidad que ya estás generando.';
+  'Una consultoría que recupera 3-7 puntos de margen en 90 días sobre tu base actual paga su propio costo dentro del primer trimestre. No es gasto discrecional — es gasto de protección sobre la utilidad que ya estás generando.';
 ---
 
 <section
@@ -126,19 +141,65 @@ const reframe =
     <ul class="stakes__list" role="list">
       {visibleLeaks.map((leak) => (
         <li class="leak" data-dolor={leak.doloresPrimario}>
-          <span class="leak__metric" aria-hidden="true">{leak.metric}</span>
-          <div class="leak__copy">
-            <h3 class="leak__title">{leak.title}</h3>
-            <p class="leak__body">
-              <span class="visually-hidden">Costo estimado: {leak.metric}. </span>
-              {leak.body}
-            </p>
+          <span class="leak__icon" aria-hidden="true">
+            {leak.icon === 'calculator-down' && (
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="5" y="2" width="14" height="16" rx="2" />
+                <rect x="8" y="5" width="8" height="3" />
+                <circle cx="9" cy="12" r="0.6" fill="currentColor" />
+                <circle cx="12" cy="12" r="0.6" fill="currentColor" />
+                <circle cx="15" cy="12" r="0.6" fill="currentColor" />
+                <circle cx="9" cy="15" r="0.6" fill="currentColor" />
+                <circle cx="12" cy="15" r="0.6" fill="currentColor" />
+                <circle cx="15" cy="15" r="0.6" fill="currentColor" />
+                <path d="M12 19v3" />
+                <path d="M9 21l3 3 3-3" />
+              </svg>
+            )}
+            {leak.icon === 'delivery-out' && (
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="6" cy="17" r="3" />
+                <circle cx="17" cy="17" r="3" />
+                <path d="M6 17h6l3-5h-4" />
+                <path d="M14 7h2.5l1.5 5" />
+                <path d="M19 9l3-3" />
+                <path d="M22 6h-3M22 6v3" />
+              </svg>
+            )}
+            {leak.icon === 'person-cycle' && (
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="8" r="3" />
+                <path d="M7 21v-1a4 4 0 0 1 4-4h2a4 4 0 0 1 4 4v1" />
+                <path d="M3 13a9 9 0 0 1 3-6.7" />
+                <path d="M3 9v4h4" />
+                <path d="M21 11a9 9 0 0 1-3 6.7" />
+                <path d="M21 15v-4h-4" />
+              </svg>
+            )}
+            {leak.icon === 'lock-open' && (
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="4" y="11" width="16" height="10" rx="2" />
+                <path d="M8 11V7a4 4 0 0 1 7.5-2" />
+                <circle cx="12" cy="16" r="1" fill="currentColor" />
+              </svg>
+            )}
+          </span>
+          <div class="leak__head">
+            <span class="leak__metric" aria-hidden="true">{leak.metric}</span>
+            <span class="leak__unit">{metricUnitMap[leak.id]}</span>
           </div>
+          <h3 class="leak__title">{leak.title}</h3>
+          <p class="leak__body">
+            <span class="visually-hidden">Costo estimado: {leak.metric} {metricUnitMap[leak.id]}. </span>
+            {leak.body}
+          </p>
         </li>
       ))}
     </ul>
 
-    <p class="stakes__reframe">{reframe}</p>
+    <aside class="stakes__reframe" aria-label="Reencuadre">
+      <p>{reframe}</p>
+    </aside>
   </div>
 </section>
 
@@ -194,83 +255,121 @@ const reframe =
     padding: 0;
     display: grid;
     grid-template-columns: 1fr;
-    gap: var(--space-4);
+    gap: var(--space-6);
   }
 
   @media (min-width: 720px) {
     .stakes__list {
       grid-template-columns: repeat(2, 1fr);
-      gap: var(--space-5);
     }
   }
 
   .leak {
     display: grid;
     grid-template-columns: auto 1fr;
-    gap: var(--space-4);
+    grid-template-areas:
+      'icon head'
+      'icon title'
+      'body body';
+    column-gap: var(--space-4);
+    row-gap: var(--space-2);
     align-items: start;
-    padding: var(--space-5);
+    padding: var(--space-6);
     background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    border-left: 4px solid var(--color-accent);
     border-radius: var(--radius-4);
     transition: border-color var(--dur-3) var(--ease-out),
-                background var(--dur-3) var(--ease-out);
+                background var(--dur-3) var(--ease-out),
+                transform var(--dur-3) var(--ease-out);
   }
 
   .leak:hover {
     border-color: rgba(62, 234, 243, 0.45);
+    border-left-color: var(--color-accent);
     background: rgba(255, 255, 255, 0.06);
+  }
+
+  .leak__icon {
+    grid-area: icon;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    color: var(--color-accent);
+    flex-shrink: 0;
+  }
+
+  .leak__icon svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  .leak__head {
+    grid-area: head;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
   }
 
   .leak__metric {
     font-family: var(--font-heading);
-    font-size: var(--fs-h3);
-    line-height: var(--line-tight);
+    font-size: clamp(2.25rem, 4vw, 3.5rem);
+    font-weight: 700;
+    line-height: 1;
     color: var(--color-accent);
-    letter-spacing: var(--tracking-tight);
-    padding: var(--space-2) var(--space-3);
-    border: 1px solid rgba(62, 234, 243, 0.35);
-    border-radius: var(--radius-3);
-    white-space: nowrap;
-    align-self: start;
-    min-width: max-content;
+    letter-spacing: -0.02em;
   }
 
-  .leak__copy {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-2);
-    min-width: 0;
+  .leak__unit {
+    font-family: var(--font-body);
+    font-size: var(--fs-small, 0.8125rem);
+    line-height: 1.2;
+    color: var(--color-soft);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
   }
 
   .leak__title {
+    grid-area: title;
     font-family: var(--font-heading);
     font-size: var(--fs-h3);
+    font-weight: 600;
     line-height: var(--line-snug);
     color: var(--color-text-on-dark);
-    margin: 0;
+    margin: var(--space-3) 0 0 0;
     text-wrap: balance;
   }
 
   .leak__body {
+    grid-area: body;
     font-family: var(--font-body);
     font-size: var(--fs-body);
     line-height: var(--line-base);
     color: var(--color-soft);
-    margin: 0;
-    max-width: 60ch;
+    margin: var(--space-2) 0 0 0;
+    max-width: 56ch;
   }
 
   /* ----- Reframe final (Ciancio: gasto de protección) -------------------- */
   .stakes__reframe {
+    background: var(--color-dark-2);
+    border-top: 3px solid var(--color-accent);
+    border-radius: var(--radius-4);
+    padding: var(--space-7) var(--space-6);
+    text-align: center;
+  }
+
+  .stakes__reframe p {
     font-family: var(--font-subheading);
     font-size: var(--fs-lead);
     line-height: var(--line-snug);
     color: var(--color-text-on-dark);
-    margin: 0;
-    padding-top: var(--space-5);
-    border-top: 1px solid rgba(255, 255, 255, 0.18);
-    max-width: 64rem;
+    margin: 0 auto;
+    max-width: 60ch;
     text-wrap: pretty;
   }
 
@@ -287,16 +386,28 @@ const reframe =
     border: 0;
   }
 
-  /* ----- Mobile: stack metric arriba del copy --------------------------- */
+  /* ----- Mobile (<480px): mantiene jerarquía con métrica grande --------- */
   @media (max-width: 480px) {
     .leak {
-      grid-template-columns: 1fr;
-      gap: var(--space-3);
-      padding: var(--space-4);
+      grid-template-columns: auto 1fr;
+      grid-template-areas:
+        'icon head'
+        'title title'
+        'body body';
+      column-gap: var(--space-3);
+      padding: var(--space-5);
     }
 
     .leak__metric {
-      justify-self: start;
+      font-size: clamp(2rem, 8vw, 2.75rem);
+    }
+
+    .leak__title {
+      margin-top: var(--space-2);
+    }
+
+    .stakes__reframe {
+      padding: var(--space-6) var(--space-4);
     }
   }
 </style>
