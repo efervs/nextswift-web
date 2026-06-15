@@ -24,6 +24,12 @@ export interface FaqEntry {
   respuesta: string;
   scope: FaqScope;
   orden: number;
+  /**
+   * Bloque temático opcional para agrupar visualmente el FAQ (M11).
+   * Si todas las entries de un scope lo omiten, se renderiza un grupo único
+   * sin subheader (comportamiento idéntico al previo a M11).
+   */
+  categoria?: string;
 }
 
 export const FAQS: FaqEntry[] = [
@@ -35,6 +41,7 @@ export const FAQS: FaqEntry[] = [
     id: 'home-1',
     scope: 'home',
     orden: 1,
+    categoria: 'Sobre el método y el encaje',
     pregunta: '¿Esto es consultoría de PowerPoint o realmente operan?',
     respuesta:
       'Operamos. Efer Lara opera y ha operado restaurantes — no llega con frameworks teóricos. Cada entregable es un artefacto que su equipo usa el día 11: SOPs, dashboard semanal, plantillas de costeo, rúbrica de encargado, P&L estructurado. Si en el diagnóstico de 10 días no encontramos al menos una fuga concreta y medible, le devolvemos el adelanto (garantía operativa).',
@@ -43,6 +50,7 @@ export const FAQS: FaqEntry[] = [
     id: 'home-2',
     scope: 'home',
     orden: 2,
+    categoria: 'Precio, contrato y garantías',
     pregunta: '¿Cuánto cuesta el Acelerador? ¿Por qué no aparece el precio?',
     respuesta:
       'El precio se discute después de la auditoría de viabilidad (30-45 min, sin compromiso). Razón: el Acelerador exige ventas brutas ≥ $300,000 MXN/mes y un dueño dispuesto a abrir el P&L real. Sin ese piso, decimos que no antes de hablar de inversión — no queremos vender lo que no encaja. Si la auditoría confirma fit, presentamos pricing por escrito con las 11 garantías formales adjuntas.',
@@ -51,6 +59,7 @@ export const FAQS: FaqEntry[] = [
     id: 'home-3',
     scope: 'home',
     orden: 3,
+    categoria: 'Precio, contrato y garantías',
     pregunta: '¿Cuánto dura el compromiso? ¿Me amarran a un contrato eterno?',
     respuesta:
       'El Acelerador son 10 días hábiles de implementación + 90 días de acompañamiento con dashboard semanal. Después de los 90 días, la relación se vuelve mensual con salida sin penalización aviso 30 días. No hay contratos anuales obligatorios. El cliente se queda porque el sistema funciona, no porque el contrato lo amarra.',
@@ -59,6 +68,7 @@ export const FAQS: FaqEntry[] = [
     id: 'home-4',
     scope: 'home',
     orden: 4,
+    categoria: 'Sobre el método y el encaje',
     pregunta: '¿Mi restaurante califica para el Acelerador?',
     respuesta:
       'Califica si: ventas brutas ≥ $300,000 MXN/mes, al menos 12 meses de operación, dueño-operador involucrado en cocina o piso, y disposición a abrir el P&L. Si está por debajo del piso, el Acelerador no es para usted todavía — pero el quiz de diagnóstico gratuito le da un mapa de fugas y prioridades para llegar al piso.',
@@ -67,6 +77,7 @@ export const FAQS: FaqEntry[] = [
     id: 'home-5',
     scope: 'home',
     orden: 5,
+    categoria: 'Sobre el método y el encaje',
     pregunta: '¿Funciona para mi tipo de restaurante? (sushi / mariscos / dark kitchen / cafetería)',
     respuesta:
       'El sistema operativo es agnóstico al concepto: aplica donde haya cocina, ticket, mermas, personal y P&L. Tenemos casos verificables en sushi (Temaky), mariscos (Pangas), comida vegetariana (Hare Krishna) y arranque de operación (Oita Fresh, $0 → $300k/mes). Si su modelo es muy atípico, lo detectamos en la auditoría y le decimos antes de cobrar.',
@@ -75,6 +86,7 @@ export const FAQS: FaqEntry[] = [
     id: 'home-6',
     scope: 'home',
     orden: 6,
+    categoria: 'Precio, contrato y garantías',
     pregunta: '¿Qué pasa si en 90 días no veo resultados?',
     respuesta:
       'Las 11 garantías formales cubren tres líneas: previas (no firma si no encaja), durante (cumplimiento de entregables día 11) y post (recuperación de margen documentada al día 90). Si los entregables no se cumplen en tiempo, devolvemos el adelanto proporcional. Si el dashboard no muestra movimiento medible al día 90, extendemos acompañamiento sin costo hasta cerrar la fuga.',
@@ -83,6 +95,7 @@ export const FAQS: FaqEntry[] = [
     id: 'home-7',
     scope: 'home',
     orden: 7,
+    categoria: 'Logística y operación',
     pregunta: '¿Necesito cambiar mi punto de venta o sistemas?',
     respuesta:
       'No. Trabajamos con el POS que ya tiene. Si su POS no exporta a Excel/CSV, le entregamos una plantilla semanal que el encargado o contador llena en 20 minutos. Cero software adicional, cero licencias.',
@@ -91,6 +104,7 @@ export const FAQS: FaqEntry[] = [
     id: 'home-8',
     scope: 'home',
     orden: 8,
+    categoria: 'Logística y operación',
     pregunta: '¿Cuánto tiempo de mi parte requiere durante los 10 días?',
     respuesta:
       'Entre 4 y 8 horas totales: una sesión inicial de 2 horas para abrir P&L, 3 revisiones semanales de 45 min, y validaciones puntuales por WhatsApp. El resto lo hace el equipo NextSwift dentro de su cocina con su gente — no le agregamos juntas, le quitamos operación.',
@@ -99,6 +113,7 @@ export const FAQS: FaqEntry[] = [
     id: 'home-9',
     scope: 'home',
     orden: 9,
+    categoria: 'Logística y operación',
     pregunta: '¿Trabajan fuera de Monterrey?',
     respuesta:
       'Sí. La auditoría inicial y el acompañamiento semanal son 100% remotos por videollamada. El día de implementación se hace presencial si el restaurante está en zona metropolitana de Monterrey; fuera, se hace en formato híbrido (1 viaje de 2 días + remoto). Para restaurantes fuera de NL, se cotiza el viaje aparte.',
@@ -107,6 +122,7 @@ export const FAQS: FaqEntry[] = [
     id: 'home-10',
     scope: 'home',
     orden: 10,
+    categoria: 'Sobre el método y el encaje',
     pregunta: '¿En qué se diferencian de una agencia de marketing?',
     respuesta:
       'En que no somos agencia. Una agencia vende tráfico medido contra alcance; NextSwift mide contra utilidad. Antes de tocar paid media, ordenamos cocina, costeo y margen. Si la operación está rota, lanzar campañas es gasolina en motor fundido — y eso le costaría más caro que no hacer nada.',
