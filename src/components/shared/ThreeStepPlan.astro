@@ -5,7 +5,11 @@
  * El plan se siente lineal, fácil, predecible. Reduce fricción cognitiva
  * antes del CTA. Reusable Home / landings con `variant` + `painContext`.
  *
- * Iconos: número grande, NO emojis (regla CLAUDE.md anti-decorativo).
+ * M7: linealidad temporal explícita — badge circular numerado que cabalga
+ * sobre una línea conectora cyan (desktop) + ícono SVG por paso (lupa →
+ * engranaje → gráfica). `<ol>` semántico intacto. NO emojis (regla CLAUDE.md
+ * anti-decorativo). Iconografía SVG inline 24×24 (lucide-style, stroke);
+ * provisional hasta M18 (sistema central `Icon.astro`).
  */
 import Heading from '../ui/Heading.astro';
 import Body from '../ui/Body.astro';
@@ -31,10 +35,15 @@ const subhead =
     ? 'Mismo método, contextualizado al dolor que estás resolviendo.'
     : 'Sin contratos eternos. Sin promesas vagas. Diagnóstico, ejecución, control.';
 
+// Íconos lucide-style provisionales (M18 los centralizará en Icon.astro).
+// Nombres alineados al sprite previsto de M18 (lupa · engranaje · gráfica).
+type IconKey = 'lupa' | 'engranaje' | 'grafica';
+
 interface Paso {
   numero: 1 | 2 | 3;
   titulo: string;
   descripcion: string;
+  icon: IconKey;
   href?: string;
 }
 
@@ -44,6 +53,7 @@ const pasos: [Paso, Paso, Paso] = [
     titulo: 'Aplique al programa',
     descripcion:
       'Forma corta de calificación. Si su restaurante encaja, agendamos diagnóstico de 30 min. Si no, se lo decimos sin rodeos.',
+    icon: 'lupa',
     href: '/auditoria',
   },
   {
@@ -51,12 +61,14 @@ const pasos: [Paso, Paso, Paso] = [
     titulo: 'Implementación del Acelerador 3 Palancas',
     descripcion:
       '10 días hábiles dentro de su operación. Margen, sistema operativo y canal comercial — ejecutado con usted, no presentado en PDF.',
+    icon: 'engranaje',
   },
   {
     numero: 3,
     titulo: 'Estado final: control y rentabilidad',
     descripcion:
       'Dashboard semanal, encargado entrenado, P&L que ya entiende. Sigue siendo su restaurante, ahora sin sangrar margen.',
+    icon: 'grafica',
   },
 ];
 ---
@@ -73,6 +85,27 @@ const pasos: [Paso, Paso, Paso] = [
       {pasos.map((p) => (
         <li class="step" data-num={p.numero}>
           <div class="step__num" aria-hidden="true">{String(p.numero).padStart(2, '0')}</div>
+          <span class="step__icon" aria-hidden="true">
+            {p.icon === 'lupa' && (
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="7" />
+                <path d="m21 21-4.3-4.3" />
+              </svg>
+            )}
+            {p.icon === 'engranaje' && (
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12.5 2h-1a2 2 0 0 0-2 2 1.7 1.7 0 0 1-.85 1.48l-.36.2a1.7 1.7 0 0 1-1.7 0l-.13-.07a2 2 0 0 0-2.73.73l-.5.87a2 2 0 0 0 .73 2.73l.13.07a1.7 1.7 0 0 1 .85 1.48v.42a1.7 1.7 0 0 1-.85 1.48l-.13.07a2 2 0 0 0-.73 2.73l.5.87a2 2 0 0 0 2.73.73l.13-.07a1.7 1.7 0 0 1 1.7 0l.36.2A1.7 1.7 0 0 1 9.5 20a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2 1.7 1.7 0 0 1 .85-1.48l.36-.2a1.7 1.7 0 0 1 1.7 0l.13.07a2 2 0 0 0 2.73-.73l.5-.87a2 2 0 0 0-.73-2.73l-.13-.07a1.7 1.7 0 0 1-.85-1.48v-.42a1.7 1.7 0 0 1 .85-1.48l.13-.07a2 2 0 0 0 .73-2.73l-.5-.87a2 2 0 0 0-2.73-.73l-.13.07a1.7 1.7 0 0 1-1.7 0l-.36-.2A1.7 1.7 0 0 1 14.5 4a2 2 0 0 0-2-2z" />
+                <circle cx="12" cy="12" r="3" />
+              </svg>
+            )}
+            {p.icon === 'grafica' && (
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 3v16a2 2 0 0 0 2 2h16" />
+                <path d="m7 14 4-4 3 3 5-5" />
+                <path d="M19 8h2v2" />
+              </svg>
+            )}
+          </span>
           {p.href ? (
             <a class="step__title" href={p.href}>{p.titulo}</a>
           ) : (
@@ -114,8 +147,12 @@ const pasos: [Paso, Paso, Paso] = [
     padding: 0;
     display: grid;
     grid-template-columns: 1fr;
-    gap: var(--space-5);
+    /* gap holgado: los badges sobresalen -28px y deben caber entre cards apiladas */
+    gap: var(--space-7);
     counter-reset: step;
+    position: relative;
+    /* colchón superior para el badge del primer paso (sobresale del card) */
+    margin-top: var(--space-5);
   }
 
   @media (min-width: 768px) {
@@ -123,34 +160,88 @@ const pasos: [Paso, Paso, Paso] = [
       grid-template-columns: repeat(3, 1fr);
       gap: var(--space-6);
     }
+
+    /* Línea conectora horizontal: une los centros de los 3 badges.
+       Vive detrás de las cards (z-index 0); solo visible en los gaps. */
+    .plan__steps::before {
+      content: '';
+      position: absolute;
+      top: -1px;            /* centrada en el eje de los badges (borde sup. de las cards) */
+      left: 16.666%;        /* centro de la 1ª columna */
+      right: 16.666%;       /* centro de la 3ª columna */
+      height: 2px;
+      background: var(--color-accent);
+      z-index: 0;
+    }
   }
 
   .step {
+    position: relative;
+    z-index: 1;                       /* sobre la línea conectora */
     display: flex;
     flex-direction: column;
+    text-align: center;
     gap: var(--space-2);
-    padding: var(--space-4);
+    /* padding-top holgado: deja pasar el badge que cabalga en top:-28px */
+    padding: var(--space-7) var(--space-4) var(--space-5);
     background: var(--color-surface);
     border: 1px solid var(--color-border);
     border-radius: var(--radius-4);
-    transition: border-color var(--dur-2) var(--ease-out), box-shadow var(--dur-2) var(--ease-out);
+    transition: transform var(--dur-2) var(--ease-out), border-color var(--dur-2) var(--ease-out), box-shadow var(--dur-2) var(--ease-out);
   }
 
   .step:hover {
+    transform: translateY(-4px);
     border-color: var(--color-border-strong);
-    box-shadow: var(--shadow-2);
+    box-shadow: var(--shadow-3);
   }
 
+  @media (prefers-reduced-motion: reduce) {
+    .step { transition: border-color var(--dur-2) var(--ease-out), box-shadow var(--dur-2) var(--ease-out); }
+    .step:hover { transform: none; }
+  }
+
+  /* Badge circular numerado: cabalga sobre la línea conectora. */
   .step__num {
+    position: absolute;
+    top: -28px;                       /* centro del badge = borde sup. del card */
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 2;                       /* sobre la línea y el card */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 56px;
+    height: 56px;
+    border-radius: var(--radius-pill);
+    background: var(--color-accent);
+    color: var(--color-dark-1);
+    border: 3px solid var(--color-surface);   /* anillo que lo separa de la línea */
     font-family: var(--font-heading);
-    font-size: clamp(1.75rem, 1.3rem + 1.8vw, 2.5rem);
-    font-weight: 600;
+    font-size: 1.25rem;
+    font-weight: 700;
     line-height: 1;
-    color: var(--color-accent);
     letter-spacing: var(--tracking-tight);
   }
 
+  /* Ícono SVG por paso (lupa → engranaje → gráfica). 24×24, provisional M18. */
+  .step__icon {
+    align-self: center;               /* centra el SVG; título/desc quedan full-width */
+    display: inline-flex;
+    width: 24px;
+    height: 24px;
+    color: var(--color-primary-dark);
+  }
+
+  .step__icon svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
   .step__title {
+    align-self: center;               /* se ajusta al texto: subrayado del enlace acotado */
+    max-width: 100%;
     font-family: var(--font-heading);
     font-size: var(--fs-h3);
     font-weight: 600;
@@ -184,8 +275,9 @@ const pasos: [Paso, Paso, Paso] = [
     color: var(--color-text-muted);
   }
 
-  /* Compacto en landing: bloque ≤ 200px alto desktop (criterio aceptación). */
+  /* Compacto en landing: bloque ≤ 200px alto desktop (criterio aceptación).
+     Se conserva el padding-top space-7 para que el badge no se recorte. */
   .plan--landing .plan__inner { padding-block: var(--space-7); }
-  .plan--landing .step { padding: var(--space-3) var(--space-4); }
+  .plan--landing .step { padding: var(--space-7) var(--space-4) var(--space-3); }
   .plan--landing .step__desc { font-size: 0.9375rem; }
 </style>
