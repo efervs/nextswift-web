@@ -6,7 +6,12 @@
  *  - Si `autorizado: false`, se renderiza placeholder visible "PENDIENTE DH-NEW-01" en dev/preview
  *    y se OMITE en producción (NO publicar).
  *  - Cada testimonio ancla UNA objeción específica del pipeline real.
- *  - NO video, NO foto del cliente (DH-05). Solo: métrica + texto + nombre/contexto + objeción anclada.
+ *  - NO video (DH-05, decisión humana vigente — minuta §DH-05).
+ *  - Foto/avatar del cliente: SOLO con autorización escrita (DH-NEW-01). Mientras no haya
+ *    foto autorizada entregada por Efer, el componente pinta un placeholder de iniciales.
+ *    NUNCA stock, NUNCA inventar una cara. (Evolución habilitada en M10 plan_de_mejoras_v1;
+ *    pendiente ratificación de Efer — ver reporte M10.)
+ *  - Base mínima publicable: métrica + texto + nombre/contexto + objeción anclada.
  *
  * Fuente: memory/project_casos_prueba_social.md (validado con Efer 2026-05-12, logos 2026-05-14).
  */
@@ -28,6 +33,9 @@ export interface Testimonio {
   contexto: string;         // 1 línea de qué se hizo, sin floritura
   objecionAnclada: Objecion;
   objecionLabel: string;    // Texto humano de la objeción que desmantela
+  roleLabel?: string;       // 'Dueño' | 'Operador' | 'Exdueña'… badge bajo el nombre. Opcional: NO inventar rol.
+  avatar?: string;          // '/images/testimonios/<slug>.webp'. SOLO foto autorizada (DH-NEW-01).
+                            // Sin avatar => placeholder de iniciales (ver SocialProof.astro). NUNCA stock.
   autorizado: boolean;      // false => placeholder, NO publica en prod
 }
 
@@ -42,6 +50,7 @@ export const TESTIMONIOS: Testimonio[] = [
       'Diagnóstico financiero + rediseño de menú por rentabilidad + dashboard semanal hasta convertir la operación en activo vendible.',
     objecionAnclada: 'teoria-vs-implementacion',
     objecionLabel: 'Sobre "esto es teoría o ustedes operan"',
+    roleLabel: 'Exdueña',
     autorizado: true,
   },
   {
@@ -64,7 +73,8 @@ export const TESTIMONIOS: Testimonio[] = [
       'Operación ejecutiva embebida desde el día cero — Efer dentro de cabina hasta dejar el sistema operando solo.',
     objecionAnclada: 'tamano-no-aplica',
     objecionLabel: 'Sobre "mi restaurante es muy chico / muy nuevo"',
-    autorizado: false, // quote textual de Raúl pendiente DH-NEW-01
+    roleLabel: 'Fundador',
+    autorizado: false, // quote textual de Raúl pendiente DH-NEW-01; avatar también pendiente
   },
   {
     id: 'placeholder-intrusion',
