@@ -5,7 +5,7 @@
  *
  * Variants:
  *  - 'agregada'    -> cifra agregada masiva sobre el fold (texto + métricas). Insertable en Hero o bajo Hero.
- *  - 'logos'       -> banda de 5 logos hiper-locales en escala de grises (hover = color).
+ *  - 'logos'       -> banda de 5 logos hiper-locales en tiles uniformes a color (hover = lift + scale).
  *  - 'testimonios' -> 3-4 bloques de testimonios contextuales por objeción anclada.
  *                     SOLO autorizados (NO inventar — CLAUDE.md §10 + DH-NEW-01).
  *  - 'all'         -> las 3 capas en orden agregada → logos → testimonios.
@@ -89,8 +89,8 @@ const testimonios = showTestimonios ? testimoniosPublicables() : [];
               alt={l.alt}
               loading={i === 0 ? 'eager' : 'lazy'}
               decoding="async"
-              width="120"
-              height="60"
+              width="480"
+              height="240"
               class="sp-logos-band__img"
             />
           </li>
@@ -180,7 +180,8 @@ const testimonios = showTestimonios ? testimoniosPublicables() : [];
     margin: 0;
     padding: 0;
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+    /* mobile-first: 2 columnas → la banda envuelve en filas, sin scroll horizontal */
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: var(--space-5);
     align-items: center;
     justify-items: center;
@@ -188,29 +189,57 @@ const testimonios = showTestimonios ? testimoniosPublicables() : [];
     width: 100%;
   }
 
+  @media (min-width: 520px) {
+    .sp-logos-band__list { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  }
+
+  @media (min-width: 768px) {
+    .sp-logos-band__list {
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: var(--space-6);
+    }
+  }
+
+  /* Cada logo en un tile uniforme 2:1. El fondo nativo de la marca (negro, verde,
+     crema, blanco) queda enmarcado como card para que los logos claros no se fundan
+     con la sección y los oscuros lean a color, sin grayscale. */
   .sp-logos-band__item {
     display: flex;
     align-items: center;
     justify-content: center;
     width: 100%;
-    min-height: 3rem;
+    max-width: 6rem;            /* 2:1 → altura <= 3rem en mobile */
+    aspect-ratio: 2 / 1;
+    overflow: hidden;
+    border-radius: var(--radius-3, 0.75rem);
+    border: 1px solid var(--color-border, rgba(0, 51, 102, 0.12));
+    box-shadow: var(--shadow-1);
+    background: var(--color-surface, #fff);
+    transition: transform var(--dur-2, 180ms) var(--ease-out, ease-out),
+                box-shadow var(--dur-2, 180ms) var(--ease-out, ease-out);
+  }
+
+  @media (min-width: 768px) {
+    .sp-logos-band__item { max-width: 8rem; }  /* 2:1 → altura <= 4rem en desktop */
   }
 
   .sp-logos-band__img {
-    max-width: 100%;
-    max-height: 3rem;
-    width: auto;
-    height: auto;
-    object-fit: contain;
-    filter: grayscale(1);
-    opacity: 0.75;
-    transition: filter var(--dur-2, 180ms) var(--ease-out, ease-out),
-                opacity var(--dur-2, 180ms) var(--ease-out, ease-out);
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;          /* el tile ya es 2:1 → llena la card sin distorsión */
+    opacity: 0.85;
+    transition: opacity var(--dur-2, 180ms) var(--ease-out, ease-out);
+  }
+
+  .sp-logos-band__item:hover,
+  .sp-logos-band__item:focus-within {
+    transform: scale(1.05);
+    box-shadow: var(--shadow-2, 0 8px 24px rgba(0, 51, 102, 0.14));
   }
 
   .sp-logos-band__item:hover .sp-logos-band__img,
   .sp-logos-band__item:focus-within .sp-logos-band__img {
-    filter: grayscale(0);
     opacity: 1;
   }
 
@@ -302,8 +331,13 @@ const testimonios = showTestimonios ? testimoniosPublicables() : [];
   }
 
   @media (prefers-reduced-motion: reduce) {
+    .sp-logos-band__item,
     .sp-logos-band__img {
       transition: none;
+    }
+    .sp-logos-band__item:hover,
+    .sp-logos-band__item:focus-within {
+      transform: none;
     }
   }
 </style>
