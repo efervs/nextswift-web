@@ -66,13 +66,16 @@
   --space-6:  clamp(1.5rem,  1.35rem + 0.6vw,  2rem);        /* 24 → 32 */
   --space-7:  clamp(2rem,    1.75rem + 1vw,    2.75rem);     /* 32 → 44 */
   --space-8:  clamp(2.5rem,  2.15rem + 1.4vw,  3.5rem);      /* 40 → 56 */
-  --space-9:  clamp(3rem,    2.55rem + 1.8vw,  4.25rem);     /* 48 → 68 */
-  --space-10: clamp(4rem,    3.4rem  + 2.4vw,  5.5rem);      /* 64 → 88 */
-  --space-11: clamp(5rem,    4.2rem  + 3.2vw,  7rem);        /* 80 → 112 */
+  --space-9:  clamp(3.6rem,  3.06rem + 2.16vw, 5.1rem);      /* 58 → 82  (+20%) */
+  --space-10: clamp(5rem,    4.25rem + 3vw,    6.875rem);    /* 80 → 110 (+25%) */
+  --space-11: clamp(6rem,    5.04rem + 3.84vw, 8.4rem);      /* 96 → 134 (+20%) */
   --space-12: clamp(6rem,    5rem    + 4vw,    8.5rem);      /* 96 → 136 */
 
   --content-max:    72rem;   /* 1152px — contenedor narrativo */
   --content-narrow: 44rem;   /* 704px  — bloques de lectura  */
+
+  /* padding-block mobile-first entre secciones (M14) */
+  --section-gap-mobile: clamp(2rem, 5vh, 4rem);
 
   /* ----- Radios ----------------------------------------------------------- */
   --radius-1: 0.25rem;   /* 4  — chips, badges                   */
