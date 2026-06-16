@@ -106,7 +106,9 @@ const {
     display: grid;
     grid-template-columns: 1fr;
     gap: var(--space-7);
-    padding: var(--space-9) 0 var(--space-10);
+    /* M16: padding-block inferior reducido (space-10 → space-7) para cerrar el vacío
+       bajo el hero y conectar con la <ProofBar/> de promesas. */
+    padding: var(--space-9) 0 var(--space-7);
     align-items: center;
   }
 
@@ -114,7 +116,8 @@ const {
     .hero {
       grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
       gap: var(--space-9);
-      padding: var(--space-10) 0 var(--space-11);
+      /* M16: bottom space-11 → space-7 (ídem, conecta hero → ProofBar). */
+      padding: var(--space-10) 0 var(--space-7);
     }
   }
 

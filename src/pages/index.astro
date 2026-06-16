@@ -2,11 +2,13 @@
 /**
  * Home (/) — orquestación principal.
  * Inyecta P14 (Fase 17 SocialProof + Fase 18 FAQ global).
- * ProofBar legacy (P4) reemplazado por <SocialProof variant="agregada"/> + variant="logos".
+ * ProofBar legacy (P4: métrica agregada + logos) → cubierto por <SocialProof variant="agregada"/> + variant="logos".
+ * M16: ProofBar reescrito como barra de 3 PROMESAS operativas, anclada bajo el hero (entre Hero y SocialProof agregada).
  * P20: LocalBusiness + Service schema vía slot="head".
  */
 import Base from '../layouts/Base.astro';
 import Hero from '../components/home/Hero.astro';
+import ProofBar from '../components/home/ProofBar.astro';
 import SocialProof from '../components/shared/SocialProof.astro';
 import ThreeStepPlan from '../components/shared/ThreeStepPlan.astro';
 import Stakes from '../components/shared/Stakes.astro';
@@ -32,6 +34,7 @@ const serviceSchema = buildServiceSchema({
   <script slot="head" type="application/ld+json" is:inline set:html={JSON.stringify(serviceSchema)} />
   <Section spacing="lg" tone="surface">
     <Hero />
+    <ProofBar />
     <SocialProof variant="agregada" tone="transparent" />
   </Section>
 
