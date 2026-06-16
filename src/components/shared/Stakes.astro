@@ -185,7 +185,7 @@ const reframe =
             )}
           </span>
           <div class="leak__head">
-            <span class="leak__metric" aria-hidden="true">{leak.metric}</span>
+            <span class="leak__metric metric-xl" aria-hidden="true">{leak.metric}</span>
             <span class="leak__unit">{metricUnitMap[leak.id]}</span>
           </div>
           <h3 class="leak__title">{leak.title}</h3>
@@ -315,14 +315,10 @@ const reframe =
     min-width: 0;
   }
 
-  .leak__metric {
-    font-family: var(--font-heading);
-    font-size: clamp(2.25rem, 4vw, 3.5rem);
-    font-weight: 700;
-    line-height: 1;
-    color: var(--color-accent);
-    letter-spacing: -0.02em;
-  }
+  /* .leak__metric — tipografía gobernada por .metric-xl (utilities.css / M15).
+     Sin props aquí para que la util-class global gane especificidad
+     (el atributo data-astro-* de Astro elevaría la especificidad scoped
+     sobre cualquier selector global si se repitieran las mismas props). */
 
   .leak__unit {
     font-family: var(--font-body);
@@ -398,9 +394,7 @@ const reframe =
       padding: var(--space-5);
     }
 
-    .leak__metric {
-      font-size: clamp(2rem, 8vw, 2.75rem);
-    }
+    /* .leak__metric mobile override eliminado — .metric-xl ya escala por vw (M15). */
 
     .leak__title {
       margin-top: var(--space-2);

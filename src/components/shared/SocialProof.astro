@@ -76,7 +76,7 @@ function getInitials(name: string): string {
   tone === 'transparent' ? (
     <aside class="sp-agregada sp-agregada--inline" aria-label="Métrica agregada de clientes">
       <p class="sp-agregada__metric">
-        <strong>{metricaAgregada}</strong>
+        <strong class="metric-md">{metricaAgregada}</strong>
         <span class="sp-agregada__context">— {contexto}</span>
       </p>
     </aside>
@@ -84,7 +84,7 @@ function getInitials(name: string): string {
     <Section spacing="sm" tone={tone === 'surface' ? 'surface' : 'alt'} as="div">
       <aside class="sp-agregada" aria-label="Métrica agregada de clientes">
         <p class="sp-agregada__metric">
-          <strong>{metricaAgregada}</strong>
+          <strong class="metric-md">{metricaAgregada}</strong>
           <span class="sp-agregada__context">— {contexto}</span>
         </p>
       </aside>
@@ -183,11 +183,11 @@ function getInitials(name: string): string {
     color: var(--color-text);
   }
 
+  /* .sp-agregada__metric strong — tipografía gobernada por .metric-md (utilities.css / M15).
+     font-family, font-weight, color y font-size eliminados para que la util-class global
+     gane especificidad (los estilos scoped de Astro con data-astro-* ganarían si se
+     repitieran las mismas props). Se conservan solo las props de layout. */
   .sp-agregada__metric strong {
-    font-family: var(--font-heading);
-    font-weight: 600;
-    color: var(--color-dark-1);
-    font-size: clamp(1rem, 0.92rem + 0.4vw, 1.25rem);
     display: block;
     margin-bottom: var(--space-2);
   }

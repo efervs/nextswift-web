@@ -1,0 +1,33 @@
+/* =========================================================================
+   NextSwift — Util-classes reutilizables para cifras grandes (Hormozi-style)
+   M15: se extraen aquí las reglas de métrica que antes se redefinían en cada
+   componente (Stakes, SocialProof). "Una verdad por tema."
+   Importado en global.css justo después de tokens.css y mobile-utilities.css.
+   ========================================================================= */
+
+/**
+ * .metric-xl — Cifra principal estilo Hormozi: grande, bold, acento cyan.
+ * Uso: números clave ATF o en secciones oscuras (Stakes → .leak__metric).
+ * Govern: font-family, font-size fluido, weight, line-height, tracking, color.
+ */
+.metric-xl {
+  font-family: var(--font-heading);
+  font-size: clamp(2.25rem, 5vw, 4rem);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--color-accent);
+}
+
+/**
+ * .metric-md — Cifra agregada secundaria: mediana, semibold, primary-dark.
+ * Uso: métricas de prueba social o bloques inline (SocialProof → strong).
+ * Govern: font-family, font-size fluido, weight, line-height, color.
+ */
+.metric-md {
+  font-family: var(--font-heading);
+  font-size: clamp(1.5rem, 3vw, 2.5rem);
+  font-weight: 600;
+  line-height: 1.1;
+  color: var(--color-primary-dark);
+}
