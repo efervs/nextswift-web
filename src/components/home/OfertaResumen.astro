@@ -5,21 +5,23 @@
  * P7 / Fase 8 del plan extendido — value stacking comprimido.
  *
  * M8: diferenciación visual de las 3 palancas (antes idénticas, Captura7.png).
- * Cada palanca recibe un `icon` (SVG lucide-style inline, provisional hasta M18)
- * y un `accentColor` propio: Financiera → accent cyan, Operativa → primary azul,
+ * Cada palanca recibe un `icon` (del sistema central Icon.astro, M18) y un
+ * `accentColor` propio: Financiera → accent cyan, Operativa → primary azul,
  * Comercial → primary-dark navy. Cada card lleva top-bar 6px + chip 40×40 del
  * color de su palanca, título a `--fs-h2` y hover-lift. `accentInk` define el
- * color del trazo del ícono para legibilidad sobre el chip. Sin emojis
- * (regla CLAUDE.md anti-decorativo). Copy de promesas y CTA primary intactos.
+ * color del trazo del ícono para legibilidad sobre el chip (vía currentColor).
+ * Sin emojis (regla CLAUDE.md anti-decorativo). Copy de promesas y CTA primary
+ * intactos.
  */
 import Eyebrow from '../ui/Eyebrow.astro';
 import Heading from '../ui/Heading.astro';
 import Body from '../ui/Body.astro';
 import Button from '../ui/Button.astro';
+import Icon from '../ui/Icon.astro';
 
-// Íconos lucide-style provisionales; nombres alineados al sprite previsto en M18
-// (calculadora · engranaje · grafica). engranaje/grafica idénticos a los de M7.
-type IconKey = 'calculadora' | 'engranaje' | 'grafica';
+// Íconos del sistema central Icon.astro (M18). calculadora→calculator,
+// engranaje→gear, gráfica→chart-up. Subconjunto de IconName (canónico).
+type IconKey = 'calculator' | 'gear' | 'chart-up';
 
 interface Palanca {
   nombre: string;
@@ -33,21 +35,21 @@ const palancas: Palanca[] = [
   {
     nombre: 'Financiera',
     promesa: 'Recuperación de 3-7 puntos de margen real en 90 días.',
-    icon: 'calculadora',
+    icon: 'calculator',
     accentColor: 'var(--color-accent)',
     accentInk: 'var(--color-accent-ink)',
   },
   {
     nombre: 'Operativa',
     promesa: 'SOPs, encargado entrenado y dashboard semanal — el restaurante funciona cuando no estás.',
-    icon: 'engranaje',
+    icon: 'gear',
     accentColor: 'var(--color-primary)',
     accentInk: '#FFFFFF',
   },
   {
     nombre: 'Comercial',
     promesa: 'Tráfico directo, recurrencia y reducción de dependencia de marketplaces.',
-    icon: 'grafica',
+    icon: 'chart-up',
     accentColor: 'var(--color-primary-dark)',
     accentInk: '#FFFFFF',
   },
@@ -70,33 +72,7 @@ const palancas: Palanca[] = [
       {palancas.map((p) => (
         <li class="palanca-tile" style={`--accent: ${p.accentColor}; --accent-ink: ${p.accentInk};`}>
           <span class="palanca-tile__icon" aria-hidden="true">
-            {p.icon === 'calculadora' && (
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="4" y="2" width="16" height="20" rx="2" />
-                <line x1="8" y1="6" x2="16" y2="6" />
-                <line x1="16" y1="14" x2="16" y2="18" />
-                <path d="M8 10h.01" />
-                <path d="M12 10h.01" />
-                <path d="M16 10h.01" />
-                <path d="M8 14h.01" />
-                <path d="M12 14h.01" />
-                <path d="M8 18h.01" />
-                <path d="M12 18h.01" />
-              </svg>
-            )}
-            {p.icon === 'engranaje' && (
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M12.5 2h-1a2 2 0 0 0-2 2 1.7 1.7 0 0 1-.85 1.48l-.36.2a1.7 1.7 0 0 1-1.7 0l-.13-.07a2 2 0 0 0-2.73.73l-.5.87a2 2 0 0 0 .73 2.73l.13.07a1.7 1.7 0 0 1 .85 1.48v.42a1.7 1.7 0 0 1-.85 1.48l-.13.07a2 2 0 0 0-.73 2.73l.5.87a2 2 0 0 0 2.73.73l.13-.07a1.7 1.7 0 0 1 1.7 0l.36.2A1.7 1.7 0 0 1 9.5 20a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2 1.7 1.7 0 0 1 .85-1.48l.36-.2a1.7 1.7 0 0 1 1.7 0l.13.07a2 2 0 0 0 2.73-.73l.5-.87a2 2 0 0 0-.73-2.73l-.13-.07a1.7 1.7 0 0 1-.85-1.48v-.42a1.7 1.7 0 0 1 .85-1.48l.13-.07a2 2 0 0 0 .73-2.73l-.5-.87a2 2 0 0 0-2.73-.73l-.13.07a1.7 1.7 0 0 1-1.7 0l-.36-.2A1.7 1.7 0 0 1 14.5 4a2 2 0 0 0-2-2z" />
-                <circle cx="12" cy="12" r="3" />
-              </svg>
-            )}
-            {p.icon === 'grafica' && (
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M3 3v16a2 2 0 0 0 2 2h16" />
-                <path d="m7 14 4-4 3 3 5-5" />
-                <path d="M19 8h2v2" />
-              </svg>
-            )}
+            <Icon name={p.icon} />
           </span>
           <h3 class="palanca-tile__nombre">Palanca {p.nombre}</h3>
           <p class="palanca-tile__promesa">{p.promesa}</p>
@@ -173,7 +149,9 @@ const palancas: Palanca[] = [
     .palanca-tile:hover { transform: none; }
   }
 
-  /* Chip 40×40 con el ícono. Trazo en --accent-ink para contraste sobre --accent. */
+  /* Chip 40×40 con el ícono (ui/Icon.astro, M18). El chip da fondo --accent y
+     color --accent-ink (que Icon hereda vía currentColor); Icon se dimensiona a
+     24×24 por su atributo size. */
   .palanca-tile__icon {
     display: inline-flex;
     align-items: center;
@@ -184,11 +162,6 @@ const palancas: Palanca[] = [
     border-radius: var(--radius-2);
     background: var(--accent);
     color: var(--accent-ink);
-  }
-  .palanca-tile__icon svg {
-    width: 24px;
-    height: 24px;
-    display: block;
   }
 
   .palanca-tile__nombre {

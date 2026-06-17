@@ -8,12 +8,15 @@
  * M7: linealidad temporal explícita — badge circular numerado que cabalga
  * sobre una línea conectora cyan (desktop) + ícono SVG por paso (lupa →
  * engranaje → gráfica). `<ol>` semántico intacto. NO emojis (regla CLAUDE.md
- * anti-decorativo). Iconografía SVG inline 24×24 (lucide-style, stroke);
- * provisional hasta M18 (sistema central `Icon.astro`).
+ * anti-decorativo).
+ *
+ * M18: la iconografía pasó al sistema central `ui/Icon.astro` (24×24, stroke
+ * 1.75, hereda color vía currentColor). Se elimina el SVG inline provisional.
  */
 import Heading from '../ui/Heading.astro';
 import Body from '../ui/Body.astro';
 import Eyebrow from '../ui/Eyebrow.astro';
+import Icon from '../ui/Icon.astro';
 
 type Variant = 'home' | 'landing';
 
@@ -35,9 +38,9 @@ const subhead =
     ? 'Mismo método, contextualizado al dolor que estás resolviendo.'
     : 'Sin contratos eternos. Sin promesas vagas. Diagnóstico, ejecución, control.';
 
-// Íconos lucide-style provisionales (M18 los centralizará en Icon.astro).
-// Nombres alineados al sprite previsto de M18 (lupa · engranaje · gráfica).
-type IconKey = 'lupa' | 'engranaje' | 'grafica';
+// Íconos del sistema central Icon.astro (M18). lupa→search, engranaje→gear,
+// gráfica→chart-up. Subconjunto de IconName (canónico).
+type IconKey = 'search' | 'gear' | 'chart-up';
 
 interface Paso {
   numero: 1 | 2 | 3;
@@ -53,7 +56,7 @@ const pasos: [Paso, Paso, Paso] = [
     titulo: 'Aplique al programa',
     descripcion:
       'Forma corta de calificación. Si su restaurante encaja, agendamos diagnóstico de 30 min. Si no, se lo decimos sin rodeos.',
-    icon: 'lupa',
+    icon: 'search',
     href: '/auditoria',
   },
   {
@@ -61,14 +64,14 @@ const pasos: [Paso, Paso, Paso] = [
     titulo: 'Implementación del Acelerador 3 Palancas',
     descripcion:
       '10 días hábiles dentro de su operación. Margen, sistema operativo y canal comercial — ejecutado con usted, no presentado en PDF.',
-    icon: 'engranaje',
+    icon: 'gear',
   },
   {
     numero: 3,
     titulo: 'Estado final: control y rentabilidad',
     descripcion:
       'Dashboard semanal, encargado entrenado, P&L que ya entiende. Sigue siendo su restaurante, ahora sin sangrar margen.',
-    icon: 'grafica',
+    icon: 'chart-up',
   },
 ];
 ---
@@ -86,25 +89,7 @@ const pasos: [Paso, Paso, Paso] = [
         <li class="step" data-num={p.numero}>
           <div class="step__num" aria-hidden="true">{String(p.numero).padStart(2, '0')}</div>
           <span class="step__icon" aria-hidden="true">
-            {p.icon === 'lupa' && (
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="11" cy="11" r="7" />
-                <path d="m21 21-4.3-4.3" />
-              </svg>
-            )}
-            {p.icon === 'engranaje' && (
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M12.5 2h-1a2 2 0 0 0-2 2 1.7 1.7 0 0 1-.85 1.48l-.36.2a1.7 1.7 0 0 1-1.7 0l-.13-.07a2 2 0 0 0-2.73.73l-.5.87a2 2 0 0 0 .73 2.73l.13.07a1.7 1.7 0 0 1 .85 1.48v.42a1.7 1.7 0 0 1-.85 1.48l-.13.07a2 2 0 0 0-.73 2.73l.5.87a2 2 0 0 0 2.73.73l.13-.07a1.7 1.7 0 0 1 1.7 0l.36.2A1.7 1.7 0 0 1 9.5 20a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2 1.7 1.7 0 0 1 .85-1.48l.36-.2a1.7 1.7 0 0 1 1.7 0l.13.07a2 2 0 0 0 2.73-.73l.5-.87a2 2 0 0 0-.73-2.73l-.13-.07a1.7 1.7 0 0 1-.85-1.48v-.42a1.7 1.7 0 0 1 .85-1.48l.13-.07a2 2 0 0 0 .73-2.73l-.5-.87a2 2 0 0 0-2.73-.73l-.13.07a1.7 1.7 0 0 1-1.7 0l-.36-.2A1.7 1.7 0 0 1 14.5 4a2 2 0 0 0-2-2z" />
-                <circle cx="12" cy="12" r="3" />
-              </svg>
-            )}
-            {p.icon === 'grafica' && (
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M3 3v16a2 2 0 0 0 2 2h16" />
-                <path d="m7 14 4-4 3 3 5-5" />
-                <path d="M19 8h2v2" />
-              </svg>
-            )}
+            <Icon name={p.icon} />
           </span>
           {p.href ? (
             <a class="step__title" href={p.href}>{p.titulo}</a>
@@ -224,19 +209,15 @@ const pasos: [Paso, Paso, Paso] = [
     letter-spacing: var(--tracking-tight);
   }
 
-  /* Ícono SVG por paso (lupa → engranaje → gráfica). 24×24, provisional M18. */
+  /* Ícono por paso (search → gear → chart-up) vía ui/Icon.astro (M18).
+     El chip fija caja 24×24 y color; Icon hereda color (currentColor) y se
+     dimensiona por su atributo size (default 24). */
   .step__icon {
     align-self: center;               /* centra el SVG; título/desc quedan full-width */
     display: inline-flex;
     width: 24px;
     height: 24px;
     color: var(--color-primary-dark);
-  }
-
-  .step__icon svg {
-    width: 100%;
-    height: 100%;
-    display: block;
   }
 
   .step__title {
