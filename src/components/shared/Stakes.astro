@@ -13,11 +13,15 @@
  * - Mercado público (comisiones delivery MX: Rappi/UberEats/DiDi 23-35%).
  *
  * Cifras: rangos con asunción declarada. Sin invenciones puntuales.
- * Iconografía: SVG inline 32×32 (lucide-style, stroke). Provisional hasta M18.
+ * Iconografía (M18): `lock-open` se sirve desde el sistema central <Icon/>
+ * (era un duplicado byte-a-byte del ícono canónico). Las otras 3 fugas conservan
+ * su SVG bespoke por diseño: son variantes DIRECCIONALES (calculator-down /
+ * delivery-out / person-cycle) con flecha de fuga, fuera del set plano de Icon.
  */
 import Eyebrow from '../ui/Eyebrow.astro';
 import Heading from '../ui/Heading.astro';
 import Body from '../ui/Body.astro';
+import Icon from '../ui/Icon.astro';
 
 type Variant = 'home' | 'landing';
 type Dolor =
@@ -177,11 +181,7 @@ const reframe =
               </svg>
             )}
             {leak.icon === 'lock-open' && (
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="4" y="11" width="16" height="10" rx="2" />
-                <path d="M8 11V7a4 4 0 0 1 7.5-2" />
-                <circle cx="12" cy="16" r="1" fill="currentColor" />
-              </svg>
+              <Icon name="lock-open" size={32} />
             )}
           </span>
           <div class="leak__head">
