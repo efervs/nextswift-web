@@ -9,6 +9,7 @@
   /* ----- Color · Paleta primaria (light) ---------------------------------- */
   --color-accent:        #3EEAF3;  /* acento crítico — CTAs primarias, eyebrow */
   --color-accent-ink:    #003366;  /* texto sobre accent (contraste 7.3:1)   */
+  --color-accent-on-light: #147D83;  /* M19/H-D: variante oscura del accent para TEXTO/iconos sobre fondo claro → 4.89:1 sobre blanco (AA). El #3EEAF3 sobre blanco = 1.47, falla. */
   --color-primary:       #4A90E2;
   --color-primary-dark:  #214971;
   --color-blue-light:    #93C4FF;
@@ -21,14 +22,14 @@
   --color-dark-2: #2B6095;
   --color-dark-3: #404F61;
   --color-dark-4: #233043;
-  --color-muted:  #959595;
+  --color-muted:  #9D9D9D;  /* M19/H-D: 4.65:1 sobre navy (#003366) y dark-4 (#233043) — AA */
   --color-soft:   #D3D3D3;
 
   /* ----- Color · Roles semánticos ---------------------------------------- */
   --color-surface:        var(--color-bg);
   --color-surface-alt:    #F6F8FB;
   --color-text:           var(--color-dark-1);
-  --color-text-muted:     var(--color-neutral-700);
+  --color-text-muted:     #57738E;  /* M19/H-D: variante oscura de neutral-700 (#5C7A96) → 4.65:1 sobre surface-alt (#F6F8FB) y 4.94:1 sobre blanco — AA. neutral-700 se conserva para bordes. */
   --color-text-on-dark:   #FFFFFF;
   --color-border:         var(--color-neutral-300);
   --color-border-strong:  var(--color-neutral-700);

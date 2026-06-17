@@ -1,6 +1,6 @@
 import type { UtmSet } from './utm-schema';
+import { WHATSAPP_PHONE as PHONE } from './whatsapp-phone';
 
-const PHONE = '528110425674';
 const BASE_TEXT = 'Hola, vi su sitio y quiero hablar sobre';
 
 export interface BuildWaParams {

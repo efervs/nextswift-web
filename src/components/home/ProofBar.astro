@@ -41,7 +41,7 @@ const {
 
 <aside class="proof-bar" aria-label={ariaLabel}>
   <ul class="proof-bar__list" role="list">
-    {promesas.map((p) => (
+    {promesas.map((p: Promesa) => (
       <li class="proof-bar__item">
         <span class="proof-bar__icon" aria-hidden="true">
           {p.icon === 'dias' && (

@@ -12,8 +12,7 @@
  */
 
 import { readUTMFromSessionStorage, type UTM } from './utm';
-
-const PHONE = '5218110425674';
+import { WHATSAPP_PHONE as PHONE } from './whatsapp-phone';
 
 export interface BuildWaOpts {
   /** Fuente declarada por el componente que dispara el CTA (ej. 'site', 'landing-utilidad'). */
