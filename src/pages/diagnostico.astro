@@ -111,11 +111,16 @@ const waPrefillUrl = buildWaUrl({
       {/* Paso captura email + WhatsApp (penúltimo) */}
       <section class="quiz__step quiz__step--capture" data-step={QUESTIONS.length + 1} hidden>
         <div class="quiz__pre-result" id="quiz-pre-result" aria-live="polite">
-          <p class="quiz__pre-result-eyebrow">Cálculo terminado</p>
-          <p class="quiz__pre-result-amount" id="quiz-pre-amount">$0/mes</p>
-          <p class="quiz__pre-result-copy">
+          <p class="quiz__pre-result-eyebrow" id="quiz-pre-eyebrow">Cálculo terminado</p>
+          {/* M2: arranca con guion (nunca "$0"); JS lo rellena con la cifra real o lo oculta si la fuga es 0. */}
+          <p class="quiz__pre-result-amount" id="quiz-pre-amount" aria-hidden="true">—</p>
+          <p class="quiz__pre-result-copy" data-variant="leak">
             Esto es solo la cifra. Para recibir las <strong>3 recomendaciones específicas</strong> de su caso,
             déjenos cómo contactarlo.
+          </p>
+          <p class="quiz__pre-result-copy" data-variant="no-leak" hidden>
+            Con sus respuestas no salta una fuga evidente — pero el detalle fino sólo aparece con un par de datos
+            más. Déjenos su contacto y le mandamos las <strong>3 recomendaciones específicas</strong> de su caso.
           </p>
         </div>
 
@@ -163,9 +168,8 @@ const waPrefillUrl = buildWaUrl({
       {/* Paso resultado (último) */}
       <section class="quiz__step quiz__step--result" data-step={QUESTIONS.length + 2} hidden>
         <p class="quiz__result-eyebrow">Diagnóstico personalizado</p>
-        <h2 class="quiz__result-h2">
-          Fuga estimada: <span id="quiz-result-amount">$0</span> MXN/mes
-        </h2>
+        {/* M2: el H2 lo construye JS (paintResult) — con cifra si hay fuga, o copy alternativo si es 0. Nunca "$0". */}
+        <h2 class="quiz__result-h2" id="quiz-result-h2"></h2>
         <p class="quiz__result-arquetipo" id="quiz-result-arquetipo"></p>
         <ol class="quiz__result-recs" id="quiz-result-recs"></ol>
 
@@ -331,8 +335,7 @@ const waPrefillUrl = buildWaUrl({
     if (isCapture) {
       const inputs = answersToInputs(answersToArray());
       const result = computeMarginLeak(inputs);
-      const amountEl = document.getElementById('quiz-pre-amount');
-      if (amountEl) amountEl.textContent = formatMXN(result.leakMXN) + '/mes';
+      renderPreResult(result);
     }
 
     if (isResult) {
@@ -342,6 +345,34 @@ const waPrefillUrl = buildWaUrl({
 
   function formatMXN(n: number): string {
     return '$' + n.toLocaleString('es-MX');
+  }
+
+  // M2 — pinta el bloque previo a la captura sin mostrar "$0" nunca.
+  // leakMXN > 0  -> cifra real + copy "esto es solo la cifra".
+  // leakMXN == 0 -> oculta la cifra y muestra copy alternativo (sin fabricar números).
+  function renderPreResult(result: QuizResult): void {
+    const hasLeak = result.leakMXN > 0;
+    const amountEl = document.getElementById('quiz-pre-amount');
+    const eyebrowEl = document.getElementById('quiz-pre-eyebrow');
+    const root = document.getElementById('quiz-pre-result');
+
+    if (amountEl) {
+      if (hasLeak) {
+        amountEl.textContent = formatMXN(result.leakMXN) + '/mes';
+        amountEl.hidden = false;
+        amountEl.removeAttribute('aria-hidden');
+      } else {
+        amountEl.hidden = true;
+        amountEl.setAttribute('aria-hidden', 'true');
+      }
+    }
+    if (eyebrowEl) eyebrowEl.textContent = hasLeak ? 'Cálculo terminado' : 'Casi listo';
+    if (root) {
+      root.querySelectorAll<HTMLElement>('.quiz__pre-result-copy').forEach((el) => {
+        const variant = el.getAttribute('data-variant');
+        el.hidden = hasLeak ? variant !== 'leak' : variant !== 'no-leak';
+      });
+    }
   }
 
   function answersToArray(): QuizAnswer[] {
@@ -570,8 +601,20 @@ const waPrefillUrl = buildWaUrl({
     const inputs = answersToInputs(answersToArray());
     const result: QuizResult = computeMarginLeak(inputs);
 
-    const amountEl = document.getElementById('quiz-result-amount');
-    if (amountEl) amountEl.textContent = formatMXN(result.leakMXN);
+    // M2 — H2 construido en JS: con cifra si hay fuga, copy alternativo si es 0. Nunca "$0".
+    const h2 = document.getElementById('quiz-result-h2');
+    if (h2) {
+      h2.textContent = '';
+      if (result.leakMXN > 0) {
+        h2.appendChild(document.createTextNode('Fuga estimada: '));
+        const span = document.createElement('span');
+        span.textContent = formatMXN(result.leakMXN);
+        h2.appendChild(span);
+        h2.appendChild(document.createTextNode(' MXN/mes'));
+      } else {
+        h2.textContent = 'Su operación no muestra una fuga evidente — pero sí 3 ajustes de alto retorno.';
+      }
+    }
 
     const arqEl = document.getElementById('quiz-result-arquetipo');
     if (arqEl) arqEl.textContent = result.arquetipo;
@@ -595,8 +638,9 @@ const waPrefillUrl = buildWaUrl({
     const ctaWa = document.getElementById('quiz-cta-wa') as HTMLAnchorElement | null;
     if (ctaWa) {
       const arqText = result.arquetipo;
-      const leakText = formatMXN(result.leakMXN);
-      const msg = `Hola Efer, mi diagnóstico arrojó fuga de ${leakText}/mes — arquetipo: ${arqText}. Quiero`;
+      const msg = result.leakMXN > 0
+        ? `Hola Efer, mi diagnóstico arrojó fuga de ${formatMXN(result.leakMXN)}/mes — arquetipo: ${arqText}. Quiero`
+        : `Hola Efer, hice el diagnóstico — arquetipo: ${arqText}. Quiero`;
       const utms = new URLSearchParams({
         utm_source: 'site',
         utm_medium: 'wa',

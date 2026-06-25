@@ -225,6 +225,13 @@ export function answersToInputs(answers: QuizAnswer[]): QuizInputs {
  *  - ticket: <180 o sin upsell = 1%
  *
  * Output redondeado a múltiplos de $5,000 para honestidad (no falsa precisión).
+ *
+ * Contrato M2 (cifra mínima creíble, sin inventar números):
+ *  - El redondeo a $5,000 ya implica que la cifra NO-CERO más pequeña es un bucket de $5,000.
+ *  - Una fuga cruda < $2,500 redondea a `leakMXN === 0`: NO es "$0 de fuga real", es señal
+ *    sub-resolución (no alcanza para una estimación honesta). La UI (diagnostico.astro) NUNCA
+ *    debe renderizar "$0": cuando `leakMXN === 0` muestra copy alternativo, no una cifra.
+ *  - No se fabrica un piso artificial: flotar un raw de $500 a $5,000 sería sobreestimar 10x.
  */
 export function computeMarginLeak(inputs: QuizInputs): QuizResult {
   const ventas = Math.max(inputs.ventas_totales, 0);
