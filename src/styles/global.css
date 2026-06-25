@@ -136,6 +136,86 @@ a:hover { color: var(--color-primary); }
 }
 
 /* =========================================================================
+   Sistema de botones — fuente de verdad global.
+   Button.astro aporta la estructura; aquí viven los estilos para que apliquen
+   a cualquier <a> o <button> con estas clases, incluidos los raw de CTAs.astro.
+   ========================================================================= */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  font-family: var(--font-subheading);
+  font-weight: 600;
+  letter-spacing: var(--tracking-wide);
+  line-height: 1;
+  text-decoration: none;
+  border: 1px solid transparent;
+  cursor: pointer;
+  user-select: none;
+  transition:
+    background-color var(--dur-2) var(--ease-out),
+    color var(--dur-2) var(--ease-out),
+    border-color var(--dur-2) var(--ease-out),
+    box-shadow var(--dur-2) var(--ease-out),
+    transform var(--dur-1) var(--ease-out);
+  white-space: nowrap;
+}
+
+.btn--sm { font-size: 0.875rem; padding: 0.625rem 1rem; min-height: 2.5rem; border-radius: var(--radius-2); }
+.btn--md { font-size: 1rem;     padding: 0.875rem 1.5rem; min-height: 3rem;   border-radius: var(--radius-3); }
+.btn--lg { font-size: 1.0625rem; padding: 1.125rem 1.875rem; min-height: 3.5rem; border-radius: var(--radius-3); }
+
+.btn--full { width: 100%; }
+
+/* Primary — relleno sólido cyan; texto navy 7.3:1 sobre fondo accent */
+.btn--primary {
+  background: var(--color-accent);
+  color: var(--color-accent-ink);
+  box-shadow: var(--shadow-2);
+}
+.btn--primary:hover {
+  background: var(--color-primary);
+  color: var(--color-text-on-dark);
+  box-shadow: var(--shadow-3);
+}
+.btn--primary:active { transform: translateY(1px); box-shadow: var(--shadow-1); }
+
+/* Ghost — borde navy, fondo transparente */
+.btn--ghost {
+  background: transparent;
+  color: var(--color-dark-1);
+  border-color: var(--color-dark-1);
+}
+.btn--ghost:hover {
+  background: var(--color-dark-1);
+  color: var(--color-text-on-dark);
+}
+.btn--ghost:active { transform: translateY(1px); }
+
+/* WhatsApp — navy oscuro (instancias fuera de CTAs.astro) */
+.btn--wa {
+  background: var(--color-dark-1);
+  color: var(--color-text-on-dark);
+  border-color: var(--color-dark-1);
+}
+.btn--wa:hover {
+  background: var(--color-dark-2);
+  border-color: var(--color-dark-2);
+}
+.btn--wa:active { transform: translateY(1px); }
+
+/* Disabled */
+.btn:disabled,
+.btn[aria-disabled='true'] {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+  box-shadow: none;
+  transform: none;
+}
+
+/* =========================================================================
    Caso ancla — link "Ver el caso completo →" inyectado en cada landing.
    Definido global porque el patrón es idéntico en las 6 landings.
    ========================================================================= */
