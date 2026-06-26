@@ -111,7 +111,7 @@
   --header-height: 4rem;           /* desktop header (default) */
   --header-height-scrolled: 3.25rem;
   --header-height-mobile: 3.5rem;
-  --sticky-cta-mobile-h: 56px;     /* alto bottom-bar mobile */
+  --sticky-cta-mobile-h: 72px;     /* alto bottom-bar mobile (M6: +16px cushion para safe-area) */
   --z-sticky-cta-mobile: 90;       /* < z-mobile-drawer (101) y < header (100) */
 }
 
