@@ -1,6 +1,47 @@
+# robots.txt — NextSwift (www.nextswift.mx)
+# Nota: cada bot que coincide con un User-agent específico usa SOLO su bloque
+# (gana el más específico), por eso cada bloque repite Disallow: /api/.
+
+# --- Buscadores tradicionales y crawlers generales ---
 User-agent: *
 Allow: /
+Disallow: /api/
 
+# --- Retrieval bots de IA (búsqueda generativa / citación) ---
+# Permitidos a propósito: queremos que NextSwift sea citado en respuestas de IA.
+User-agent: ClaudeBot
+Allow: /
+Disallow: /api/
+
+User-agent: Claude-SearchBot
+Allow: /
+Disallow: /api/
+
+User-agent: OAI-SearchBot
+Allow: /
+Disallow: /api/
+
+User-agent: ChatGPT-User
+Allow: /
+Disallow: /api/
+
+User-agent: PerplexityBot
+Allow: /
+Disallow: /api/
+
+# --- Training bots de IA ---
+# Abiertos por ahora (sin objeción de propiedad intelectual). Para bloquear el
+# uso del contenido en entrenamiento, cambiar "Allow: /" por "Disallow: /".
+User-agent: GPTBot
+Allow: /
+Disallow: /api/
+
+User-agent: Google-Extended
+Allow: /
+Disallow: /api/
+
+User-agent: CCBot
+Allow: /
 Disallow: /api/
 
 Sitemap: https://www.nextswift.mx/sitemap-index.xml
