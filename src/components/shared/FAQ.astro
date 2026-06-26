@@ -177,13 +177,13 @@ const faqSchema = {
 
   .faq-item:hover,
   .faq-item:focus-within {
-    border-color: var(--color-accent, #3eeaf3);
+    border-color: var(--color-accent-on-light); /* M5: 4.89:1 sobre blanco, WCAG 1.4.11 */
   }
 
-  /* Item activo: borde-acento visible + fondo cyan tenue */
+  /* Item activo: borde-acento visible + fondo teal tenue */
   .faq-item[open] {
-    border-left-color: var(--color-accent, #3eeaf3);
-    background: rgba(62, 234, 243, 0.04);
+    border-left-color: var(--color-accent-on-light); /* M5: era #3EEAF3 (1.47:1), ahora #147D83 (4.89:1) */
+    background: rgba(20, 125, 131, 0.05);
   }
 
   .faq-item__q {
@@ -210,12 +210,12 @@ const faqSchema = {
     border-radius: var(--radius-2);
   }
 
-  /* Ícono +/- como SVG: rota 45deg al expandir (+ -> x), color accent */
+  /* Ícono +/- como SVG: rota 45deg al expandir (+ -> x), color on-light */
   .faq-item__icon {
     width: 18px;
     height: 18px;
     flex-shrink: 0;
-    color: var(--color-accent, #3eeaf3);
+    color: var(--color-accent-on-light); /* M5: era #3EEAF3 (1.47:1 sobre blanco), ahora #147D83 (4.89:1) */
     transition: transform var(--dur-2, 200ms) var(--ease-out, ease-out);
   }
 

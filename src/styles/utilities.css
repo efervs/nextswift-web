@@ -6,8 +6,10 @@
    ========================================================================= */
 
 /**
- * .metric-xl — Cifra principal estilo Hormozi: grande, bold, acento cyan.
- * Uso: números clave ATF o en secciones oscuras (Stakes → .leak__metric).
+ * .metric-xl — Cifra principal estilo Hormozi: grande, bold, acento teal.
+ * Por defecto asume fondo claro → usa --color-accent-on-light (4.89:1, WCAG AA).
+ * Sobre secciones oscuras (navy, dark-1) añadir .metric-xl--on-dark para
+ * recuperar el cyan brillante (#3EEAF3, 9:1 sobre --color-dark-1).
  * Govern: font-family, font-size fluido, weight, line-height, tracking, color.
  */
 .metric-xl {
@@ -16,7 +18,12 @@
   font-weight: 700;
   line-height: 1;
   letter-spacing: -0.02em;
-  color: var(--color-accent);
+  color: var(--color-accent-on-light); /* M5: #147D83, 4.89:1 sobre blanco — WCAG AA */
+}
+
+/* Variante para secciones oscuras (Stakes, Hero dark, etc.) */
+.metric-xl--on-dark {
+  color: var(--color-accent); /* #3EEAF3, 9:1 sobre --color-dark-1 — WCAG AAA */
 }
 
 /**
