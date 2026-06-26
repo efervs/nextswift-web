@@ -1,14 +1,16 @@
 ---
 /**
- * StickyCTAMobile — bottom-bar de conversión solo en <768px.
+ * StickyCTAMobile — bottom-bar de conversión solo en <=820px.
  *
  * Por qué existe: en mobile el .header-cta del Header.astro queda oculto
- * (display:none vía media query del propio Header). Sin esta barra el
- * usuario mobile no tiene CTA persistente debajo del fold. >70% del
+ * (display:none vía media query del propio Header a <=820px). Sin esta barra
+ * el usuario mobile no tiene CTA persistente debajo del fold. >70% del
  * tráfico es mobile (ver PLAN_IMPLEMENTACION_NEXTSWIFT_INDEX.md §F22).
+ * El breakpoint espeja al del header (820px) para no dejar la franja
+ * 768-820px sin CTA persistente (M3).
  *
  * Reglas de visibilidad (CSS + JS):
- *   - Oculta en >=768px (CSS).
+ *   - Oculta en >820px (CSS).
  *   - Oculta si body[data-has-sticky-form="true"]  (QuizCard / FormStep).
  *   - Oculta si body[data-no-sticky-cta="true"]    (rutas /gracias-*).
  *   - Oculta mientras el CTA primario del Hero (data-cta-primary) sea
@@ -144,8 +146,10 @@ const {
     color: var(--color-accent-ink);
   }
 
-  /* Solo en mobile-tablet pequeña */
-  @media (max-width: 767px) {
+  /* Visible exactamente en el rango donde el .header-cta desaparece (M3).
+     El header oculta su CTA a <=820px; alineamos aquí para no dejar
+     la franja 768-820px sin CTA persistente. */
+  @media (max-width: 820px) {
     .sticky-cta-mobile {
       display: block;
     }

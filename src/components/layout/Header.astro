@@ -7,8 +7,17 @@
  * Sticky con shrink/elevación al scroll — CSS only.
  */
 
+import Icon from '../ui/Icon.astro';
+import { buildWaUrl } from '../../lib/whatsapp-url';
+
 const NAV_ID = 'site-nav';
 const MENU_BTN_ID = 'mobile-menu-btn';
+
+// CTA WhatsApp del panel móvil (M3) — UTM canónico vía helper, una verdad por tema.
+const waMenuUrl = buildWaUrl({
+  source: 'home',
+  content: 'header_mobile_menu',
+});
 ---
 
 <header class="site-header" id="site-header">
@@ -89,6 +98,27 @@ const MENU_BTN_ID = 'mobile-menu-btn';
           <a href="/blog" class="header-nav__link">Blog</a>
         </li>
       </ul>
+
+      {/* CTA de conversión dentro del panel móvil (M3) — oculto en desktop vía CSS */}
+      <div class="header-mobile-cta">
+        <a
+          href="/auditoria"
+          class="header-mobile-cta__primary"
+          data-cta="header-mobile-primary"
+        >
+          Solicitar auditoría
+        </a>
+        <a
+          href={waMenuUrl}
+          class="header-mobile-cta__wa"
+          data-cta="header-mobile-wa"
+          target="_blank"
+          rel="noopener"
+        >
+          <Icon name="whatsapp" size={18} />
+          <span>WhatsApp directo</span>
+        </a>
+      </div>
     </nav>
 
     <!-- CTA sticky desktop -->
@@ -171,6 +201,8 @@ const MENU_BTN_ID = 'mobile-menu-btn';
     if (mobileQuery.matches) nav.setAttribute('inert', '');
     // Cerrar dropdown si estaba abierto
     closeDropdown();
+    // Devolver el foco al disparador (igual que CookieBanner) — WCAG 2.4.3.
+    menuBtn.focus();
   }
 
   menuBtn.addEventListener('click', () => {
@@ -403,6 +435,9 @@ const MENU_BTN_ID = 'mobile-menu-btn';
     color: var(--color-accent-ink);
   }
 
+  /* CTA del panel móvil — solo se muestra dentro del menú hamburguesa (media query) */
+  .header-mobile-cta { display: none; }
+
   /* ── Hamburguesa ─────────────────────────────────────────────────────────── */
   .header-hamburger {
     display: none;
@@ -530,11 +565,55 @@ const MENU_BTN_ID = 'mobile-menu-btn';
     }
     .header-dropdown__desc { display: none; }
 
-    /* CTA como entrada al final del menú mobile */
-    .header-nav::after {
-      content: '';
-      display: block;
-      flex: 1;
+    /* CTA de conversión anclado al final del panel móvil (M3) */
+    .header-mobile-cta {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-3);
+      margin-top: auto;
+      padding-top: var(--space-6);
+    }
+    .header-mobile-cta__primary {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: var(--touch-target, 44px);
+      padding: var(--space-3) var(--space-5);
+      background: var(--color-accent);
+      color: var(--color-accent-ink);
+      font-family: var(--font-subheading);
+      font-weight: 700;
+      font-size: 1rem;
+      border-radius: var(--radius-pill, 999px);
+      text-decoration: none;
+      transition: filter 0.15s;
+    }
+    .header-mobile-cta__primary:hover,
+    .header-mobile-cta__primary:focus-visible {
+      filter: brightness(1.08);
+      color: var(--color-accent-ink);
+    }
+    .header-mobile-cta__wa {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-2);
+      min-height: var(--touch-target, 44px);
+      padding: var(--space-2) var(--space-4);
+      color: var(--color-neutral-300);
+      font-family: var(--font-subheading);
+      font-weight: 600;
+      font-size: 0.9375rem;
+      text-decoration: none;
+      border: 1px solid rgba(255,255,255,0.18);
+      border-radius: var(--radius-pill, 999px);
+      transition: color 0.15s, border-color 0.15s, background 0.15s;
+    }
+    .header-mobile-cta__wa:hover,
+    .header-mobile-cta__wa:focus-visible {
+      color: #fff;
+      border-color: rgba(255,255,255,0.35);
+      background: rgba(255,255,255,0.06);
     }
   }
 
@@ -546,6 +625,8 @@ const MENU_BTN_ID = 'mobile-menu-btn';
     .header-nav__chevron,
     .header-dropdown,
     .header-cta,
+    .header-mobile-cta__primary,
+    .header-mobile-cta__wa,
     .header-hamburger__bar,
     .header-nav,
     .mobile-backdrop { transition: none; }
