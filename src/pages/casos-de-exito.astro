@@ -29,11 +29,14 @@ cases.sort((a, b) => {
   return b.data.publishDate.getTime() - a.data.publishDate.getTime();
 });
 
-const logos = [
-  { src: '/images/logos/temaky.webp', alt: 'Temaky Sushi' },
-  { src: '/images/logos/pangas.webp', alt: 'Pangas Sabores del Mar' },
-  { src: '/images/logos/oita-fresh.webp', alt: 'Oita Fresh' },
-  { src: '/images/logos/hare-krishna.webp', alt: 'Hare Krishna' },
+// M11: cada logo lleva la micro-métrica real de su caso (cifras de src/content/cases/*.md).
+// metric opcional: Sr. Boneless es solo-en-banda (sin caso publicable) => hueco marcado.
+const logos: { src: string; alt: string; metric?: string }[] = [
+  { src: '/images/logos/temaky.webp', alt: 'Temaky Sushi', metric: '+42% margen neto' },
+  { src: '/images/logos/pangas.webp', alt: 'Pangas Sabores del Mar', metric: '4.4★ → 4.6★' },
+  { src: '/images/logos/oita-fresh.webp', alt: 'Oita Fresh', metric: '$0 → $300k/mes' },
+  { src: '/images/logos/hare-krishna.webp', alt: 'Hare Krishna', metric: 'Caso activo 2026' },
+  // TODO Efer: Sr. Boneless no tiene caso/cifra publicable. Sin métrica = hueco marcado.
   { src: '/images/logos/sr-boneless.webp', alt: 'Sr. Boneless' },
 ];
 
@@ -101,7 +104,7 @@ const itemListSchema = {
 
   <Section spacing="sm" tone="alt" as="section">
     <p class="logos-band__label">Restaurantes acompañados</p>
-    <ul class="logos-band" role="list" aria-label="Logos de restaurantes clientes">
+    <ul class="logos-band" role="list" aria-label="Logos de restaurantes clientes con su resultado">
       {logos.map((l) => (
         <li class="logos-band__item">
           <img
@@ -113,6 +116,9 @@ const itemListSchema = {
             decoding="async"
             class="logos-band__logo"
           />
+          {l.metric
+            ? <span class="logos-band__metric">{l.metric}</span>
+            : <span class="logos-band__metric logos-band__metric--empty" aria-hidden="true">—</span>}
         </li>
       ))}
     </ul>
@@ -201,10 +207,27 @@ const itemListSchema = {
   }
   .logos-band__item {
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
+    gap: var(--space-2);
     width: 100%;
     min-height: 3rem;
+  }
+  /* M11 — micro-métrica real bajo el logo (cifra del caso). */
+  .logos-band__metric {
+    font-family: var(--font-subheading);
+    font-size: 0.8125rem;
+    font-weight: 700;
+    line-height: var(--line-snug);
+    color: var(--color-primary-dark);
+    text-align: center;
+    text-wrap: balance;
+    min-height: 1.1em;
+  }
+  /* Hueco marcado (logo sin caso/cifra publicable): reserva espacio, sin cifra falsa. */
+  .logos-band__metric--empty {
+    visibility: hidden;
   }
   .logos-band__logo {
     max-width: 100%;

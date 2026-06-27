@@ -68,13 +68,19 @@ export const TESTIMONIOS: Testimonio[] = [
     id: 'oita-arranque',
     cliente: 'Raúl García, fundador',
     restaurante: 'Oita Fresh · Monterrey',
+    // M11 (PARCIAL, decisión Efer Checkpoint 2): se publica como testimonio SOLO-MÉTRICA.
+    // La cifra es la del caso real, ya pública y autorizada en /casos-de-exito (oita-fresh.md
+    // authorized: true, atribuida por nombre al fundador Raúl García). NO se inventa cita.
+    // Sin avatar => placeholder de iniciales (NUNCA stock). El hueco que falta cerrar es
+    // foto + cita textual de Raúl (DH-NEW-01).
+    // TODO Efer: foto/autorizacion + cita textual de Raúl García (DH-NEW-01).
     metrica: '$0 → $300,000 MXN/mes en arranque desde cero',
     contexto:
       'Operación ejecutiva embebida desde el día cero — Efer dentro de cabina hasta dejar el sistema operando solo.',
     objecionAnclada: 'tamano-no-aplica',
     objecionLabel: 'Sobre "mi restaurante es muy chico / muy nuevo"',
     roleLabel: 'Fundador',
-    autorizado: false, // quote textual de Raúl pendiente DH-NEW-01; avatar también pendiente
+    autorizado: true,
   },
   {
     id: 'placeholder-intrusion',

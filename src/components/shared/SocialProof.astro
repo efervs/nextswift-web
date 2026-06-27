@@ -21,6 +21,12 @@ import Eyebrow from '../ui/Eyebrow.astro';
 interface Logo {
   src: string;
   alt: string;
+  /**
+   * Micro-métrica real del caso correspondiente (M11). Cifra publicable, tomada de
+   * src/content/cases/*.md — NO inventar. Si un logo no tiene caso/cifra publicable
+   * (ej. Sr. Boneless, solo-en-banda por decisión de Efer) se omite: hueco marcado.
+   */
+  metric?: string;
 }
 
 interface Props {
@@ -41,11 +47,13 @@ const {
   metricaAgregada = '+42% margen delivery (neto) · $0 → $300k/mes en arranque · 4.4 → 4.6★ en menos de 2 meses',
   contexto = 'en 3 de 5 restaurantes acompañados por NextSwift en Monterrey',
   logos = [
-    { src: '/images/logos/pangas.webp', alt: 'Pangas Sabores del Mar — cliente NextSwift' },
-    { src: '/images/logos/temaky.webp', alt: 'Temaky Sushi — cliente NextSwift' },
-    { src: '/images/logos/oita-fresh.webp', alt: 'Oita Fresh — cliente NextSwift' },
+    // M11: micro-métrica real bajo cada logo (cifras de src/content/cases/*.md).
+    { src: '/images/logos/pangas.webp', alt: 'Pangas Sabores del Mar — cliente NextSwift', metric: '4.4★ → 4.6★' },
+    { src: '/images/logos/temaky.webp', alt: 'Temaky Sushi — cliente NextSwift', metric: '+42% margen neto' },
+    { src: '/images/logos/oita-fresh.webp', alt: 'Oita Fresh — cliente NextSwift', metric: '$0 → $300k/mes' },
+    // TODO Efer: Sr. Boneless no tiene caso/cifra publicable (solo-en-banda). Sin métrica = hueco marcado.
     { src: '/images/logos/sr-boneless.webp', alt: 'Sr. Boneless — cliente NextSwift' },
-    { src: '/images/logos/hare-krishna.webp', alt: 'Hare Krishna — cliente NextSwift' },
+    { src: '/images/logos/hare-krishna.webp', alt: 'Hare Krishna — cliente NextSwift', metric: 'Caso activo 2026' },
   ],
   tone = 'alt',
 } = Astro.props;
@@ -98,16 +106,21 @@ function getInitials(name: string): string {
       <p class="sp-logos-band__lede">Acompañando restaurantes en Monterrey:</p>
       <ul class="sp-logos-band__list" role="list">
         {logos.map((l, i) => (
-          <li class="sp-logos-band__item">
-            <img
-              src={l.src}
-              alt={l.alt}
-              loading={i === 0 ? 'eager' : 'lazy'}
-              decoding="async"
-              width="480"
-              height="240"
-              class="sp-logos-band__img"
-            />
+          <li class="sp-logos-band__cell">
+            <span class="sp-logos-band__item">
+              <img
+                src={l.src}
+                alt={l.alt}
+                loading={i === 0 ? 'eager' : 'lazy'}
+                decoding="async"
+                width="480"
+                height="240"
+                class="sp-logos-band__img"
+              />
+            </span>
+            {l.metric
+              ? <span class="sp-logos-band__metric">{l.metric}</span>
+              : <span class="sp-logos-band__metric sp-logos-band__metric--empty" aria-hidden="true">—</span>}
           </li>
         ))}
       </ul>
@@ -237,6 +250,33 @@ function getInitials(name: string): string {
       grid-template-columns: repeat(5, minmax(0, 1fr));
       gap: var(--space-6);
     }
+  }
+
+  /* M11 — celda = tile (logo) + micro-métrica del caso real debajo. */
+  .sp-logos-band__cell {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-2);
+    width: 100%;
+  }
+
+  /* M11 — micro-métrica real bajo el logo. primary-dark sobre surface-alt = alto contraste AA.
+     min-height reserva la línea para que los logos sin cifra (hueco) sigan alineados. */
+  .sp-logos-band__metric {
+    font-family: var(--font-subheading);
+    font-size: 0.8125rem;
+    font-weight: 700;
+    line-height: var(--line-snug);
+    color: var(--color-primary-dark);
+    text-align: center;
+    text-wrap: balance;
+    min-height: 1.1em;
+  }
+
+  /* Hueco marcado (logo sin caso/cifra publicable): reserva el espacio, sin mostrar cifra falsa. */
+  .sp-logos-band__metric--empty {
+    visibility: hidden;
   }
 
   /* Cada logo en un tile uniforme 2:1. El fondo nativo de la marca (negro, verde,
