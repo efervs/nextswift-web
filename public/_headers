@@ -1,0 +1,19 @@
+# Cache-Control para assets estáticos — M7 (perf), plan_de_mejoras_v2.
+#
+# Astro copia public/_headers -> dist/_headers y Cloudflare Workers Assets lo
+# respeta para fijar headers por ruta. El control de caché vive AQUÍ y no en
+# wrangler.jsonc porque la config `assets` de wrangler no soporta Cache-Control
+# por path (solo html_handling / not_found_handling).
+
+# Assets con content-hash de Astro (JS, CSS, fuentes y CSS/JS de islas):
+# el nombre cambia cuando cambia el contenido, así que immutable a 1 año es
+# 100% seguro (no hay invalidación pendiente).
+/_astro/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# Imágenes de /public (logos, OG, decorativas). OJO: el nombre es estable (sin
+# hash). `immutable` las congela en el navegador hasta 1 año: si se reemplaza
+# un archivo, versiona el nombre (p.ej. logo-v2.webp) o purga la caché de
+# Cloudflare para invalidar a los visitantes recurrentes.
+/images/*
+  Cache-Control: public, max-age=31536000, immutable

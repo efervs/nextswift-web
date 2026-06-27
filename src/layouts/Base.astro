@@ -93,6 +93,11 @@ const orgSchema = {
     <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png" />
     <link rel="icon" type="image/png" sizes="512x512" href="/favicon-512.png" />
 
+    {/* Preconnect al CDN del Meta Pixel — la descarga de fbevents.js se difiere
+        (ver loader abajo), así que abrir el socket TLS por adelantado evita el
+        coste de conexión cuando el SDK se inyecta en idle. ~-340ms (M7). */}
+    <link rel="preconnect" href="https://connect.facebook.net" crossorigin />
+
     {/* Preload fuentes críticas — subset latin, pesos usados en ATF */}
     <link rel="preload" as="font" type="font/woff2" crossorigin href={oswald} />
     <link rel="preload" as="font" type="font/woff2" crossorigin href={sspN} />
@@ -115,23 +120,36 @@ const orgSchema = {
       (function () {
         function loadPixelSDK() {
           if (window.fbq) return;
-          !(function (f, b, e, v, n, t, s) {
-            if (f.fbq) return;
-            n = f.fbq = function () {
-              n.callMethod ? n.callMethod.apply(n, arguments) : n.queue.push(arguments);
-            };
-            if (!f._fbq) f._fbq = n;
-            n.push = n;
-            n.loaded = !0;
-            n.version = '2.0';
-            n.queue = [];
-            t = b.createElement(e);
-            t.async = !0;
-            t.src = v;
-            s = b.getElementsByTagName(e)[0];
-            s.parentNode.insertBefore(t, s);
-          })(window, document, 'script', 'https://connect.facebook.net/en_US/fbevents.js');
+          // Stub fbq SINCRÓNICO: expone window.fbq de inmediato y encola los
+          // track() calls (con su eventID) hasta que fbevents.js cargue. Tener
+          // el stub disponible ya preserva el dedup event_id ↔ CAPI aunque la
+          // descarga del SDK se difiera fuera del critical path del LCP (M7).
+          var n = (window.fbq = function () {
+            n.callMethod ? n.callMethod.apply(n, arguments) : n.queue.push(arguments);
+          });
+          if (!window._fbq) window._fbq = n;
+          n.push = n;
+          n.loaded = !0;
+          n.version = '2.0';
+          n.queue = [];
           window.fbq('init', pixelId);
+          // Diferir la descarga real de fbevents.js: el stub ya encola y el SDK
+          // re-dispara la cola al cargar. Evita ~80-90ms de bloqueo de hilo en
+          // el LCP. Se inyecta en idle (timeout de respaldo a 3s) (M7).
+          function injectFbevents() {
+            if (window.__ns_fbevents) return;
+            window.__ns_fbevents = !0;
+            var t = document.createElement('script');
+            t.async = !0;
+            t.src = 'https://connect.facebook.net/en_US/fbevents.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(t, s);
+          }
+          if ('requestIdleCallback' in window) {
+            window.requestIdleCallback(injectFbevents, { timeout: 3000 });
+          } else {
+            window.setTimeout(injectFbevents, 1200);
+          }
         }
         function loadGA4() {
           if (!ga4Id) return;            // GA4 opcional; no-op si env vacía
