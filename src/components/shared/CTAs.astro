@@ -40,9 +40,14 @@ interface Props {
   pain?: string;
   landing?: string;
   size?: Size;
+  /**
+   * M12: muestra strip de garantías verbatim bajo los botones.
+   * Default true — omitir o pasar false cuando el contexto ya es la sección de garantías.
+   */
+  showGuarantee?: boolean;
 }
 
-const { variant, pain, landing, size = 'lg' } = Astro.props;
+const { variant, pain, landing, size = 'lg', showGuarantee = true } = Astro.props;
 
 const computedLanding =
   landing ??
@@ -67,6 +72,7 @@ const waFallbackHref = buildWaUrl({
 const sizeClass = size === 'md' ? 'btn--md' : 'btn--lg';
 ---
 
+<div class="ctas-block">
 <div class="ctas-trio" data-cta-trio={variant}>
   {showPrimary && (
     <a
@@ -113,6 +119,44 @@ const sizeClass = size === 'md' ? 'btn--md' : 'btn--lg';
       <span>Hablar con Efer ahora</span>
     </a>
   )}
+</div>
+
+{showGuarantee && (
+  <div class="ctas-guarantee" aria-label="Garantías incluidas">
+    <div class="ctas-guarantee__item">
+      <svg class="ctas-guarantee__icon" viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+           stroke-linejoin="round" aria-hidden="true">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+      </svg>
+      <span>Auditoría previa sin costo — si no aplica el programa, se lo decimos antes de firmar.</span>
+    </div>
+    <div class="ctas-guarantee__item">
+      <svg class="ctas-guarantee__icon" viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+           stroke-linejoin="round" aria-hidden="true">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+      </svg>
+      <span>Cancelación sin compromiso en los primeros 30 días.</span>
+    </div>
+    {/*
+      TODO [CONFIRMAR con Efer]: escasez real.
+      Descomentar SOLO cuando Efer confirme la cifra exacta de cupos por trimestre.
+      Cifra candidata sugerida en M12: "8 cupos por trimestre".
+      No publicar sin confirmación explícita.
+
+      <div class="ctas-guarantee__item ctas-guarantee__item--escasez">
+        <svg class="ctas-guarantee__icon" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+             stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+        <span>Solo <strong>8 cupos por trimestre</strong> — disponibilidad limitada.</span>
+      </div>
+    */}
+  </div>
+)}
+
 </div>
 
 <script>
@@ -249,5 +293,47 @@ const sizeClass = size === 'md' ? 'btn--md' : 'btn--lg';
 
   @media (prefers-reduced-motion: reduce) {
     .ctas-trio__wa { transition: none; }
+  }
+
+  /* M12 — bloque contenedor: botones + strip de garantía */
+  .ctas-block {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  /* M12 — strip de garantía verbatim bajo los botones */
+  .ctas-guarantee {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+
+  @media (min-width: 640px) {
+    .ctas-guarantee {
+      flex-direction: row;
+      flex-wrap: wrap;
+      column-gap: var(--space-5);
+      row-gap: var(--space-1);
+    }
+  }
+
+  .ctas-guarantee__item {
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+    font-family: var(--font-body);
+    font-size: 0.8125rem;
+    line-height: var(--line-base);
+    color: var(--color-text-muted);
+  }
+
+  .ctas-guarantee__icon {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+    margin-top: 2px;
+    stroke: var(--color-primary);
+    opacity: 0.75;
   }
 </style>

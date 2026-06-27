@@ -57,7 +57,10 @@ const serviceSchema = buildServiceSchema({
     contexto="cifras autorizadas por los dueños — la misma evidencia que documentamos en casos de éxito"
   />
 
-  <GarantiasResumen tone="light" />
+  {/* M12: withCta={true} convierte GarantiasResumen en sección de cierre (garantía + CTA),
+      repitiendo la llamada a la acción tras la lectura de las 4 garantías ancla.
+      La garantía verbatim ya aparece junto al CTA primario del hero vía CTAs.astro. */}
+  <GarantiasResumen tone="light" withCta={true} />
 
   <FAQ variant="global" tone="alt" />
 </Base>
