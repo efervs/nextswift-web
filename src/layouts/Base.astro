@@ -21,6 +21,8 @@ interface Props {
   description?: string;
   canonical?: string;
   ogImage?: string;
+  /** og:type. Páginas institucionales = 'website' (default); blog/casos = 'article' (M15). */
+  ogType?: string;
   noindex?: boolean;
 }
 
@@ -29,6 +31,7 @@ const {
   description = 'Partner operativo B2B para restaurantes de 50-150 comensales que venden pero no ganan dinero. Diagnóstico, plan y ejecución en 10 días hábiles.',
   canonical = new URL(Astro.url.pathname, 'https://www.nextswift.mx').toString(),
   ogImage = 'https://www.nextswift.mx/images/og/default.png',
+  ogType = 'website',
   noindex = false,
 } = Astro.props;
 
@@ -78,7 +81,7 @@ const orgSchema = {
     {noindex && <meta name="robots" content="noindex,nofollow" />}
 
     {/* Open Graph */}
-    <meta property="og:type" content="website" />
+    <meta property="og:type" content={ogType} />
     <meta property="og:locale" content="es_MX" />
     <meta property="og:site_name" content="NextSwift" />
     <meta property="og:title" content={title} />

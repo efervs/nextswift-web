@@ -8,8 +8,11 @@
  *  - `data-pagefind-weight="10"` sobre el H1.
  *  - Sidebars, TOC y related quedan con `data-pagefind-ignore`.
  *
- * Schema.org: BlogPosting + Article + BreadcrumbList.
+ * Schema.org: BlogPosting (incluye @type Article) + BreadcrumbList. Un solo nodo
+ * de artículo — sin Article duplicado (M15).
  */
+import { existsSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import { render } from 'astro:content';
 import Base from '../../layouts/Base.astro';
 import Section from '../../components/ui/Section.astro';
@@ -36,17 +39,31 @@ const toc = buildToc(headings);
 const rt = readingTime(post.body ?? '');
 const meta = getPillarMeta(post.data.pillar);
 const canonical = `https://www.nextswift.mx/blog/${post.data.slug}`;
-const ogImage = post.data.cover.startsWith('http')
-  ? post.data.cover
-  : `https://www.nextswift.mx${post.data.cover}`;
+
+// OG image: covers locales /images/blog/*.webp. Si el archivo no existe en
+// /public (build-time), cae a default.png — LinkedIn/FB nunca reciben un 404 (M15).
+const cover = post.data.cover;
+const coverIsRemote = cover.startsWith('http');
+const coverExists =
+  coverIsRemote ||
+  existsSync(fileURLToPath(new URL(`../../../public${cover}`, import.meta.url)));
+const ogImage = coverIsRemote
+  ? cover
+  : coverExists
+    ? `https://www.nextswift.mx${cover}`
+    : 'https://www.nextswift.mx/images/og/default.png';
+
+// dateModified real: updatedAt si el post lo declara; si no, = datePublished (M15).
+const datePublished = post.data.date.toISOString().slice(0, 10);
+const dateModified = (post.data.updatedAt ?? post.data.date).toISOString().slice(0, 10);
 
 const blogPostingSchema = {
   '@context': 'https://schema.org',
-  '@type': 'BlogPosting',
+  '@type': ['BlogPosting', 'Article'],
   headline: post.data.title,
   description: post.data.excerpt,
-  datePublished: post.data.date.toISOString().slice(0, 10),
-  dateModified: post.data.date.toISOString().slice(0, 10),
+  datePublished,
+  dateModified,
   author: {
     '@type': 'Person',
     name: post.data.author,
@@ -64,14 +81,6 @@ const blogPostingSchema = {
   mainEntityOfPage: { '@type': 'WebPage', '@id': canonical },
   keywords: post.data.tags.join(', '),
   articleSection: meta.label,
-};
-
-const articleSchema = {
-  '@context': 'https://schema.org',
-  '@type': 'Article',
-  headline: post.data.title,
-  datePublished: post.data.date.toISOString().slice(0, 10),
-  author: { '@type': 'Person', name: post.data.author },
 };
 
 const breadcrumbSchema = {
@@ -95,9 +104,9 @@ const breadcrumbSchema = {
   description={post.data.excerpt}
   canonical={canonical}
   ogImage={ogImage}
+  ogType="article"
 >
   <script slot="head" type="application/ld+json" is:inline set:html={JSON.stringify(blogPostingSchema)} />
-  <script slot="head" type="application/ld+json" is:inline set:html={JSON.stringify(articleSchema)} />
   <script slot="head" type="application/ld+json" is:inline set:html={JSON.stringify(breadcrumbSchema)} />
 
   <Section spacing="lg" tone="surface" as="section">

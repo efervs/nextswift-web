@@ -59,6 +59,8 @@ const blog = defineCollection({
     title: z.string(),
     slug: z.string(),
     date: z.coerce.date(),
+    /** Última actualización editorial. Si falta, dateModified = date (M15). */
+    updatedAt: z.coerce.date().optional(),
     pillar: z.enum(PILLAR_VALUES),
     cover: z.string(),
     author: z.string().default('Efer Vázquez'),
