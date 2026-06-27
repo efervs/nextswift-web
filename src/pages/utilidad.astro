@@ -37,10 +37,14 @@ const serviceSchema = buildServiceSchema({
     <div class="hero-landing">
       <Eyebrow tone="accent">PALANCA FINANCIERA · EL DOLOR MÁS PROFUNDO Y UNIVERSAL</Eyebrow>
       <Heading as="h1" size="h1">Vendo pero no gano dinero</Heading>
+      {/* M10: resultado cuantificado en el above-fold (cifra conservadora, coherente con el
+          home y Stakes.astro). Marcada para validación de Efer antes de publicar. */}
+      <!-- TODO Efer: validar cifra [CIFRA_A_VALIDAR] (utilidad: 3-7 pts de margen en ~90 dias) -->
+      <p class="hero-landing__claim">Recuperas entre 3 y 7 puntos de margen operativo en ~90 días, sobre tu base actual.</p>
       <Body size="lead" tone="muted">
         Encontramos la fuga de margen en 10 días hábiles: mermas, costeo descalibrado,
-        descuentos no autorizados, mix de menú equivocado. Recuperas 3-7 puntos en 90 días,
-        con dashboard semanal que valida el avance.
+        descuentos no autorizados, mix de menú equivocado. Lo validamos con dashboard
+        semanal de margen real, no estimado.
       </Body>
       <ul class="hero-landing__bullets">
         <li>Auditoría forense de mermas, costo de platillos y ticket promedio real.</li>
@@ -122,6 +126,20 @@ const serviceSchema = buildServiceSchema({
     display: grid;
     gap: var(--space-4);
     max-width: 56rem;
+  }
+  /* M10: claim de resultado cuantificado (cifra [CIFRA_A_VALIDAR]). Barra accent a la
+     izquierda — mismo lenguaje visual que .caso-ancla__metric y .leak (Stakes). */
+  .hero-landing__claim {
+    margin: 0;
+    padding-left: var(--space-3);
+    border-left: 4px solid var(--color-accent);
+    font-family: var(--font-subheading);
+    font-size: var(--fs-lead);
+    font-weight: 700;
+    line-height: var(--line-snug);
+    color: var(--color-text);
+    max-width: 56rem;
+    text-wrap: balance;
   }
   .hero-landing__bullets {
     list-style: none;
