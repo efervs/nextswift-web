@@ -45,6 +45,26 @@ const {
       <span id="hero-h1">{h1}</span>
     </Heading>
     <Body size="lead" tone="muted" class="hero__subhead">{subhead}</Body>
+
+    {/* M8 (T6-02): tira de PRUEBA — solo móvil (<768px). Sube las 3 cifras del
+        mini-dashboard al primer viewport, donde >70% del tráfico sí las ve.
+        En desktop se oculta: ahí las cifras viven en el overlay de la foto
+        (.hero__dashboard). Mismos datos reales: +42% (Temaky) · 10 días (promesa) · 4.6★ (Pangas). */}
+    <dl class="hero__metrics" aria-label="Resultados documentados con clientes de NextSwift">
+      <div class="hero__metric">
+        <dt class="hero__metric-label">Margen delivery</dt>
+        <dd class="hero__metric-value">+42%</dd>
+      </div>
+      <div class="hero__metric">
+        <dt class="hero__metric-label">Al diagnóstico</dt>
+        <dd class="hero__metric-value">10 días</dd>
+      </div>
+      <div class="hero__metric">
+        <dt class="hero__metric-label">Reseñas</dt>
+        <dd class="hero__metric-value">4.6<span class="hero__metric-star" aria-hidden="true">★</span></dd>
+      </div>
+    </dl>
+
     <ul class="hero__bullets" role="list">
       {bullets.map((b) => (
         <li>
@@ -109,8 +129,11 @@ const {
     grid-template-columns: 1fr;
     gap: var(--space-7);
     /* M16: padding-block inferior reducido (space-10 → space-7) para cerrar el vacío
-       bajo el hero y conectar con la <ProofBar/> de promesas. */
-    padding: var(--space-9) 0 var(--space-7);
+       bajo el hero y conectar con la <ProofBar/> de promesas.
+       M8 (T6-01): padding-top móvil recortado (space-9 → space-4). La <Section spacing="lg">
+       que envuelve al hero ya aporta el padding superior (~space-11); el padding-top propio
+       lo duplicaba → ~163px de vacío entre header y H1 en <=375px. */
+    padding: var(--space-4) 0 var(--space-7);
     align-items: center;
   }
 
@@ -136,6 +159,56 @@ const {
 
   .hero__subhead {
     max-width: 38rem;
+  }
+
+  /* M8 (T6-02): tira de PRUEBA móvil. Tono surface-alt (fondo claro del hero) con valores
+     en accent-on-light (#147D83, 4.89:1 AA) — el #3EEAF3 fallaría contraste sobre claro. */
+  .hero__metrics {
+    display: flex;
+    gap: var(--space-3);
+    margin: 0;
+    padding: var(--space-3) var(--space-4);
+    background: var(--color-surface-alt);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-4);
+    box-shadow: var(--shadow-1);
+  }
+
+  .hero__metric {
+    display: flex;
+    flex-direction: column;
+    gap: 0.0625rem;
+    flex: 1 1 0;
+    min-width: 0;
+  }
+
+  .hero__metric-label {
+    font-family: var(--font-subheading);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    line-height: 1.2;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--color-dark-3); /* 7.7:1 sobre surface-alt (AA) */
+  }
+
+  .hero__metric-value {
+    margin: 0;
+    font-family: var(--font-heading);
+    font-size: clamp(1.125rem, 1rem + 0.6vw, 1.5rem);
+    font-weight: 700;
+    line-height: 1;
+    color: var(--color-accent-on-light);
+  }
+
+  .hero__metric-star {
+    color: var(--color-accent-on-light);
+    margin-left: 0.05em;
+  }
+
+  /* Desktop: las cifras viven en el overlay de la foto (.hero__dashboard); la tira se oculta. */
+  @media (min-width: 768px) {
+    .hero__metrics { display: none; }
   }
 
   .hero__bullets {
@@ -318,10 +391,16 @@ const {
     margin-left: 0.05em;
   }
 
-  /* Pantallas muy angostas (<=360px): aprieta los dos overlays para que no colisionen. */
+  /* M8 (T6-02): en móvil la PRUEBA se muestra en .hero__metrics (primer viewport), no en el
+     overlay de la foto. Se oculta el dashboard para no duplicar la cifra; la foto conserva
+     solo el caption "operador". En desktop el overlay sigue intacto. */
+  @media (max-width: 767px) {
+    .hero__dashboard { display: none; }
+  }
+
+  /* Pantallas muy angostas (<=360px): aprieta el caption para que no se desborde. */
   @media (max-width: 360px) {
     .hero__caption { max-width: 7rem; font-size: 0.75rem; }
-    .hero__dashboard { width: 47%; padding: var(--space-2); }
   }
 
   @media (prefers-reduced-motion: reduce) {
