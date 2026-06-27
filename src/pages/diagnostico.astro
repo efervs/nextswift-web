@@ -142,7 +142,7 @@ const waPrefillUrl = buildWaUrl({
         </div>
 
         <div class="quiz__field">
-          <label for="q-wa" class="quiz__q-label as-label">WhatsApp</label>
+          <label for="q-wa" class="quiz__q-label as-label">WhatsApp <span class="quiz__optional">(opcional)</span></label>
           <input
             type="tel"
             id="q-wa"
@@ -153,7 +153,6 @@ const waPrefillUrl = buildWaUrl({
             autocomplete="tel"
             pattern="[0-9]*"
             placeholder="10 dígitos, ej. 8110425674"
-            required
             aria-describedby="q-wa-error"
           />
           <p class="quiz__error" id="q-wa-error" role="alert" aria-live="polite"></p>
@@ -453,7 +452,8 @@ const waPrefillUrl = buildWaUrl({
       } else if (emailErr) {
         emailErr.textContent = '';
       }
-      if (!wa || wa.length < 10 || wa.length > 13) {
+      // M13: WA opcional en TOFU; solo validar formato si el usuario lo escribió.
+      if (wa && (wa.length < 10 || wa.length > 13)) {
         if (waErr) waErr.textContent = 'Ingrese 10 dígitos (sin lada internacional).';
         ok = false;
       } else if (waErr) {
@@ -740,6 +740,12 @@ const waPrefillUrl = buildWaUrl({
     letter-spacing: var(--tracking-wide);
     text-transform: uppercase;
     color: var(--color-text-muted);
+  }
+  .quiz__optional {
+    font-weight: 400;
+    text-transform: none;
+    letter-spacing: 0;
+    font-size: 0.875em;
   }
   .quiz__q-num {
     color: var(--color-primary);

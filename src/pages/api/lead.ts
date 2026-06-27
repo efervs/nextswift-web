@@ -85,8 +85,15 @@ export const POST: APIRoute = async ({ request }) => {
     return jsonResponse(400, { success: false, error: 'Email inválido' });
   }
 
-  const whatsapp = normalizeWhatsApp(body.whatsapp ?? '');
-  if (!WA_RE.test(whatsapp)) {
+  // M13: WA obligatorio en auditoría (BOFU), opcional en quiz (TOFU).
+  // stripEmpty() en hubspot.ts omite campos vacíos al hacer upsert — phone '' no llega a la API.
+  const rawWa = (body.whatsapp ?? '').trim();
+  const whatsapp = rawWa ? normalizeWhatsApp(rawWa) : '';
+  if (source === 'form_auditoria') {
+    if (!whatsapp || !WA_RE.test(whatsapp)) {
+      return jsonResponse(400, { success: false, error: 'WhatsApp inválido (formato esperado: +52 + 10 dígitos)' });
+    }
+  } else if (whatsapp && !WA_RE.test(whatsapp)) {
     return jsonResponse(400, { success: false, error: 'WhatsApp inválido (formato esperado: +52 + 10 dígitos)' });
   }
 
