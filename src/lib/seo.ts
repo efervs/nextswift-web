@@ -19,8 +19,12 @@ export function buildServiceSchema({ name, description, slug }: ServiceSchemaOpt
     '@type': 'Service',
     name,
     description,
+    // Referencia por @id a la Organization emitida en Base.astro (todas las
+    // páginas). Consolida la autoridad de la entidad en lugar de declarar un
+    // nodo Organization suelto y duplicado.
     provider: {
       '@type': 'Organization',
+      '@id': `${SITE}/#organization`,
       name: 'NextSwift',
       url: SITE,
     },
@@ -50,10 +54,16 @@ export function buildLocalBusinessSchema() {
     telephone: '+52-811-042-5674',
     address: {
       '@type': 'PostalAddress',
+      // TODO(Efer): añadir streetAddress + postalCode reales para completar la
+      // ficha de LocalBusiness. NO inventar — mientras tanto se emite solo
+      // localidad/región/país, que ya es válido para Google.
       addressLocality: 'Monterrey',
       addressRegion: 'Nuevo León',
       addressCountry: 'MX',
     },
+    // TODO(Efer): añadir "geo" con GeoCoordinates reales una vez confirmada la
+    // dirección. NO inventar coordenadas. Estructura objetivo:
+    //   geo: { '@type': 'GeoCoordinates', latitude: <num>, longitude: <num> },
     areaServed: {
       '@type': 'Country',
       name: 'Mexico',

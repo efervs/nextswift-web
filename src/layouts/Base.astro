@@ -38,11 +38,21 @@ const GA4_MEASUREMENT_ID = import.meta.env.PUBLIC_GA4_MEASUREMENT_ID ?? '';
 const orgSchema = {
   '@context': 'https://schema.org',
   '@type': 'Organization',
+  // @id canónico de la entidad NextSwift. Ancla de consolidación: Service.provider
+  // (seo.ts), Person.worksFor (sobre-efer.astro) y LocalBusiness lo referencian.
+  '@id': 'https://www.nextswift.mx/#organization',
   name: 'NextSwift',
   url: 'https://www.nextswift.mx',
   logo: 'https://www.nextswift.mx/images/logo-nextswift.webp',
   description:
     'Partner operativo B2B para restaurantes de 50-150 comensales en México. Rehabilita el negocio que vende pero no gana dinero: diagnóstico, plan y ejecución en 10 días hábiles.',
+  // Perfiles oficiales verificados (mismos que el Footer en producción).
+  // TODO(Efer): añadir perfiles de directorio si NextSwift está dado de alta
+  // (CANIRAC / AMR u otros) — NO inventar; agregar solo URLs reales.
+  sameAs: [
+    'https://www.linkedin.com/company/nextswift-mx',
+    'https://www.instagram.com/nextswift.mx',
+  ],
   areaServed: 'MX',
   contactPoint: {
     '@type': 'ContactPoint',

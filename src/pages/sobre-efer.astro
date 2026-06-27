@@ -69,11 +69,18 @@ const filosofiaAnclas = [
 const personSchema = {
   '@context': 'https://schema.org',
   '@type': 'Person',
+  '@id': 'https://www.nextswift.mx/#efer',
   name: 'Efer Isai Lara Corona',
   alternateName: 'Efer Lara',
   jobTitle: 'Founder NextSwift · Partner operativo de restaurantes',
+  // TODO(Efer): añadir "sameAs" con el LinkedIn PERSONAL de Efer (perfil /in/...),
+  // no el de la empresa. NO inventar el perfil. Estructura objetivo:
+  //   sameAs: ['https://www.linkedin.com/in/<usuario-efer>'],
   worksFor: {
     '@type': 'Organization',
+    // Referencia por @id a la Organization canónica (Base.astro): consolida
+    // la relación Efer → NextSwift para SEO/RAG.
+    '@id': 'https://www.nextswift.mx/#organization',
     name: 'NextSwift',
     url: 'https://www.nextswift.mx',
   },
