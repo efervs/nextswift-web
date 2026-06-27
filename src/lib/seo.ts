@@ -44,7 +44,7 @@ export function buildLocalBusinessSchema() {
     '@id': `${SITE}/#localbusiness`,
     name: 'NextSwift',
     description:
-      'Consultoría B2B que rehabilita restaurantes que venden pero no ganan dinero. Diagnóstico, plan y ejecución en 10 días hábiles. 11 garantías formales.',
+      'Partner operativo B2B para restaurantes de 50-150 comensales que venden pero no ganan dinero. Diagnóstico, plan y ejecución en 10 días hábiles. 11 garantías formales.',
     url: SITE,
     logo: `${SITE}/images/logo-nextswift.webp`,
     telephone: '+52-811-042-5674',
