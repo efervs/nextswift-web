@@ -92,10 +92,13 @@ const TOTAL_STEPS = 6;
         <progress id="audit-progress" max="100" value="0" aria-label="Progreso"></progress>
       </div>
 
+      {/* M16 — anuncia "Paso X de N: <pregunta>" a lectores de pantalla antes de mover el foco al h2 */}
+      <div id="audit-live" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+
       <form id="audit-form" novalidate aria-label="Formulario de solicitud de auditoría">
         {/* Paso 1 — Sales range */}
         <section class="audit__step" data-step="1">
-          <h2 class="audit__q-label"><span class="audit__q-num">1.</span> ¿Cuánto vende su restaurante al mes (bruto, todas las plataformas)?</h2>
+          <h2 class="audit__q-label" tabindex="-1"><span class="audit__q-num">1.</span> ¿Cuánto vende su restaurante al mes (bruto, todas las plataformas)?</h2>
           <p class="audit__q-helper">Tomamos el bruto promedio de los últimos 3 meses.</p>
           <fieldset class="audit__radios" id="q-salesrange" aria-describedby="q-salesrange-error">
             <legend class="sr-only">Rango de ventas mensuales</legend>
@@ -117,7 +120,7 @@ const TOTAL_STEPS = 6;
 
         {/* Paso 2 — Pain */}
         <section class="audit__step" data-step="2" hidden>
-          <h2 class="audit__q-label"><span class="audit__q-num">2.</span> ¿Cuál es el cuello principal hoy?</h2>
+          <h2 class="audit__q-label" tabindex="-1"><span class="audit__q-num">2.</span> ¿Cuál es el cuello principal hoy?</h2>
           <p class="audit__q-helper">Elija el dolor más urgente. No el más bonito de admitir — el real.</p>
           <fieldset class="audit__radios" id="q-painprimary" aria-describedby="q-painprimary-error">
             <legend class="sr-only">Cuello principal</legend>
@@ -133,7 +136,7 @@ const TOTAL_STEPS = 6;
 
         {/* Paso 3 — Units */}
         <section class="audit__step" data-step="3" hidden>
-          <h2 class="audit__q-label" id="audit-q-units-label"><span class="audit__q-num">3.</span> ¿Cuántas unidades o sucursales opera?</h2>
+          <h2 class="audit__q-label" id="audit-q-units-label" tabindex="-1"><span class="audit__q-num">3.</span> ¿Cuántas unidades o sucursales opera?</h2>
           <p class="audit__q-helper">Incluya dark kitchens y sucursales en franquicia que controle.</p>
           <div class="audit__input-row">
             <input
@@ -158,7 +161,7 @@ const TOTAL_STEPS = 6;
 
         {/* Paso 4 — Decisor role */}
         <section class="audit__step" data-step="4" hidden>
-          <h2 class="audit__q-label"><span class="audit__q-num">4.</span> ¿Cuál es su rol en el negocio?</h2>
+          <h2 class="audit__q-label" tabindex="-1"><span class="audit__q-num">4.</span> ¿Cuál es su rol en el negocio?</h2>
           <p class="audit__q-helper">Hablamos directo con quien firma. Si no es usted, lo coordinamos.</p>
           <fieldset class="audit__radios" id="q-decisor_role" aria-describedby="q-decisor_role-error">
             <legend class="sr-only">Rol del decisor</legend>
@@ -174,7 +177,7 @@ const TOTAL_STEPS = 6;
 
         {/* Paso 5 — Timing */}
         <section class="audit__step" data-step="5" hidden>
-          <h2 class="audit__q-label"><span class="audit__q-num">5.</span> ¿En qué ventana quiere implementar?</h2>
+          <h2 class="audit__q-label" tabindex="-1"><span class="audit__q-num">5.</span> ¿En qué ventana quiere implementar?</h2>
           <p class="audit__q-helper">El Acelerador arranca en 10 días hábiles. Si no es ahora, lo agendamos.</p>
           <fieldset class="audit__radios" id="q-timing" aria-describedby="q-timing-error">
             <legend class="sr-only">Ventana de implementación</legend>
@@ -190,7 +193,7 @@ const TOTAL_STEPS = 6;
 
         {/* Paso 6 — Email + WA */}
         <section class="audit__step" data-step="6" hidden>
-          <h2 class="audit__q-label"><span class="audit__q-num">6.</span> ¿Cómo lo contactamos?</h2>
+          <h2 class="audit__q-label" tabindex="-1"><span class="audit__q-num">6.</span> ¿Cómo lo contactamos?</h2>
           <p class="audit__q-helper">Confidencial. Solo Efer ve estos datos. Sin SPAM.</p>
 
           <div class="audit__field">
@@ -265,7 +268,7 @@ const TOTAL_STEPS = 6;
 
         {/* Pantalla no-fit */}
         <section class="audit__step audit__step--nofit" data-step="nofit" hidden>
-          <h2 class="audit__nofit-title">Hoy no encajamos — y se lo decimos sin rodeos.</h2>
+          <h2 class="audit__nofit-title" tabindex="-1">Hoy no encajamos — y se lo decimos sin rodeos.</h2>
           <p class="audit__nofit-copy">
             El Acelerador de 3 Palancas está diseñado para restaurantes con $300,000+/mes de ventas brutas.
             Debajo de ese piso, el ROI no se sostiene y le saldría más caro contratarnos que el problema mismo.
@@ -340,8 +343,15 @@ const TOTAL_STEPS = 6;
   const btnBack = document.getElementById('audit-back') as HTMLButtonElement;
   const btnNext = document.getElementById('audit-next') as HTMLButtonElement;
   const btnSubmit = document.getElementById('audit-submit') as HTMLButtonElement;
+  const liveRegion = document.getElementById('audit-live')!;
 
   const TOTAL_STEPS = Number(root.dataset.totalSteps ?? 6);
+
+  // M16 — inyecta el contexto del paso en la región aria-live. El setTimeout deja que el
+  // cambio de paso (hidden/visible) se asiente en el DOM antes de que el lector lo anuncie.
+  function announce(message: string): void {
+    window.setTimeout(() => { liveRegion.textContent = message; }, 60);
+  }
 
   // Hidratar UTMs desde sessionStorage y URL params (?eid= viene del quiz)
   const utm = readUTMFromSessionStorage();
@@ -378,6 +388,10 @@ const TOTAL_STEPS = 6;
       stepLabel.textContent = 'No es fit con el Acelerador';
       stepPct.textContent = '';
       progress.value = 0;
+      // M16 — anunciar y enfocar el encabezado del rebote no-fit (antes no había gestión de foco)
+      const nofitHeading = stepEl('nofit')!.querySelector<HTMLElement>('.audit__nofit-title');
+      announce(nofitHeading?.textContent?.trim() ?? 'No es fit con el Acelerador');
+      nofitHeading?.focus({ preventScroll: false });
       return;
     }
     const activeStep = stepEl(state.step)!;
@@ -390,9 +404,11 @@ const TOTAL_STEPS = 6;
     const pct = Math.round(((state.step - 1) / TOTAL_STEPS) * 100);
     stepPct.textContent = `${pct}%`;
     progress.value = pct;
-    // Foco al primer input visible
-    const visibleInput = activeStep.querySelector<HTMLInputElement>('input:not([type=hidden])');
-    if (visibleInput) visibleInput.focus({ preventScroll: false });
+    // M16 — anunciar la pregunta y mover el foco al encabezado del paso (no al input): el lector
+    // lee el contexto antes del control; el Tab posterior lleva al primer input visible.
+    const heading = activeStep.querySelector<HTMLElement>('h2.audit__q-label');
+    announce(`Paso ${state.step} de ${TOTAL_STEPS}: ${heading?.textContent?.trim() ?? ''}`);
+    if (heading) heading.focus({ preventScroll: false });
   }
 
   function clearError(stepNum: number): void {

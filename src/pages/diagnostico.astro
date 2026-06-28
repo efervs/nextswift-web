@@ -57,6 +57,9 @@ const waPrefillUrl = buildWaUrl({
         <progress id="quiz-progress" max="100" value="0" aria-label="Progreso"></progress>
       </div>
 
+      {/* M16 — anuncia "Pregunta X de N: <pregunta>" a lectores de pantalla antes de mover el foco al h2 */}
+      <div id="quiz-live" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+
       {QUESTIONS.map((q, idx) => (
         <section
           class="quiz__step"
@@ -65,7 +68,7 @@ const waPrefillUrl = buildWaUrl({
           data-question-type={q.type}
           hidden
         >
-          <h2 class="quiz__q-label" id={`q-${q.id}-label`}>
+          <h2 class="quiz__q-label" id={`q-${q.id}-label`} tabindex="-1">
             <span class="quiz__q-num">{idx + 1}.</span> {q.label}
           </h2>
           {q.helper && <p class="quiz__q-helper">{q.helper}</p>}
@@ -248,7 +251,14 @@ const waPrefillUrl = buildWaUrl({
   const btnBack = document.getElementById('quiz-back') as HTMLButtonElement;
   const btnNext = document.getElementById('quiz-next') as HTMLButtonElement;
   const btnSubmit = document.getElementById('quiz-submit') as HTMLButtonElement;
+  const liveRegion = document.getElementById('quiz-live')!;
   const steps = Array.from(quizRoot.querySelectorAll<HTMLElement>('.quiz__step'));
+
+  // M16 — inyecta el contexto del paso en la región aria-live. El setTimeout deja que el
+  // cambio de paso (hidden/visible) se asiente en el DOM antes de que el lector lo anuncie.
+  function announce(message: string): void {
+    window.setTimeout(() => { liveRegion.textContent = message; }, 60);
+  }
 
   const captureStepIdx = QUESTIONS.length + 1;
   const resultStepIdx = QUESTIONS.length + 2;
@@ -326,8 +336,11 @@ const waPrefillUrl = buildWaUrl({
             if (radio) radio.checked = true;
           }
         }
-        const firstInput = currentSection.querySelector<HTMLElement>('input');
-        firstInput?.focus({ preventScroll: true });
+        // M16 — anunciar la pregunta y mover el foco al encabezado (no al input): el lector
+        // lee el contexto antes del control; el Tab posterior lleva al primer input.
+        const heading = currentSection.querySelector<HTMLElement>('.quiz__q-label');
+        announce(`${label}: ${QUESTIONS[state.step - 1].label}`);
+        heading?.focus({ preventScroll: true });
       }
     }
 
