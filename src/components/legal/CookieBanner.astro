@@ -160,13 +160,41 @@
     hideAll();
   }
 
+  // ── Focus trap real (M17 T7-03): el Tab cicla dentro del dialog ──────────
+  const FOCUSABLE =
+    'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
+  function trapFocus(e: KeyboardEvent): void {
+    if (e.key !== 'Tab') return;
+    const panel = document.getElementById('ns-cpanel');
+    if (!panel || panel.hidden) return;
+    const items = Array.from(panel.querySelectorAll<HTMLElement>(FOCUSABLE));
+    if (items.length === 0) return;
+    const first = items[0];
+    const last = items[items.length - 1];
+    const active = document.activeElement;
+    if (e.shiftKey) {
+      if (active === first || !panel.contains(active)) {
+        e.preventDefault();
+        last.focus();
+      }
+    } else {
+      if (active === last || !panel.contains(active)) {
+        e.preventDefault();
+        first.focus();
+      }
+    }
+  }
+
   document.addEventListener('keydown', (e) => {
     const panel = document.getElementById('ns-cpanel');
     if (e.key === 'Escape' && panel && !panel.hidden) {
       panel.hidden = true;
       panel.setAttribute('aria-modal', 'false');
       (document.getElementById('ns-cbar-custom') as HTMLButtonElement | null)?.focus();
+      return;
     }
+    trapFocus(e);
   });
 
   // ── Init: auto-accept en primera visita (modelo opt-out LFPDPPP) ──────────
@@ -290,6 +318,17 @@
     outline-offset: 2px;
   }
 
+  /* M17 (T7-01) — foco visible en forced-colors (la regla scoped gana
+     especificidad sobre el global; replicamos aquí con color de sistema). */
+  @media (forced-colors: active) {
+    .ns-cb:focus-visible,
+    .ns-sw-input:focus-visible ~ .ns-sw {
+      outline: 3px solid Highlight;
+      outline-offset: 2px;
+      box-shadow: none;
+    }
+  }
+
   /* ── Preferences panel ──────────────────────────────────────────────────── */
   .ns-cpanel {
     position: fixed;
@@ -362,7 +401,9 @@
 
   .ns-crow__desc {
     font-size: 0.75rem;
-    color: rgba(255, 255, 255, 0.5);
+    /* M17 (T7-12): era rgba(255,255,255,0.5) (~2.5:1 sobre #233043, falla AA);
+       0.72 da ~7.7:1, cumple WCAG AA para texto normal. */
+    color: rgba(255, 255, 255, 0.72);
     line-height: 1.3;
   }
 

@@ -94,6 +94,17 @@ a:hover { color: var(--color-primary); }
   box-shadow: var(--shadow-focus);
 }
 
+/* M17 (T7-01) — Windows High Contrast / forced-colors: el box-shadow se
+   descarta y los colores se fuerzan; usamos el color de sistema Highlight
+   para garantizar un anillo de foco visible en botones, links, CTAs y FAQ. */
+@media (forced-colors: active) {
+  :focus-visible {
+    outline: 3px solid Highlight;
+    outline-offset: 2px;
+    box-shadow: none;
+  }
+}
+
 /* =========================================================================
    Skip-link accesible (oculto hasta tab).
    ========================================================================= */
