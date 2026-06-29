@@ -45,9 +45,16 @@ interface Props {
    * Default true — omitir o pasar false cuando el contexto ya es la sección de garantías.
    */
   showGuarantee?: boolean;
+  /**
+   * M19 (T3-04): fuerza la variante del CTA WhatsApp para fondos oscuros
+   * (texto/borde claros, contraste >= 3:1). Escape hatch para wrappers dark
+   * que NO sean los detectados automáticamente (.section--tone-dark,
+   * .garantias-resumen--dark, [data-theme="dark"]). Default false.
+   */
+  onDark?: boolean;
 }
 
-const { variant, pain, landing, size = 'lg', showGuarantee = true } = Astro.props;
+const { variant, pain, landing, size = 'lg', showGuarantee = true, onDark = false } = Astro.props;
 
 const computedLanding =
   landing ??
@@ -104,7 +111,7 @@ const sizeClass = size === 'md' ? 'btn--md' : 'btn--lg';
   {showWa && (
     <a
       href={waFallbackHref}
-      class:list={['btn', sizeClass, 'ctas-trio__wa']}
+      class:list={['btn', sizeClass, 'ctas-trio__wa', onDark && 'ctas-trio__wa--on-dark']}
       target="_blank"
       rel="noopener"
       data-wa-cta
@@ -283,6 +290,32 @@ const sizeClass = size === 'md' ? 'btn--md' : 'btn--lg';
     outline: 3px solid var(--color-accent);
     outline-offset: 2px;
     box-shadow: var(--shadow-focus);
+  }
+
+  /* M19 (T3-04) — variante para fondos oscuros.
+     Problema: el outline base usa --color-primary-dark (#214971) y casi
+     desaparece sobre los bloques de cierre azul oscuro (--color-dark-1
+     #003366 / --color-dark-4 #233043).
+     Solución: borde/texto claros. El borde blanco-translúcido rinde
+     ~9.5:1 sobre #003366 y ~10:1 sobre #233043 — muy por encima del 3:1
+     que WCAG 1.4.11 exige a componentes UI. El ícono WA conserva su verde
+     #25D366, reconocible sobre cualquier fondo.
+     Se auto-aplica en los wrappers dark conocidos del sitio y, como escape
+     hatch, vía la clase del prop `onDark`. */
+  :global(.section--tone-dark) .ctas-trio__wa,
+  :global(.garantias-resumen--dark) .ctas-trio__wa,
+  :global([data-theme='dark']) .ctas-trio__wa,
+  .ctas-trio__wa--on-dark {
+    color: #ffffff;
+    border-color: rgba(255, 255, 255, 0.85);
+  }
+  :global(.section--tone-dark) .ctas-trio__wa:hover,
+  :global(.garantias-resumen--dark) .ctas-trio__wa:hover,
+  :global([data-theme='dark']) .ctas-trio__wa:hover,
+  .ctas-trio__wa--on-dark:hover {
+    background: #ffffff;
+    border-color: #ffffff;
+    color: var(--color-primary-dark);
   }
 
   .ctas-trio__wa-icon {

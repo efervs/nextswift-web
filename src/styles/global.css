@@ -216,6 +216,26 @@ a:hover { color: var(--color-primary); }
 }
 .btn--wa:active { transform: translateY(1px); }
 
+/* M19 (T3-04) — .btn--wa sobre secciones oscuras.
+   El relleno navy (--color-dark-1 #003366) coincide con el fondo de
+   Section tone="dark" / GarantiasResumen--dark → el botón se vuelve
+   invisible (navy sobre navy, ej. cierre de /casos/<slug>). En contexto
+   dark se invierte a outline claro: borde/texto blancos. El borde
+   blanco-translúcido rinde ~9.5:1 sobre #003366, muy por encima del 3:1
+   de componentes UI (WCAG 1.4.11). No afecta a .btn--primary (M1). */
+.section--tone-dark .btn--wa,
+.garantias-resumen--dark .btn--wa {
+  background: transparent;
+  color: var(--color-text-on-dark);
+  border-color: rgba(255, 255, 255, 0.85);
+}
+.section--tone-dark .btn--wa:hover,
+.garantias-resumen--dark .btn--wa:hover {
+  background: var(--color-text-on-dark);
+  color: var(--color-dark-1);
+  border-color: var(--color-text-on-dark);
+}
+
 /* Disabled */
 .btn:disabled,
 .btn[aria-disabled='true'] {
