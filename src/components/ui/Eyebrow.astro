@@ -27,8 +27,18 @@ const { tone = 'accent', as: Tag = 'span', class: className = '' } = Astro.props
     letter-spacing: var(--tracking-eyebrow);
     text-transform: uppercase;
     line-height: var(--line-snug);
+    /* M20: reparte el texto en líneas equilibradas en vez de una larga + una corta;
+       evita la 3ª línea huérfana de los eyebrow largos en móvil. */
+    text-wrap: balance;
   }
   .eyebrow--accent   { color: var(--color-primary-dark); }
   .eyebrow--neutral  { color: var(--color-text-muted); }
   .eyebrow--on-dark  { color: var(--color-accent); }
+
+  /* M20: en móviles cortos el eyebrow largo rompía en 3 líneas a 360px.
+     El tracking ya se cierra vía token (tokens.css); aquí un nudge de tamaño
+     para asegurar 1-2 líneas sin tocar el copy. Desktop intacto. */
+  @media (max-width: 480px) {
+    .eyebrow { font-size: 0.6875rem; }  /* 11px */
+  }
 </style>

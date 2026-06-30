@@ -55,7 +55,10 @@ const blogSchema = {
   />
   <link slot="head" rel="stylesheet" href="/_pagefind/pagefind-ui.css" />
 
-  <Section spacing="lg" tone="surface" as="section">
+  {/* M20 (T6-08): hero del blog con padding-block compacto (lg → sm) para que asome
+      al menos una BlogCard en el primer fold (antes el hero ocupaba el viewport entero
+      en pc1366 y empujaba todas las cards bajo el pliegue). */}
+  <Section spacing="sm" tone="surface" as="section">
     <div class="blog-hero" data-pagefind-ignore>
       <Eyebrow tone="accent">BLOG · OPERACIÓN, MARGEN Y CRITERIO</Eyebrow>
       <Heading as="h1" size="h1">Artículos para dueños que prefieren cifras a corazonadas</Heading>

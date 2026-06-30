@@ -116,6 +116,23 @@
 }
 
 /* ============================================================================
+   M20 · Escaneabilidad en móviles cortos (<=480px) — solo formato, no copy.
+   Override responsivo de tokens (single source of truth); desktop intacto.
+   - --fs-h1 más compacto: el H1 del above-fold (home + landings de formulario
+     diagnostico/auditoria) dejaba de asomar el form/contenido en pantallas
+     cortas. Reduce ~18-20% sin tocar el clamp desktop (>=481px).
+   - --tracking-eyebrow más cerrado: los eyebrow largos (p.ej. "PALANCA
+     FINANCIERA · EL DOLOR MÁS PROFUNDO Y UNIVERSAL") rompían en 3 líneas a
+     360px; con menos letter-spacing caben en 1-2 líneas.
+   ============================================================================ */
+@media (max-width: 480px) {
+  :root {
+    --fs-h1: clamp(1.875rem, 1.55rem + 1.6vw, 2.25rem);  /* 30 → 32.5 (antes 36.5 → 40) */
+    --tracking-eyebrow: 0.06em;                          /* antes 0.14em */
+  }
+}
+
+/* ============================================================================
    Dark theme (preparado, NO expuesto en v1 — sin toggle UI).
    Activar con <html data-theme="dark"> cuando se decida en v2.
    ============================================================================ */
