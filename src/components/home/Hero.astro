@@ -148,12 +148,28 @@ const {
     align-items: center;
   }
 
-  @media (min-width: 768px) {
+  /* M21 (T6-04): 2 columnas SOLO a partir de 821px = por encima del breakpoint de
+     navegación --bp-nav (820px, definido en Header.astro). Antes el hero pasaba a 2 col
+     a 768px mientras el Header ya era hamburguesa a <=820px → franja 768-820px híbrida
+     (nav móvil + layout desktop) con el H1 estrecho. Ahora <=820px = un solo modo móvil.
+     Nota: los @media no pueden leer var(--bp-nav); el literal es el espejo del token. */
+  @media (min-width: 821px) { /* --bp-nav + 1 */
     .hero {
       grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
       gap: var(--space-9);
       /* M16: bottom space-11 → space-7 (ídem, conecta hero → ProofBar). */
       padding: var(--space-10) 0 var(--space-7);
+    }
+  }
+
+  /* M21: en la banda tablet (481-820px) el hero es de una sola columna a ancho completo;
+     el clamp desktop de --fs-h1 (1.8rem + 2.4vw, hasta 64px) crecía a ~47-48px y quedaba
+     sobredimensionado. Se acota el H1 del hero a un tamaño tablet (≈36-40px) sin tocar el
+     token global ni el desktop (>=821px, donde reaparece el clamp completo en 2 columnas).
+     <=480px conserva el override compacto de --fs-h1 (tokens.css). */
+  @media (min-width: 481px) and (max-width: 820px) { /* hasta --bp-nav */
+    .hero__h1 {
+      font-size: clamp(2.25rem, 1.6rem + 1.8vw, 2.875rem); /* 36 → ~40 px */
     }
   }
 
@@ -233,8 +249,9 @@ const {
     margin-left: 0.05em;
   }
 
-  /* Desktop: las cifras viven en el overlay de la foto (.hero__dashboard); la tira se oculta. */
-  @media (min-width: 768px) {
+  /* Desktop: las cifras viven en el overlay de la foto (.hero__dashboard); la tira se oculta.
+     M21: alineado a --bp-nav (821px) — en la franja 768-820px (nav móvil) la tira sigue visible. */
+  @media (min-width: 821px) { /* --bp-nav + 1 */
     .hero__metrics { display: none; }
   }
 
@@ -421,7 +438,10 @@ const {
   /* M8 (T6-02): en móvil la PRUEBA se muestra en .hero__metrics (primer viewport), no en el
      overlay de la foto. Se oculta el dashboard para no duplicar la cifra; la foto conserva
      solo el caption "operador". En desktop el overlay sigue intacto. */
-  @media (max-width: 767px) {
+  /* M21: oculto en todo el modo móvil (<=820px = --bp-nav), no solo <=767px. Así en la franja
+     768-820px (nav hamburguesa, hero a 1 columna) la prueba se ve en .hero__metrics y no se
+     duplica con el overlay del dashboard. */
+  @media (max-width: 820px) { /* = --bp-nav */
     .hero__dashboard { display: none; }
   }
 
