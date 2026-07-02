@@ -14,6 +14,8 @@
  *   - public/images/hero-dashboard.webp  (screenshot P&L real anonimizado; NO inventar dashboard)
  *   Layout objetivo: top 60% cocina / bottom 40% dashboard, divisor 2px var(--color-accent).
  */
+import { Picture } from 'astro:assets';
+import fotoEfer from '../../assets/foto-efer.webp';
 import Heading from '../ui/Heading.astro';
 import Body from '../ui/Body.astro';
 import Eyebrow from '../ui/Eyebrow.astro';
@@ -92,13 +94,17 @@ const {
 
   <div class="hero__visual">
     <div class="hero__visual-frame">
-      <img
-        src="/images/foto-efer-480.webp"
-        srcset="/images/foto-efer-480.webp 480w, /images/foto-efer.webp 640w"
+      {/* M23 (T5-07): migrado de <img> nativa a astro:assets <Picture>. Genera AVIF+WebP
+          responsivos (fallback WebP) desde el original src/assets/foto-efer.webp (640×640).
+          Sigue siendo el LCP del home: loading=eager + fetchpriority=high se reenvían al <img>.
+          El sizing visual lo controla el CSS del frame (4/5, object-fit cover). */}
+      <Picture
+        src={fotoEfer}
+        formats={['avif', 'webp']}
+        fallbackFormat="webp"
+        widths={[384, 480, 640]}
         sizes="(max-width: 420px) 90vw, 384px"
         alt="Efer Lara, fundador de NextSwift — operador de restaurantes y consultor B2B"
-        width="480"
-        height="480"
         loading="eager"
         fetchpriority="high"
         decoding="async"
@@ -317,7 +323,15 @@ const {
     box-shadow: var(--shadow-3);
   }
 
-  .hero__visual-img {
+  /* M23: la salida de astro:assets <Picture> (<picture> + <img>) no recibe el scope
+     de este componente, así que se apunta vía :global() anclado al frame (sí scopeado).
+     display:contents retira el <picture> del árbol de cajas → el <img> conserva el
+     sizing del frame (100%/100%, object-fit cover), idéntico al <img> nativo anterior. */
+  .hero__visual-frame :global(picture) {
+    display: contents;
+  }
+
+  .hero__visual-frame :global(.hero__visual-img) {
     display: block;
     width: 100%;
     height: 100%;

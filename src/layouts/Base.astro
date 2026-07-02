@@ -10,11 +10,16 @@ import StickyCTAMobile from '../components/layout/StickyCTAMobile.astro';
 import CookieBanner from '../components/legal/CookieBanner.astro';
 
 // Font preloads — Vite resuelve URL con content-hash; reduce FOUT en LCP.
+// M23 (T5-08): solo se precargan las fuentes ATF-críticas (las que pintan el
+// above-the-fold), no las 5 en todas las rutas. Los pesos secundarios usados
+// below-the-fold (SSP 400, Lato 700) ya no se precargan: se sirven vía el
+// stylesheet self-host con font-display: swap, sin competir con el LCP.
+//   Oswald (variable)   → H1 / headings   (ATF en toda ruta)
+//   Source Sans Pro 600 → nav, eyebrows, labels, CTAs (ATF en toda ruta)
+//   Lato 400            → cuerpo           (ATF en toda ruta)
 import oswald from '@fontsource-variable/oswald/files/oswald-latin-wght-normal.woff2?url';
-import sspN from '@fontsource/source-sans-pro/files/source-sans-pro-latin-400-normal.woff2?url';
 import sspSb from '@fontsource/source-sans-pro/files/source-sans-pro-latin-600-normal.woff2?url';
 import latoN from '@fontsource/lato/files/lato-latin-400-normal.woff2?url';
-import latoBd from '@fontsource/lato/files/lato-latin-700-normal.woff2?url';
 
 interface Props {
   title?: string;
@@ -37,6 +42,12 @@ const {
 
 const META_PIXEL_ID = '1545738293336210';
 const GA4_MEASUREMENT_ID = import.meta.env.PUBLIC_GA4_MEASUREMENT_ID ?? '';
+
+// M23 (T5-08): preload de fuentes POR RUTA. La mayoría de rutas precarga las 3
+// fuentes ATF-críticas. Las páginas "gracias-*" son post-conversión (sin presión
+// de LCP/SEO, ATF mínimo) → solo H1 + cuerpo; la subheading swap-ea sin coste real.
+const isThanks = Astro.url.pathname.includes('/gracias-');
+const fontPreloads = isThanks ? [oswald, latoN] : [oswald, sspSb, latoN];
 
 const orgSchema = {
   '@context': 'https://schema.org',
@@ -111,12 +122,10 @@ const orgSchema = {
         coste de conexión cuando el SDK se inyecta en idle. ~-340ms (M7). */}
     <link rel="preconnect" href="https://connect.facebook.net" crossorigin />
 
-    {/* Preload fuentes críticas — subset latin, pesos usados en ATF */}
-    <link rel="preload" as="font" type="font/woff2" crossorigin href={oswald} />
-    <link rel="preload" as="font" type="font/woff2" crossorigin href={sspN} />
-    <link rel="preload" as="font" type="font/woff2" crossorigin href={sspSb} />
-    <link rel="preload" as="font" type="font/woff2" crossorigin href={latoN} />
-    <link rel="preload" as="font" type="font/woff2" crossorigin href={latoBd} />
+    {/* Preload fuentes ATF-críticas — subset latin, por ruta (M23 / T5-08) */}
+    {fontPreloads.map((href) => (
+      <link rel="preload" as="font" type="font/woff2" crossorigin href={href} />
+    ))}
 
     {/* JSON-LD Organization schema */}
     <script type="application/ld+json" is:inline set:html={JSON.stringify(orgSchema)} />

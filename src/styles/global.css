@@ -5,13 +5,19 @@
 
 /* =========================================================================
    Fontsource self-host (paquetes en package.json).
-   Subset latin servido localmente; font-display: swap por defecto.
+   M23 (T5-09): en los pesos estáticos (Source Sans Pro, Lato) se importa SOLO el
+   subset `latin` de cada peso. Antes `<peso>.css` arrastraba TODOS los subsets
+   (latin-ext, cyrillic, vietnamese…) con ~13 KiB de @font-face/CSS no usado.
+   El sitio es es-MX → solo latin.
+   Oswald es una fuente VARIABLE: su paquete no expone un CSS `latin` aparte
+   (solo `index.css`/`wght.css`), así que se queda en `index.css`.
+   font-display: swap por defecto.
    ========================================================================= */
 @import "@fontsource-variable/oswald/index.css";
-@import "@fontsource/source-sans-pro/400.css";
-@import "@fontsource/source-sans-pro/600.css";
-@import "@fontsource/lato/400.css";
-@import "@fontsource/lato/700.css";
+@import "@fontsource/source-sans-pro/latin-400.css";
+@import "@fontsource/source-sans-pro/latin-600.css";
+@import "@fontsource/lato/latin-400.css";
+@import "@fontsource/lato/latin-700.css";
 
 /* =========================================================================
    Tailwind v4 @theme — expone tokens como utilities (bg-accent, text-dark-1,
