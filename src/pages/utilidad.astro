@@ -126,6 +126,14 @@ const serviceSchema = buildServiceSchema({
     gap: var(--space-4);
     max-width: 56rem;
   }
+  /* M1 (TD-01/TD-07): sin esto, los hijos del grid (bullets, CTAs) usan su
+     min-width:auto por defecto y a <=390px pueden forzar la columna
+     implicita mas ancha que el viewport -> el overflow-x:hidden global
+     (F22) recorta el contenido en vez de mostrarlo. Espejo de
+     Hero.astro (.hero__copy) en el home. */
+  .hero-landing > * {
+    min-width: 0;
+  }
   /* M10: claim de resultado cuantificado (cifra validada por Efer). Barra accent a la
      izquierda — mismo lenguaje visual que .caso-ancla__metric y .leak (Stakes). */
   .hero-landing__claim {
@@ -152,6 +160,7 @@ const serviceSchema = buildServiceSchema({
     padding-left: 1.5rem;
     font-family: var(--font-body);
     color: var(--color-text);
+    overflow-wrap: anywhere;
   }
   .hero-landing__bullets li::before {
     content: '';
@@ -169,6 +178,16 @@ const serviceSchema = buildServiceSchema({
     flex-wrap: wrap;
     gap: var(--space-3);
     margin-top: var(--space-3);
+  }
+  /* M1: el CTA primario ("Verificar si su restaurante califica ->") mide
+     ~366px de min-content por su white-space:nowrap (.btn en global.css);
+     a <=390px el hero solo tiene ~343px disponibles. Se permite wrap SOLO
+     en este contexto para que el boton se envuelva en 2 lineas en vez de
+     desbordarse y recortarse contra el borde derecho. */
+  .hero-landing__ctas :global(.btn),
+  .resumen-ctas :global(.btn) {
+    white-space: normal;
+    text-align: center;
   }
   .caso-ancla__grid {
     display: grid;

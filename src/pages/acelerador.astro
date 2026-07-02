@@ -196,6 +196,12 @@ const cuposLeyenda =
     flex-direction: column;
     gap: var(--space-5);
   }
+  /* M1 (TD-01/TD-07): evita que un hijo con contenido intrinsecamente ancho
+     (el CTA stack) fuerce su propio ancho por encima del disponible a
+     <=390px -> overflow recortado por overflow-x:hidden global (F22). */
+  .acelerador-hero__inner > * {
+    min-width: 0;
+  }
   .acelerador-hero__h1 { text-wrap: balance; }
   .acelerador-hero__subhead { max-width: 48rem; }
   .acelerador-hero__cta-stack {
@@ -203,6 +209,14 @@ const cuposLeyenda =
     flex-wrap: wrap;
     gap: var(--space-3);
     margin-top: var(--space-2);
+  }
+  /* M1: el boton primario (~366px de min-content por white-space:nowrap en
+     .btn) no cabe en el ancho disponible del hero a <=390px; se permite
+     wrap solo aqui para que se envuelva en vez de desbordarse. */
+  .acelerador-hero__cta-stack :global(.btn),
+  .calificacion__cta-stack :global(.btn) {
+    white-space: normal;
+    text-align: center;
   }
 
   /* ----- Qué se entrega --------------------------------------------------- */
