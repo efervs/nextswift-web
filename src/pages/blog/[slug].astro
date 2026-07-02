@@ -11,8 +11,6 @@
  * Schema.org: BlogPosting (incluye @type Article) + BreadcrumbList. Un solo nodo
  * de artículo — sin Article duplicado (M15).
  */
-import { existsSync } from 'node:fs';
-import { fileURLToPath } from 'node:url';
 import { render } from 'astro:content';
 import Base from '../../layouts/Base.astro';
 import Section from '../../components/ui/Section.astro';
@@ -42,11 +40,13 @@ const canonical = `https://www.nextswift.mx/blog/${post.data.slug}`;
 
 // OG image: covers locales /images/blog/*.webp. Si el archivo no existe en
 // /public (build-time), cae a default.png — LinkedIn/FB nunca reciben un 404 (M15).
+// Enumeración build-time con import.meta.glob (Vite): reemplaza el chequeo con
+// node:fs + new URL(import.meta.url), que fallaba en el sandbox workerd de
+// prerender de Cloudflare (rompía el build por node:fs y el inline de CSS crítico).
+const COVER_MANIFEST = import.meta.glob('/public/images/blog/*.{webp,png,jpg,jpeg,avif}');
 const cover = post.data.cover;
 const coverIsRemote = cover.startsWith('http');
-const coverExists =
-  coverIsRemote ||
-  existsSync(fileURLToPath(new URL(`../../../public${cover}`, import.meta.url)));
+const coverExists = coverIsRemote || `/public${cover}` in COVER_MANIFEST;
 const ogImage = coverIsRemote
   ? cover
   : coverExists
