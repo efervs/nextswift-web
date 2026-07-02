@@ -3,6 +3,11 @@ name: CI
 on:
   pull_request:
     branches: [main]
+  # El flujo real es push directo a main (con bypass de branch protection), no PRs.
+  # Sin este trigger, `astro check` + build nunca corrian en CI: por eso 7 builds
+  # rotos (M15-M21) pasaron inadvertidos. Ahora cada push a main valida el codigo.
+  push:
+    branches: [main]
 
 jobs:
   check:
