@@ -38,8 +38,7 @@ const serviceSchema = buildServiceSchema({
       <Eyebrow tone="accent">PALANCA COMERCIAL · EL DOLOR MÁS FÁCIL DE VENDER</Eyebrow>
       <Heading as="h1" size="h1">Las ventas están flojas</Heading>
       {/* M10: resultado cuantificado en el above-fold (cifra conservadora; ya publicada como
-          bullet, aquí elevada a promesa principal). Marcada para validación de Efer. */}
-      <!-- TODO Efer: validar cifra [CIFRA_A_VALIDAR] (ventas-delivery: 15-20% de pedidos a canal directo en 60-90 dias) -->
+          bullet, aquí elevada a promesa principal). Cifra "15-20% a canal directo en 60-90 días" validada por Efer (2026-07-02). */}
       <p class="hero-landing__claim">Migramos entre 15% y 20% de tus pedidos de marketplaces a canal directo en 60-90 días.</p>
       <Body size="lead" tone="muted">
         Reactivamos tráfico recurrente y reducimos dependencia de marketplaces en 60-90 días.
@@ -119,7 +118,7 @@ const serviceSchema = buildServiceSchema({
 
 <style>
   .hero-landing { display: grid; gap: var(--space-4); max-width: 56rem; }
-  /* M10: claim de resultado cuantificado (cifra [CIFRA_A_VALIDAR]) — barra accent, mismo lenguaje que .leak/.caso-ancla__metric. */
+  /* M10: claim de resultado cuantificado (cifra validada por Efer) — barra accent, mismo lenguaje que .leak/.caso-ancla__metric. */
   .hero-landing__claim { margin: 0; padding-left: var(--space-3); border-left: 4px solid var(--color-accent); font-family: var(--font-subheading); font-size: var(--fs-lead); font-weight: 700; line-height: var(--line-snug); color: var(--color-text); max-width: 56rem; text-wrap: balance; }
   .hero-landing__bullets { list-style: none; padding: 0; margin: 0; display: grid; gap: var(--space-2); }
   .hero-landing__bullets li { position: relative; padding-left: 1.5rem; font-family: var(--font-body); color: var(--color-text); }

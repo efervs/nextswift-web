@@ -146,21 +146,16 @@ const sizeClass = size === 'md' ? 'btn--md' : 'btn--lg';
       </svg>
       <span>Cancelación sin compromiso en los primeros 30 días.</span>
     </div>
-    {/*
-      TODO [CONFIRMAR con Efer]: escasez real.
-      Descomentar SOLO cuando Efer confirme la cifra exacta de cupos por trimestre.
-      Cifra candidata sugerida en M12: "8 cupos por trimestre".
-      No publicar sin confirmación explícita.
-
-      <div class="ctas-guarantee__item ctas-guarantee__item--escasez">
-        <svg class="ctas-guarantee__icon" viewBox="0 0 24 24" fill="none"
-             stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
-             stroke-linejoin="round" aria-hidden="true">
-          <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
-        </svg>
-        <span>Solo <strong>8 cupos por trimestre</strong> — disponibilidad limitada.</span>
-      </div>
-    */}
+    {/* M12: escasez real confirmada por Efer (2026-07-02). Cifra "8 cupos por
+        trimestre" ya viva en la leyenda de calificación de /acelerador. */}
+    <div class="ctas-guarantee__item ctas-guarantee__item--escasez">
+      <svg class="ctas-guarantee__icon" viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+           stroke-linejoin="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+      </svg>
+      <span>Solo <strong>8 cupos por trimestre</strong> — disponibilidad limitada.</span>
+    </div>
   </div>
 )}
 

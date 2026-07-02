@@ -38,8 +38,7 @@ const serviceSchema = buildServiceSchema({
       <Eyebrow tone="accent">PALANCA FINANCIERA · EL DOLOR MÁS PROFUNDO Y UNIVERSAL</Eyebrow>
       <Heading as="h1" size="h1">Vendo pero no gano dinero</Heading>
       {/* M10: resultado cuantificado en el above-fold (cifra conservadora, coherente con el
-          home y Stakes.astro). Marcada para validación de Efer antes de publicar. */}
-      <!-- TODO Efer: validar cifra [CIFRA_A_VALIDAR] (utilidad: 3-7 pts de margen en ~90 dias) -->
+          home y Stakes.astro). Cifra "3-7 pts de margen en ~90 días" validada por Efer (2026-07-02). */}
       <p class="hero-landing__claim">Recuperas entre 3 y 7 puntos de margen operativo en ~90 días, sobre tu base actual.</p>
       <Body size="lead" tone="muted">
         Encontramos la fuga de margen en 10 días hábiles: mermas, costeo descalibrado,
@@ -127,7 +126,7 @@ const serviceSchema = buildServiceSchema({
     gap: var(--space-4);
     max-width: 56rem;
   }
-  /* M10: claim de resultado cuantificado (cifra [CIFRA_A_VALIDAR]). Barra accent a la
+  /* M10: claim de resultado cuantificado (cifra validada por Efer). Barra accent a la
      izquierda — mismo lenguaje visual que .caso-ancla__metric y .leak (Stakes). */
   .hero-landing__claim {
     margin: 0;

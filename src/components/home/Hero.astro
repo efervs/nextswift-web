@@ -34,7 +34,7 @@ const {
   h1 = 'Vendo pero no gano dinero',
   // M10 (T1-02/T8-01): resultado cuantificado bajo el H1 de dolor. Cifra CONSERVADORA y
   // defendible — coherente con Stakes.astro ("3-7 puntos en 90 días", ya en producción) y
-  // con la categoría única de M9. [CIFRA_A_VALIDAR] — PENDIENTE de OK de Efer antes de publicar.
+  // con la categoría única de M9. VALIDADA por Efer (2026-07-02).
   claim = 'Recuperamos entre 3 y 7 puntos de margen operativo en ~90 días, sobre tu base actual.',
   subhead = 'Rehabilitamos la economía y operación de tu restaurante en 10 días hábiles. Diagnóstico, plan, ejecución — con garantía operativa y dueño dentro de la cabina.',
   bullets = [
@@ -53,8 +53,7 @@ const {
     </Heading>
 
     {/* M10: claim de RESULTADO cuantificado — la voz de dolor del H1 engancha, este número
-        cierra con el resultado. Cifra prudente, marcada para validación de Efer. */}
-    <!-- TODO Efer: validar cifra [CIFRA_A_VALIDAR] (home: 3-7 pts de margen en ~90 dias) -->
+        cierra con el resultado. Cifra "3-7 pts de margen en ~90 días" validada por Efer (2026-07-02). */}
     <p class="hero__claim">{claim}</p>
 
     <Body size="lead" tone="muted" class="hero__subhead">{subhead}</Body>
@@ -194,7 +193,7 @@ const {
     max-width: 38rem;
   }
 
-  /* M10: claim de resultado cuantificado (cifra [CIFRA_A_VALIDAR]). Barra accent a la
+  /* M10: claim de resultado cuantificado (cifra validada por Efer). Barra accent a la
      izquierda — mismo lenguaje visual que .leak (Stakes) y .caso-ancla__metric (landings).
      Texto en --color-text (alto contraste AA sobre el hero claro); el accent es solo borde. */
   .hero__claim {
