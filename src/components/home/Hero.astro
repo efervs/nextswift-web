@@ -469,4 +469,33 @@ const {
       transition: none;
     }
   }
+
+  /* M4 (TD-03): en laptops de poca altura (<=900px, p.ej. 1366x768 o 1440x900) el
+     padding-top propio (space-10, arriba) se suma al padding superior de la
+     <Section spacing="lg"> que envuelve al hero (~space-11) y empuja el CTA primario
+     fuera del primer viewport — mismo bug que M8 ya resolvió en móvil, aquí reaparecido
+     en el breakpoint desktop. Se recorta el padding-top y el ritmo vertical interno SOLO
+     por altura; el ancho sigue mandando en el layout de 2 columnas (sin cambios ahí).
+     Va al final de la hoja para ganar la cascada sobre las reglas base de igual
+     especificidad (@media no suma especificidad). */
+  @media (min-width: 821px) and (max-height: 900px) {
+    .hero {
+      padding-top: 0;
+    }
+    .hero__copy {
+      gap: var(--space-1);
+    }
+    .hero__bullets {
+      gap: 0;
+    }
+  }
+
+  /* Banda 901-1100px de alto (p.ej. 1920x1080): el hero ya casi cabe completo; solo se
+     recorta el padding-top lo justo para que el 2do CTA no quede cortado en el borde
+     inferior, sin tocar el ritmo interno (hero se mantiene "intacto"). */
+  @media (min-width: 821px) and (min-height: 901px) and (max-height: 1100px) {
+    .hero {
+      padding-top: var(--space-9);
+    }
+  }
 </style>
