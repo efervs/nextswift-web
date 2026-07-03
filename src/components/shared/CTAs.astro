@@ -344,6 +344,34 @@ const sizeClass = size === 'md' ? 'btn--md' : 'btn--lg';
     flex-shrink: 0;
   }
 
+  /* M5 (TC-06) — en <=480px el trío de 3 CTAs de peso visual similar diluye
+     la acción (paradoja de elección, Laja); >70% del tráfico es móvil. El
+     ghost baja de rango a un enlace de texto discreto DEBAJO del par
+     primario+WhatsApp (flex `order`, sin tocar el DOM ni el href/tracking).
+     En desktop (>480px) el trío de 3 botones queda intacto (sin @media). */
+  @media (max-width: 480px) {
+    .ctas-trio__ghost {
+      order: 1;
+      background: none;
+      border: none;
+      box-shadow: none;
+      padding: var(--space-2) 0 0;
+      min-height: 0;
+      font-family: var(--font-body);
+      font-size: 0.875rem;
+      font-weight: 500;
+      letter-spacing: normal;
+      text-decoration: underline;
+      text-underline-offset: 0.18em;
+      white-space: normal;
+    }
+    .ctas-trio__ghost:hover,
+    .ctas-trio__ghost:active {
+      background: none;
+      transform: none;
+    }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .ctas-trio__wa { transition: none; }
   }
