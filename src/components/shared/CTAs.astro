@@ -46,10 +46,11 @@ interface Props {
    */
   showGuarantee?: boolean;
   /**
-   * M19 (T3-04): fuerza la variante del CTA WhatsApp para fondos oscuros
-   * (texto/borde claros, contraste >= 3:1). Escape hatch para wrappers dark
-   * que NO sean los detectados automáticamente (.section--tone-dark,
-   * .garantias-resumen--dark, [data-theme="dark"]). Default false.
+   * M19 (T3-04) + M2 (TA-01/TC-01): fuerza la variante de los CTAs WhatsApp
+   * y ghost para fondos oscuros (texto/borde claros, contraste >= 3:1).
+   * Escape hatch para wrappers dark que NO sean los detectados
+   * automáticamente (.section--tone-dark, .garantias-resumen--dark,
+   * [data-theme="dark"]). Default false.
    */
   onDark?: boolean;
 }
@@ -99,7 +100,7 @@ const sizeClass = size === 'md' ? 'btn--md' : 'btn--lg';
   {showGhost && (
     <a
       href="/diagnostico"
-      class:list={['btn', 'btn--ghost', sizeClass, 'ctas-trio__ghost']}
+      class:list={['btn', 'btn--ghost', sizeClass, 'ctas-trio__ghost', onDark && 'ctas-trio__ghost--on-dark']}
       data-cta="diagnostico"
       data-cta-content={contentName}
       data-cta-landing={computedLanding}
@@ -311,6 +312,30 @@ const sizeClass = size === 'md' ? 'btn--md' : 'btn--lg';
     background: #ffffff;
     border-color: #ffffff;
     color: var(--color-primary-dark);
+  }
+
+  /* M2 (TA-01/TC-01) — variante para fondos oscuros del botón ghost, análoga a la
+     de .ctas-trio__wa (M19). Problema: .btn--ghost (global.css) usa
+     var(--color-dark-1) (#003366) para texto/borde — el mismo tono que el
+     fondo de las secciones dark, por lo que queda casi invisible (<1.5:1).
+     Solución: texto/borde claros; hover invertido a fondo blanco/texto
+     navy, manteniendo AA. Mismo trío de selectores auto-detectados que el
+     WA, más la clase escape hatch del prop `onDark` para wrappers dark que
+     no son `.section--tone-dark` (ej. `.garantia-cta`). */
+  :global(.section--tone-dark) .btn--ghost,
+  :global(.garantias-resumen--dark) .btn--ghost,
+  :global([data-theme='dark']) .btn--ghost,
+  .ctas-trio__ghost--on-dark {
+    color: #ffffff;
+    border-color: rgba(255, 255, 255, 0.85);
+  }
+  :global(.section--tone-dark) .btn--ghost:hover,
+  :global(.garantias-resumen--dark) .btn--ghost:hover,
+  :global([data-theme='dark']) .btn--ghost:hover,
+  .ctas-trio__ghost--on-dark:hover {
+    background: #ffffff;
+    border-color: #ffffff;
+    color: var(--color-dark-1);
   }
 
   .ctas-trio__wa-icon {
