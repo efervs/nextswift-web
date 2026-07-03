@@ -14,8 +14,9 @@
  *   - Oculta si body[data-has-sticky-form="true"]  (QuizCard / FormStep).
  *   - Oculta si body[data-no-sticky-cta="true"]    (rutas /gracias-*).
  *   - Oculta mientras el CTA primario del Hero (data-cta-primary) sea
- *     visible (IntersectionObserver). Cuando el hero sale del viewport,
- *     se muestra.
+ *     visible (IntersectionObserver), o si aun no se hizo scroll real
+ *     (window.scrollY <= 150px). Ambas condiciones evitan que la barra
+ *     tape el hero en pantallas cortas apenas se carga la pagina (M3/TD-02).
  *
  * No reemplaza al .header-cta desktop; coexiste sin solaparse.
  */
@@ -73,14 +74,27 @@ const {
     }
 
     if (primary) {
+      // Umbral de scroll real (M3/TD-02): en viewports cortos (iPhone SE, S20)
+      // el CTA primario nace fuera de pantalla y el observer dispara su primer
+      // callback con isIntersecting=false, mostrando la barra en scrollY=0 y
+      // tapando el hero. Exigimos scroll > umbral ademas de "hero fuera de vista".
+      const SCROLL_THRESHOLD = 150;
+      let heroCtaVisible = true;
+
+      function update() {
+        if (!heroCtaVisible && window.scrollY > SCROLL_THRESHOLD) show();
+        else hide();
+      }
+
       const io = new IntersectionObserver(
         ([entry]) => {
-          if (entry.isIntersecting) hide();
-          else show();
+          heroCtaVisible = entry.isIntersecting;
+          update();
         },
         { threshold: 0.1 },
       );
       io.observe(primary);
+      window.addEventListener('scroll', update, { passive: true });
     } else {
       // Sin CTA primario en la ruta: mostrar siempre tras 300ms de scroll-down.
       let revealed = false;
