@@ -20,7 +20,9 @@ import Section from '../components/ui/Section.astro';
 import Heading from '../components/ui/Heading.astro';
 import Body from '../components/ui/Body.astro';
 import Eyebrow from '../components/ui/Eyebrow.astro';
+import Icon from '../components/ui/Icon.astro';
 import { buildWaUrl } from '../lib/whatsapp-url';
+import { testimonioByObjecion } from '../data/testimonios';
 
 const waFallbackUrl = buildWaUrl({
   source: 'auditoria',
@@ -61,6 +63,12 @@ const TIMING_OPTIONS = [
 ];
 
 const TOTAL_STEPS = 6;
+
+// M6 (TC-02): reversión de riesgo + prueba social junto al submit del paso 6 (BOFU).
+// Copy de garantías = mismo verbatim de CTAs.astro (M12, incl. escasez confirmada por Efer 2026-07-02).
+// Testimonio = único autorizado que ancla "esto es teoría o ustedes operan" (objeción más cercana a
+// la duda de un prospecto que ya sometió 6 pasos y está por firmar).
+const trustTestimonio = testimonioByObjecion('teoria-vs-implementacion');
 ---
 
 <Base
@@ -263,6 +271,35 @@ const TOTAL_STEPS = 6;
               </span>
             </label>
             <p class="audit__error" id="q-privacy-error" role="alert" aria-live="polite"></p>
+          </div>
+
+          {/* M6 (TC-02): reversión de riesgo + prueba social junto al submit — sin esto, el
+              prospecto llega a "Solicitar auditoría" tras 6 pasos sin ninguna señal de confianza. */}
+          <div class="audit__trust" aria-label="Garantías y prueba social">
+            <ul class="audit__trust-list" role="list">
+              <li class="audit__trust-item">
+                <Icon name="shield" size={16} class="audit__trust-icon" />
+                <span>Auditoría previa sin costo — si no aplica el programa, se lo decimos antes de firmar.</span>
+              </li>
+              <li class="audit__trust-item">
+                <Icon name="shield" size={16} class="audit__trust-icon" />
+                <span>Cancelación sin compromiso en los primeros 30 días.</span>
+              </li>
+              <li class="audit__trust-item">
+                <Icon name="shield" size={16} class="audit__trust-icon" />
+                <span>Solo <strong>8 cupos por trimestre</strong> — disponibilidad limitada.</span>
+              </li>
+            </ul>
+
+            {trustTestimonio && (
+              <blockquote class="audit__trust-quote">
+                {trustTestimonio.cita && <p>&ldquo;{trustTestimonio.cita}&rdquo;</p>}
+                <footer>
+                  {trustTestimonio.roleLabel && <span class="audit__trust-role">{trustTestimonio.roleLabel}</span>}
+                  <span class="audit__trust-metrica">{trustTestimonio.metrica}</span>
+                </footer>
+              </blockquote>
+            )}
           </div>
         </section>
 
@@ -830,6 +867,78 @@ const TOTAL_STEPS = 6;
   .audit__nofit-link {
     color: var(--color-primary, #003366);
     font-weight: 600;
+  }
+
+  /* M6 (TC-02) — reversión de riesgo + prueba social junto al submit del paso 6. */
+  .audit__trust {
+    margin-top: 1.5rem;
+    padding: 1rem 1.125rem;
+    border: 1px solid var(--color-border, #d0d7de);
+    border-radius: 8px;
+    background: var(--color-primary-soft, #f0f4f8);
+    display: flex;
+    flex-direction: column;
+    gap: 0.875rem;
+  }
+
+  .audit__trust-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .audit__trust-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    font-size: 0.8125rem;
+    line-height: 1.45;
+    color: var(--color-text-muted, #555);
+  }
+
+  .audit__trust-icon {
+    flex-shrink: 0;
+    margin-top: 0.1rem;
+    color: var(--color-primary, #003366);
+    opacity: 0.8;
+  }
+
+  .audit__trust-item strong {
+    color: var(--color-text, #1a1a1a);
+  }
+
+  .audit__trust-quote {
+    margin: 0;
+    padding-top: 0.875rem;
+    border-top: 1px solid var(--color-border, #d0d7de);
+  }
+
+  .audit__trust-quote p {
+    margin: 0 0 0.5rem;
+    font-style: italic;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: var(--color-text, #1a1a1a);
+  }
+
+  .audit__trust-quote footer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.8125rem;
+  }
+
+  .audit__trust-role {
+    font-weight: 600;
+    color: var(--color-primary-dark, #214971);
+  }
+
+  .audit__trust-metrica {
+    color: var(--color-text, #1a1a1a);
   }
 
   .sr-only {
