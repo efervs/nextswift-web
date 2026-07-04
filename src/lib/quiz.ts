@@ -2,10 +2,16 @@
  * Quiz "Diagnóstico de fuga de margen" — lógica determinística.
  * P11 / Fase 13. Consumido por src/pages/diagnostico.astro.
  *
- * TODO DH-NEW-02: las 10 preguntas y los pesos abajo son PLACEHOLDER.
+ * TODO DH-NEW-02: las 8 preguntas y los pesos abajo son PLACEHOLDER.
  * Cuando Efer entregue el documento DH-NEW-02 (lista canónica de 8-12 preguntas
  * + mapeo a 3 recomendaciones por arquetipo), se reemplaza este archivo.
  * Mientras tanto el quiz es funcional pero el output es coherente, no canónico.
+ *
+ * M7 (plan_de_mejoras_v3.md): todas las preguntas numéricas se capturan por RANGO
+ * (radio), no por input abierto — el punto medio (o la fracción, para delivery)
+ * del rango elegido alimenta el cálculo. `ticket_promedio` y `comensales_dia` se
+ * retiraron del quiz (la primera por ser el componente de menor peso y sin atarse
+ * a ningún arquetipo; la segunda porque nunca se usó en el cálculo).
  */
 
 export type RotacionLevel = 'alta' | 'media' | 'baja';
@@ -14,7 +20,7 @@ export type CuelloDolor = 'utilidad' | 'ventas' | 'personal' | 'control';
 
 /**
  * Una respuesta tipada del quiz. El `id` identifica la pregunta;
- * el `value` se interpreta según el tipo declarado en QUESTIONS.
+ * el `value` es el `value` de la opción de radio elegida (string).
  */
 export interface QuizAnswer {
   id: string;
@@ -22,14 +28,12 @@ export interface QuizAnswer {
 }
 
 export interface QuizInputs {
-  ventas_totales: number;       // MXN/mes
-  ventas_delivery: number;      // MXN/mes
-  comision_delivery: number;    // %
-  food_cost: number;            // %
-  ticket_promedio: number;      // MXN
-  comensales_dia: number;       // unidades
+  ventas_totales: number;       // MXN/mes (punto medio del rango elegido)
+  ventas_delivery: number;      // MXN/mes (derivado: % del rango elegido × ventas_totales)
+  comision_delivery: number;    // % (punto medio del rango; "no lo sé" -> 22, neutral)
+  food_cost: number;            // % (punto medio del rango; "no lo sé" -> 32, neutral)
   rotacion_personal: RotacionLevel;
-  horas_dueno: number;          // h/semana
+  horas_dueno: number;          // h/semana (punto medio del rango elegido)
   revision_pnl: RevisionPnL;
   cuello: CuelloDolor;
 }
@@ -41,93 +45,86 @@ export interface QuizResult {
 }
 
 /**
- * Catálogo de preguntas (10 placeholders).
+ * Catálogo de preguntas (8 placeholders, todas por rango/radio — M7).
  * Renderizado por diagnostico.astro 1 por pantalla.
  */
 export interface QuizQuestion {
   id: keyof QuizInputs;
   label: string;
   helper?: string;
+  // M7: las 8 preguntas actuales son 'radio'. 'number' se conserva en el tipo
+  // (con sus props asociadas) porque diagnostico.astro ya sabe renderizar y
+  // validar ese caso — no se elimina infraestructura genérica preexistente
+  // que un futuro Q pueda volver a necesitar.
   type: 'number' | 'radio';
   inputmode?: 'numeric' | 'decimal';
   min?: number;
   max?: number;
   step?: number;
   unit?: string;                // sufijo visual ($, %, h)
-  options?: { value: string; label: string }[];
+  /**
+   * `numericValue` alimenta el cálculo cuando el campo destino es numérico
+   * (punto medio del rango; para `ventas_delivery` es una fracción 0-1, no MXN).
+   * Ausente en preguntas categóricas (rotacion_personal, revision_pnl, cuello).
+   */
+  options?: { value: string; label: string; numericValue?: number }[];
   required: true;
 }
 
 export const QUESTIONS: QuizQuestion[] = [
   {
     id: 'ventas_totales',
-    label: '¿Cuánto factura su restaurante al mes?',
-    helper: 'Ventas brutas totales (sala + delivery + eventos) en MXN.',
-    type: 'number',
-    inputmode: 'numeric',
-    min: 50000,
-    max: 5000000,
-    step: 10000,
-    unit: '$',
+    label: '¿Cuánto factura su restaurante al mes (bruto, todas las plataformas)?',
+    helper: 'Ventas brutas totales: sala + delivery + eventos.',
+    type: 'radio',
+    options: [
+      { value: '<300k', label: 'Menos de $300,000 / mes', numericValue: 150000 },
+      { value: '300k-500k', label: '$300,000 – $500,000 / mes', numericValue: 400000 },
+      { value: '500k-1M', label: '$500,000 – $1,000,000 / mes', numericValue: 750000 },
+      { value: '1M-2M', label: '$1,000,000 – $2,000,000 / mes', numericValue: 1500000 },
+      { value: '>2M', label: 'Más de $2,000,000 / mes', numericValue: 2500000 },
+    ],
     required: true,
   },
   {
     id: 'ventas_delivery',
-    label: 'De esas ventas, ¿cuánto entra por plataformas de delivery?',
-    helper: 'Rappi + Uber Eats + DiDi + propias. Si no usa, ponga 0.',
-    type: 'number',
-    inputmode: 'numeric',
-    min: 0,
-    max: 5000000,
-    step: 5000,
-    unit: '$',
+    label: 'De esas ventas, ¿qué % aproximado entra por plataformas de delivery?',
+    helper: 'Rappi + Uber Eats + DiDi + propias. Si no usa delivery, elija la primera opción.',
+    type: 'radio',
+    options: [
+      { value: '0', label: 'No uso delivery (0%)', numericValue: 0 },
+      { value: '1-20', label: 'Poco — menos de 20% de mis ventas', numericValue: 0.1 },
+      { value: '21-40', label: 'Considerable — 20% a 40% de mis ventas', numericValue: 0.3 },
+      { value: '>40', label: 'La mayoría — más de 40% de mis ventas', numericValue: 0.5 },
+    ],
     required: true,
   },
   {
     id: 'comision_delivery',
-    label: '¿Qué % de comisión paga en promedio a las plataformas?',
-    helper: 'Incluya comisión + costo de promociones forzadas. Si no usa, ponga 0.',
-    type: 'number',
-    inputmode: 'numeric',
-    min: 0,
-    max: 45,
-    step: 1,
-    unit: '%',
+    label: '¿Qué % de comisión paga en promedio a esas plataformas?',
+    helper: 'Incluya comisión + costo de promociones forzadas.',
+    type: 'radio',
+    options: [
+      { value: '<=18', label: '18% o menos', numericValue: 15 },
+      { value: '19-22', label: '19% a 22%', numericValue: 20 },
+      { value: '23-30', label: '23% a 30%', numericValue: 26 },
+      { value: '>30', label: 'Más de 30%', numericValue: 35 },
+      { value: 'no_se', label: 'No lo sé / no uso delivery', numericValue: 22 },
+    ],
     required: true,
   },
   {
     id: 'food_cost',
     label: '¿Cuál es su food cost actual aproximado?',
-    helper: 'Costo de materia prima sobre venta. Si no lo calcula, estime entre 30-40%.',
-    type: 'number',
-    inputmode: 'numeric',
-    min: 15,
-    max: 60,
-    step: 1,
-    unit: '%',
-    required: true,
-  },
-  {
-    id: 'ticket_promedio',
-    label: '¿Cuál es su ticket promedio por mesa?',
-    helper: 'Total cuenta dividido entre número de mesas (no por comensal).',
-    type: 'number',
-    inputmode: 'numeric',
-    min: 80,
-    max: 5000,
-    step: 10,
-    unit: '$',
-    required: true,
-  },
-  {
-    id: 'comensales_dia',
-    label: '¿Cuántos comensales atiende en un día promedio?',
-    helper: 'Personas, no mesas. Promedio semanal.',
-    type: 'number',
-    inputmode: 'numeric',
-    min: 10,
-    max: 2000,
-    step: 5,
+    helper: 'Costo de materia prima sobre venta.',
+    type: 'radio',
+    options: [
+      { value: '<28', label: 'Menos de 28%', numericValue: 26 },
+      { value: '28-32', label: '28% a 32%', numericValue: 30 },
+      { value: '33-38', label: '33% a 38%', numericValue: 35 },
+      { value: '>38', label: 'Más de 38%', numericValue: 42 },
+      { value: 'no_se', label: 'No lo sé', numericValue: 32 },
+    ],
     required: true,
   },
   {
@@ -146,12 +143,13 @@ export const QUESTIONS: QuizQuestion[] = [
     id: 'horas_dueno',
     label: '¿Cuántas horas a la semana está usted dentro de la operación directa?',
     helper: 'No incluye administración ni juntas. Solo piso + cocina + caja.',
-    type: 'number',
-    inputmode: 'numeric',
-    min: 0,
-    max: 100,
-    step: 1,
-    unit: 'h',
+    type: 'radio',
+    options: [
+      { value: '<=40', label: '40 horas o menos — el equipo corre el piso', numericValue: 30 },
+      { value: '41-60', label: '41 a 60 horas', numericValue: 50 },
+      { value: '61-80', label: '61 a 80 horas', numericValue: 70 },
+      { value: '>80', label: 'Más de 80 horas — estoy en todos los turnos', numericValue: 90 },
+    ],
     required: true,
   },
   {
@@ -183,16 +181,19 @@ export const QUESTIONS: QuizQuestion[] = [
 ];
 
 /**
- * Toma respuestas crudas y produce inputs tipados.
- * Inválidos o ausentes → 0 (numéricos) o defaults seguros (categóricos).
+ * Toma respuestas crudas (siempre el `value` de una opción de radio) y produce
+ * inputs tipados. Inválidos o ausentes → default neutral de cada pregunta
+ * (mismo valor que usaría la opción "no lo sé" cuando existe).
  */
 export function answersToInputs(answers: QuizAnswer[]): QuizInputs {
   const map = new Map(answers.map((a) => [a.id, a.value]));
 
-  const n = (id: string, fallback = 0) => {
-    const v = map.get(id);
-    const parsed = typeof v === 'number' ? v : parseFloat(String(v ?? ''));
-    return Number.isFinite(parsed) && parsed >= 0 ? parsed : fallback;
+  // Traduce el `value` elegido a su `numericValue` declarado en QUESTIONS.
+  const optionNumber = (id: string, fallback: number): number => {
+    const q = QUESTIONS.find((q) => q.id === id);
+    const raw = map.get(id);
+    const opt = q?.options?.find((o) => o.value === String(raw ?? ''));
+    return opt?.numericValue ?? fallback;
   };
 
   const s = <T extends string>(id: string, valid: readonly T[], fallback: T): T => {
@@ -200,15 +201,17 @@ export function answersToInputs(answers: QuizAnswer[]): QuizInputs {
     return (valid as readonly string[]).includes(v) ? (v as T) : fallback;
   };
 
+  // 400,000 = punto medio del rango "300k-500k" (fallback conservador si falta la respuesta).
+  const ventasTotales = optionNumber('ventas_totales', 400000);
+  const deliveryShareFrac = optionNumber('ventas_delivery', 0);
+
   return {
-    ventas_totales: n('ventas_totales'),
-    ventas_delivery: n('ventas_delivery'),
-    comision_delivery: n('comision_delivery'),
-    food_cost: n('food_cost'),
-    ticket_promedio: n('ticket_promedio'),
-    comensales_dia: n('comensales_dia'),
+    ventas_totales: ventasTotales,
+    ventas_delivery: ventasTotales * deliveryShareFrac,
+    comision_delivery: optionNumber('comision_delivery', 22),
+    food_cost: optionNumber('food_cost', 32),
     rotacion_personal: s<RotacionLevel>('rotacion_personal', ['alta', 'media', 'baja'] as const, 'media'),
-    horas_dueno: n('horas_dueno'),
+    horas_dueno: optionNumber('horas_dueno', 30),
     revision_pnl: s<RevisionPnL>('revision_pnl', ['semanal', 'mensual', 'trimestral', 'nunca'] as const, 'mensual'),
     cuello: s<CuelloDolor>('cuello', ['utilidad', 'ventas', 'personal', 'control'] as const, 'utilidad'),
   };
@@ -222,7 +225,6 @@ export function answersToInputs(answers: QuizAnswer[]): QuizInputs {
  *  - rotación: alta = 3% de ventas, media = 1%
  *  - control P&L: nunca = 4%, trimestral = 2%, mensual = 0.5%
  *  - dueño atrapado: >60h en operación = 2%
- *  - ticket: <180 o sin upsell = 1%
  *
  * Output redondeado a múltiplos de $5,000 para honestidad (no falsa precisión).
  *
@@ -259,10 +261,6 @@ export function computeMarginLeak(inputs: QuizInputs): QuizResult {
   else if (inputs.revision_pnl === 'mensual') leak += ventas * 0.005;
 
   if (inputs.horas_dueno > 60) leak += ventas * 0.02;
-
-  if (inputs.ticket_promedio > 0 && inputs.ticket_promedio < 180) {
-    leak += ventas * 0.01;
-  }
 
   const cap = ventas * 0.25;
   leak = Math.min(leak, cap);
@@ -312,12 +310,6 @@ function pickRecommendations(inputs: QuizInputs): string[] {
   if (inputs.horas_dueno > 60) {
     picks.push(
       `Diseñar sistema operativo que libere al dueño en 6-8 semanas. Hoy ${inputs.horas_dueno}h/sem en operación directa es trampa de capacidad, no compromiso.`,
-    );
-  }
-
-  if (inputs.ticket_promedio > 0 && inputs.ticket_promedio < 180) {
-    picks.push(
-      `Reingeniería de menú por mix de margen + script de upsell estructurado. Ticket promedio $${inputs.ticket_promedio} es bajo para sostener food cost y labor mexicanos.`,
     );
   }
 

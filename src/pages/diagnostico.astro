@@ -4,11 +4,17 @@
  * P11 / Fase 13. Spec: PLAN_IMPLEMENTACION_NEXTSWIFT_CONDENSADO.md §P11.
  *
  * Spec resumido:
- * - 10 preguntas placeholder (TODO DH-NEW-02) + 1 paso captura email/WA + 1 paso resultado.
+ * - 8 preguntas placeholder (TODO DH-NEW-02), todas por rango/radio (M7) + 1 paso captura email/WA + 1 paso resultado.
  * - JS vanilla. State en memoria + sessionStorage. Sin framework.
  * - Cálculo determinístico en src/lib/quiz.ts (no aleatorio).
  * - Submit -> POST mocked /api/lead.ts (P13 entrega endpoint real) + Pixel Lead + CAPI Lead dedup por event_id.
  * - CTA primario al resultado: /auditoria (404 hasta P13). CTA ghost: wa.me UTM-prefilled (P12 entregará helper).
+ *
+ * M7 (plan_de_mejoras_v3.md, TC-03/TC-04): la fricción TOFU estaba invertida — el
+ * quiz gratuito abría con facturación exacta en input abierto mientras el BOFU
+ * (/auditoria) ya usaba rangos para lo mismo. Se nivela: paso 1 (y el resto de
+ * preguntas numéricas) por rango/radio, con "no lo sé" neutral en food cost y
+ * comisión de delivery. Detalle de la fórmula en src/lib/quiz.ts.
  */
 import Base from '../layouts/Base.astro';
 import Section from '../components/ui/Section.astro';
@@ -29,20 +35,20 @@ const waPrefillUrl = buildWaUrl({
 
 <Base
   title="Diagnóstico de fuga de margen — NextSwift"
-  description="Responda 10 preguntas y reciba un estimado personalizado de cuánto pierde su restaurante al mes — más 3 recomendaciones específicas. 3-5 minutos, sin sesión de ventas."
+  description={`Responda ${QUESTIONS.length} preguntas rápidas (todas de opción múltiple) y reciba un estimado personalizado de cuánto pierde su restaurante al mes — más 3 recomendaciones específicas. 1-2 minutos, sin sesión de ventas.`}
   noindex={true}
 >
   <Section width="narrow" spacing="lg" id="quiz-section">
     <header class="quiz-header">
-      <Eyebrow>Diagnóstico · 3-5 minutos</Eyebrow>
+      <Eyebrow>Diagnóstico · 1-2 minutos</Eyebrow>
       <Heading as="h1" size="h1">Diagnóstico de fuga de margen</Heading>
       <Body size="lead" tone="muted">
-        Responda {QUESTIONS.length} preguntas y le devolvemos un estimado del dinero que pierde su restaurante al mes,
-        más 3 recomendaciones específicas. Sin sesión de ventas.
+        Responda {QUESTIONS.length} preguntas de opción múltiple y le devolvemos un estimado del dinero que pierde
+        su restaurante al mes, más 3 recomendaciones específicas. Sin sesión de ventas.
       </Body>
     </header>
 
-    {/* TODO DH-NEW-02: reemplazar las 10 preguntas placeholder por la lista canónica que Efer entregará. */}
+    {/* TODO DH-NEW-02: reemplazar las 8 preguntas placeholder por la lista canónica que Efer entregará. */}
     <div
       id="quiz"
       class="quiz"
