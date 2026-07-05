@@ -241,6 +241,7 @@ const waPrefillUrl = buildWaUrl({
 
   const STORAGE_KEY = 'nextswift_quiz_state_v1';
   const PIXEL_EVENT = 'Lead';
+  const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
   type State = {
     step: number;                     // 1..totalSteps
@@ -435,6 +436,62 @@ const waPrefillUrl = buildWaUrl({
     if (errEl) errEl.textContent = '';
   }
 
+  // M9 (TC-08/TC-09): extraídas para poder validar en blur (feedback inmediato) y en
+  // validateAndCommit (red de seguridad al pulsar Siguiente/Enviar) sin duplicar mensajes.
+  function validateEmailField(): boolean {
+    const input = document.getElementById('q-email') as HTMLInputElement;
+    const err = document.getElementById('q-email-error');
+    const email = input.value.trim();
+    if (!email || !EMAIL_RE.test(email)) {
+      if (err) err.textContent = 'Ingrese un correo válido.';
+      return false;
+    }
+    if (err) err.textContent = '';
+    return true;
+  }
+
+  function validateWaField(): boolean {
+    const input = document.getElementById('q-wa') as HTMLInputElement;
+    const err = document.getElementById('q-wa-error');
+    const wa = input.value.trim().replace(/\D/g, '');
+    // M13: WA opcional en TOFU; solo validar formato si el usuario lo escribió.
+    if (wa && (wa.length < 10 || wa.length > 13)) {
+      if (err) err.textContent = 'Ingrese 10 dígitos (sin lada internacional).';
+      return false;
+    }
+    if (err) err.textContent = '';
+    return true;
+  }
+
+  document.getElementById('q-email')?.addEventListener('blur', validateEmailField);
+  document.getElementById('q-wa')?.addEventListener('blur', validateWaField);
+
+  // M9 — min/max en blur para preguntas 'number' (infra genérica de quiz.ts; sin uso
+  // activo hoy porque las 8 preguntas actuales son 'radio', ver M7). focusout burbujea,
+  // a diferencia de blur, por eso se delega en quizRoot en vez de por input.
+  quizRoot.addEventListener('focusout', (ev) => {
+    const target = ev.target as HTMLElement;
+    if (!(target instanceof HTMLInputElement) || target.type !== 'number') return;
+    const section = target.closest<HTMLElement>('.quiz__step');
+    if (!section || section.dataset.questionType !== 'number') return;
+    const q = QUESTIONS.find((qq) => qq.id === section.dataset.questionId);
+    const errEl = section.querySelector<HTMLElement>('.quiz__error');
+    if (!q || !errEl) return;
+    const raw = target.value.trim();
+    if (raw === '') return; // vacío lo cubre la red de seguridad al avanzar
+    const num = Number(raw);
+    if (!Number.isFinite(num)) return;
+    if (q.min !== undefined && num < q.min) {
+      errEl.textContent = `Mínimo aceptado: ${q.min}.`;
+      return;
+    }
+    if (q.max !== undefined && num > q.max) {
+      errEl.textContent = `Máximo aceptado: ${q.max}.`;
+      return;
+    }
+    errEl.textContent = '';
+  });
+
   function validateAndCommit(): boolean {
     const currentSection = steps.find((s) => Number(s.dataset.step) === state.step) ?? null;
     clearError(currentSection);
@@ -462,27 +519,11 @@ const waPrefillUrl = buildWaUrl({
     }
 
     if (state.step === captureStepIdx) {
-      const email = (document.getElementById('q-email') as HTMLInputElement).value.trim();
-      const wa = (document.getElementById('q-wa') as HTMLInputElement).value.trim().replace(/\D/g, '');
-      const emailErr = document.getElementById('q-email-error');
-      const waErr = document.getElementById('q-wa-error');
-      let ok = true;
-      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-        if (emailErr) emailErr.textContent = 'Ingrese un correo válido.';
-        ok = false;
-      } else if (emailErr) {
-        emailErr.textContent = '';
-      }
-      // M13: WA opcional en TOFU; solo validar formato si el usuario lo escribió.
-      if (wa && (wa.length < 10 || wa.length > 13)) {
-        if (waErr) waErr.textContent = 'Ingrese 10 dígitos (sin lada internacional).';
-        ok = false;
-      } else if (waErr) {
-        waErr.textContent = '';
-      }
-      if (!ok) return false;
-      state.answers.email = email;
-      state.answers.whatsapp = wa;
+      const emailOk = validateEmailField();
+      const waOk = validateWaField();
+      if (!emailOk || !waOk) return false;
+      state.answers.email = (document.getElementById('q-email') as HTMLInputElement).value.trim();
+      state.answers.whatsapp = (document.getElementById('q-wa') as HTMLInputElement).value.trim().replace(/\D/g, '');
       return true;
     }
 

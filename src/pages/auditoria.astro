@@ -491,6 +491,45 @@ const trustTestimonio = testimonioByObjecion('teoria-vs-implementacion');
     return checked ? checked.value : null;
   }
 
+  // M9 (TC-08/TC-09): extraídas para poder validar en blur (feedback inmediato) y en
+  // validateStep (red de seguridad al pulsar Siguiente/Enviar) sin duplicar mensajes.
+  function validateUnitsField(): boolean {
+    const v = (form!.elements.namedItem('units') as HTMLInputElement).value.trim();
+    const num = Number(v);
+    if (!v || !Number.isFinite(num) || num < 1 || num > 999) {
+      setError(3, 'q-units-error', 'Ingrese un número entre 1 y 999.');
+      return false;
+    }
+    setError(3, 'q-units-error', '');
+    return true;
+  }
+
+  function validateEmailField(): boolean {
+    const email = (form!.elements.namedItem('email') as HTMLInputElement).value.trim().toLowerCase();
+    if (!email || !EMAIL_RE.test(email)) {
+      setError(6, 'q-email-error', 'Correo inválido.');
+      return false;
+    }
+    setError(6, 'q-email-error', '');
+    return true;
+  }
+
+  function validateWaField(): boolean {
+    const wa = (form!.elements.namedItem('whatsapp') as HTMLInputElement).value.trim();
+    const digits = wa.replace(/\D/g, '');
+    const tenDigits = digits.length === 10 || (digits.length === 12 && digits.startsWith('52'));
+    if (!wa || !tenDigits) {
+      setError(6, 'q-whatsapp-error', 'WhatsApp: 10 dígitos (con o sin +52).');
+      return false;
+    }
+    setError(6, 'q-whatsapp-error', '');
+    return true;
+  }
+
+  (form.elements.namedItem('units') as HTMLInputElement)?.addEventListener('blur', validateUnitsField);
+  (form.elements.namedItem('email') as HTMLInputElement)?.addEventListener('blur', validateEmailField);
+  (form.elements.namedItem('whatsapp') as HTMLInputElement)?.addEventListener('blur', validateWaField);
+
   function validateStep(n: number): boolean {
     clearError(n);
     if (n === 1) {
@@ -504,13 +543,7 @@ const trustTestimonio = testimonioByObjecion('teoria-vs-implementacion');
       return true;
     }
     if (n === 3) {
-      const v = (form!.elements.namedItem('units') as HTMLInputElement).value.trim();
-      const num = Number(v);
-      if (!v || !Number.isFinite(num) || num < 1 || num > 999) {
-        setError(3, 'q-units-error', 'Ingrese un número entre 1 y 999.');
-        return false;
-      }
-      return true;
+      return validateUnitsField();
     }
     if (n === 4) {
       const v = getRadioValue('decisor_role');
@@ -523,23 +556,15 @@ const trustTestimonio = testimonioByObjecion('teoria-vs-implementacion');
       return true;
     }
     if (n === 6) {
-      const email = (form!.elements.namedItem('email') as HTMLInputElement).value.trim().toLowerCase();
-      const wa = (form!.elements.namedItem('whatsapp') as HTMLInputElement).value.trim();
+      const emailOk = validateEmailField();
+      const waOk = validateWaField();
       const privacy = (form!.elements.namedItem('privacy_accepted') as HTMLInputElement)?.checked;
-      let ok = true;
-      if (!email || !EMAIL_RE.test(email)) {
-        setError(6, 'q-email-error', 'Correo inválido.');
-        ok = false;
-      }
-      const digits = wa.replace(/\D/g, '');
-      const tenDigits = digits.length === 10 || (digits.length === 12 && digits.startsWith('52'));
-      if (!wa || !tenDigits) {
-        setError(6, 'q-whatsapp-error', 'WhatsApp: 10 dígitos (con o sin +52).');
-        ok = false;
-      }
+      let ok = emailOk && waOk;
       if (!privacy) {
         setError(6, 'q-privacy-error', 'Debe aceptar el Aviso de Privacidad para continuar.');
         ok = false;
+      } else {
+        setError(6, 'q-privacy-error', '');
       }
       return ok;
     }
