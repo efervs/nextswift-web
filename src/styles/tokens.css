@@ -35,6 +35,14 @@
   --color-border-strong:  var(--color-neutral-700);
   --color-focus-ring:     var(--color-accent);
 
+  /* ----- Color · Estados de sistema (M11) --------------------------------
+     Funcionales, NO de marca: comunican error/éxito/advertencia y no violan
+     la paleta congelada (§2 regla 3). Verificados AA (>=4.5:1) como texto
+     sobre --color-surface / --color-surface-alt. */
+  --color-error:   #B3261E;  /* 6.53:1 sobre blanco — mensajes de validación */
+  --color-success: #2E7D32;  /* 5.13:1 sobre blanco */
+  --color-warning: #B25000;  /* 5.2:1 sobre blanco — el ambar estandar falla AA */
+
   /* ----- Tipografía ------------------------------------------------------- */
   --font-heading:    'Oswald Variable', 'Oswald', system-ui, sans-serif;
   --font-subheading: 'Source Sans Pro', system-ui, sans-serif;
