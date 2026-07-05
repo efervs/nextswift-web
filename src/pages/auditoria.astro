@@ -362,6 +362,7 @@ const trustTestimonio = testimonioByObjecion('teoria-vs-implementacion');
 
 <script>
   import { readUTMFromSessionStorage } from '../lib/utm';
+  import { readQuizHandoff } from '../lib/quiz';
 
   const PIXEL_EVENT = 'CompleteRegistration';
   const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -404,8 +405,30 @@ const trustTestimonio = testimonioByObjecion('teoria-vs-implementacion');
     (document.getElementById('quiz_event_id') as HTMLInputElement).value = eidFromQuiz;
   }
 
+  // M8 (TC-05): si llega del CTA del quiz y el handoff sigue en sessionStorage,
+  // prefila salesrange/painprimary y saltamos los pasos 1-2 (BOFU de 6 a 4 pasos
+  // para el lead ya calificado por el quiz). Match parcial (solo uno de los dos
+  // valores reconocido) se trata como catálogo desalineado: no se salta nada.
+  let visible = [1, 2, 3, 4, 5, 6];
+  let nofitFromHandoff = false;
+  if (urlParams.get('from') === 'diagnostico') {
+    const handoff = readQuizHandoff();
+    if (handoff) {
+      const salesRadio = Array.from(form.querySelectorAll<HTMLInputElement>('input[name="salesrange"]'))
+        .find((el) => el.value === handoff.salesrange);
+      const painRadio = Array.from(form.querySelectorAll<HTMLInputElement>('input[name="painprimary"]'))
+        .find((el) => el.value === handoff.painprimary);
+      if (salesRadio && painRadio) {
+        salesRadio.checked = true;
+        painRadio.checked = true;
+        visible = [3, 4, 5, 6];
+        nofitFromHandoff = salesRadio.dataset.disqualify === 'true';
+      }
+    }
+  }
+
   type State = { step: number; nofit: boolean };
-  let state: State = { step: 1, nofit: false };
+  let state: State = { step: visible[0], nofit: nofitFromHandoff };
 
   function stepEl(n: number | 'nofit'): HTMLElement | undefined {
     return steps.find((s) => s.dataset.step === String(n));
@@ -431,20 +454,22 @@ const trustTestimonio = testimonioByObjecion('teoria-vs-implementacion');
       nofitHeading?.focus({ preventScroll: false });
       return;
     }
+    const idx = visible.indexOf(state.step);
+    const total = visible.length;
     const activeStep = stepEl(state.step)!;
     activeStep.hidden = false;
     activeStep.setAttribute('aria-current', 'step');
-    btnBack.hidden = state.step === 1;
-    btnNext.hidden = state.step === TOTAL_STEPS;
-    btnSubmit.hidden = state.step !== TOTAL_STEPS;
-    stepLabel.textContent = `Paso ${state.step} de ${TOTAL_STEPS}`;
-    const pct = Math.round(((state.step - 1) / TOTAL_STEPS) * 100);
+    btnBack.hidden = idx === 0;
+    btnNext.hidden = idx === total - 1;
+    btnSubmit.hidden = idx !== total - 1;
+    stepLabel.textContent = `Paso ${idx + 1} de ${total}`;
+    const pct = Math.round((idx / total) * 100);
     stepPct.textContent = `${pct}%`;
     progress.value = pct;
     // M16 — anunciar la pregunta y mover el foco al encabezado del paso (no al input): el lector
     // lee el contexto antes del control; el Tab posterior lleva al primer input visible.
     const heading = activeStep.querySelector<HTMLElement>('h2.audit__q-label');
-    announce(`Paso ${state.step} de ${TOTAL_STEPS}: ${heading?.textContent?.trim() ?? ''}`);
+    announce(`Paso ${idx + 1} de ${total}: ${heading?.textContent?.trim() ?? ''}`);
     if (heading) heading.focus({ preventScroll: false });
   }
 
@@ -532,13 +557,19 @@ const trustTestimonio = testimonioByObjecion('teoria-vs-implementacion');
 
   btnNext.addEventListener('click', () => {
     if (!validateStep(state.step)) return;
-    state.step = Math.min(state.step + 1, TOTAL_STEPS);
-    render();
+    const idx = visible.indexOf(state.step);
+    if (idx < visible.length - 1) {
+      state.step = visible[idx + 1];
+      render();
+    }
   });
 
   btnBack.addEventListener('click', () => {
-    state.step = Math.max(state.step - 1, 1);
-    render();
+    const idx = visible.indexOf(state.step);
+    if (idx > 0) {
+      state.step = visible[idx - 1];
+      render();
+    }
   });
 
   // Enter avanza salvo en radio fieldset (que ya tiene su navegación natural)

@@ -338,6 +338,64 @@ function pickRecommendations(inputs: QuizInputs): string[] {
 }
 
 /**
+ * M8 (plan_de_mejoras_v3.md, TC-05): handoff quiz -> /auditoria.
+ *
+ * El quiz limpia su propio sessionStorage (STORAGE_KEY en diagnostico.astro) al
+ * enviar, por privacidad de las respuestas. Esta clave separada sobrevive ese
+ * borrado el tiempo justo para que /auditoria no vuelva a preguntar facturación
+ * ni dolor a un lead que acaba de responder 8 preguntas.
+ *
+ * `salesrange` viaja como el `value` crudo de la pregunta `ventas_totales`
+ * (catálogo de buckets idéntico a SALES_OPTIONS en auditoria.astro: '<300k',
+ * '300k-500k', '500k-1M', '1M-2M', '>2M' — mismo piso de calificación $300k).
+ * `painprimary` no comparte catálogo con `cuello` (ver cuelloToPainPrimary).
+ */
+export const QUIZ_HANDOFF_KEY = 'nextswift_quiz_handoff_v1';
+
+export interface QuizHandoff {
+  salesrange: string;
+  painprimary: string;
+}
+
+/**
+ * cuello (quiz) -> painprimary (auditoria). Catálogos de valor distintos por
+ * historial de copy independiente entre ambos formularios; mapeo semántico
+ * explícito en vez de compartir el enum.
+ */
+export function cuelloToPainPrimary(cuello: CuelloDolor): string {
+  const map: Record<CuelloDolor, string> = {
+    utilidad: 'utilidad',
+    ventas: 'ventas-delivery',
+    personal: 'personal',
+    control: 'metricas-control',
+  };
+  return map[cuello];
+}
+
+export function writeQuizHandoff(handoff: QuizHandoff): void {
+  if (typeof window === 'undefined') return;
+  try {
+    sessionStorage.setItem(QUIZ_HANDOFF_KEY, JSON.stringify(handoff));
+  } catch {
+    // sessionStorage puede no estar disponible (modo privado iOS); /auditoria
+    // degrada a preguntar los 6 pasos normales cuando no encuentra la clave.
+  }
+}
+
+export function readQuizHandoff(): QuizHandoff | null {
+  if (typeof window === 'undefined') return null;
+  try {
+    const raw = sessionStorage.getItem(QUIZ_HANDOFF_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as Partial<QuizHandoff>;
+    if (typeof parsed?.salesrange !== 'string' || typeof parsed?.painprimary !== 'string') return null;
+    return { salesrange: parsed.salesrange, painprimary: parsed.painprimary };
+  } catch {
+    return null;
+  }
+}
+
+/**
  * Arquetipo plain language para el H2 del resultado.
  * Determinístico — la mayor fuga gana.
  */

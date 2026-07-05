@@ -233,6 +233,8 @@ const waPrefillUrl = buildWaUrl({
     QUESTIONS,
     answersToInputs,
     computeMarginLeak,
+    cuelloToPainPrimary,
+    writeQuizHandoff,
     type QuizAnswer,
     type QuizResult,
   } from '../lib/quiz';
@@ -599,6 +601,13 @@ const waPrefillUrl = buildWaUrl({
       });
     } catch (err) {
       console.warn('[quiz] CAPI Lead falló.', err);
+    }
+
+    // M8 (TC-05): persiste facturación + dolor ANTES de limpiar, para que /auditoria
+    // no vuelva a preguntarlos (handoff sobrevive el borrado de STORAGE_KEY de abajo).
+    const salesrange = String(state.answers.ventas_totales ?? '');
+    if (salesrange) {
+      writeQuizHandoff({ salesrange, painprimary: cuelloToPainPrimary(inputs.cuello) });
     }
 
     // Limpia el state antes de mostrar resultado para que un nuevo quiz parta limpio
