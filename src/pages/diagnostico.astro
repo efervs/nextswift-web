@@ -822,7 +822,7 @@ const waPrefillUrl = buildWaUrl({
     font-size: 0.875em;
   }
   .quiz__q-num {
-    color: var(--color-primary);
+    color: var(--color-primary-dark);  /* M12 (TA-06): era --color-primary (#4A90E2 = 3.29:1); primary-dark = 9.3:1 */
     font-feature-settings: 'tnum';
     margin-right: 0.25em;
   }
@@ -887,7 +887,7 @@ const waPrefillUrl = buildWaUrl({
   .quiz__radio:hover { background: var(--color-soft); }
   .quiz__radio input { margin-top: 0.25rem; flex-shrink: 0; }
   .quiz__radio:has(input:checked) {
-    border-color: var(--color-primary);
+    border-color: var(--color-primary-dark);  /* M12 (TA-06): era --color-primary (3.29:1), target <24px */
     background: var(--color-soft);
   }
   .quiz__radio:has(input:focus-visible) {

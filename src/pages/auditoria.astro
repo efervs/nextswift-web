@@ -792,7 +792,7 @@ const trustTestimonio = testimonioByObjecion('teoria-vs-implementacion');
   }
 
   .audit__radio:has(input:checked) {
-    border-color: var(--color-primary, #003366);
+    border-color: var(--color-primary-dark, #214971);  /* M12 (TA-06): era --color-primary (3.29:1), target <24px */
     background: var(--color-primary-soft, #f0f4f8);
   }
 
@@ -820,9 +820,9 @@ const trustTestimonio = testimonioByObjecion('teoria-vs-implementacion');
   }
 
   .audit__input:focus {
-    outline: 2px solid var(--color-primary, #003366);
+    outline: 2px solid var(--color-primary-dark, #214971);  /* M12 (TA-06): era --color-primary (3.29:1) */
     outline-offset: 2px;
-    border-color: var(--color-primary, #003366);
+    border-color: var(--color-primary-dark, #214971);
   }
 
   .audit__field {
