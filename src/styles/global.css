@@ -179,9 +179,9 @@ a:hover { color: var(--color-primary); }
   white-space: nowrap;
 }
 
-.btn--sm { font-size: 0.875rem; padding: 0.625rem 1rem; min-height: 2.5rem; border-radius: var(--radius-2); }
-.btn--md { font-size: 1rem;     padding: 0.875rem 1.5rem; min-height: 3rem;   border-radius: var(--radius-3); }
-.btn--lg { font-size: 1.0625rem; padding: 1.125rem 1.875rem; min-height: 3.5rem; border-radius: var(--radius-3); }
+.btn--sm { font-size: var(--btn-fs-sm); padding: var(--btn-pad-sm); min-height: var(--btn-h-sm); border-radius: var(--radius-2); }
+.btn--md { font-size: var(--btn-fs-md); padding: var(--btn-pad-md); min-height: var(--btn-h-md); border-radius: var(--radius-3); }
+.btn--lg { font-size: var(--btn-fs-lg); padding: var(--btn-pad-lg); min-height: var(--btn-h-lg); border-radius: var(--radius-3); }
 
 .btn--full { width: 100%; }
 

@@ -31,6 +31,11 @@ const { tone = 'accent', as: Tag = 'span', class: className = '' } = Astro.props
        evita la 3ª línea huérfana de los eyebrow largos en móvil. */
     text-wrap: balance;
   }
+  /* M14 (TA-08): 'accent' es el énfasis semántico (marca/CTA-adjacent), no el
+     valor crudo --color-accent — pintarlo con el cian crudo fallaría AA como
+     texto (1.47:1). Se documenta en vez de renombrar: el prop se consume con
+     tone="accent" (o por default) en ~20 paginas/componentes fuera del
+     alcance de M14; renombrarlo ahora rompería esos usos sin verificarlos. */
   .eyebrow--accent   { color: var(--color-primary-dark); }
   .eyebrow--neutral  { color: var(--color-text-muted); }
   .eyebrow--on-dark  { color: var(--color-accent); }

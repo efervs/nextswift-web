@@ -249,7 +249,7 @@ const headingId = `garantias-resumen-heading-${tone}`;
     color: var(--color-primary-dark);
     text-decoration: none;
     padding: var(--space-2) 0;
-    border-bottom: 2px solid var(--color-accent);
+    border-bottom: 2px solid var(--color-accent-on-light); /* M14 (TA-07): #3EEAF3 = 1.47:1 sobre claro, ahora 4.89:1 */
     min-height: 44px;
     display: inline-flex;
     align-items: center;
@@ -276,6 +276,9 @@ const headingId = `garantias-resumen-heading-${tone}`;
 
   .garantias-resumen--dark .garantias-resumen__link {
     color: var(--color-accent);
+    /* M14 (TA-07): accent-on-light es demasiado oscuro sobre navy (2.57:1, falla 3:1);
+       el accent crudo aquí sí cumple (8.57:1 sobre --color-dark-1) — se preserva. */
+    border-bottom-color: var(--color-accent);
   }
 
   .garantias-resumen__link:hover {

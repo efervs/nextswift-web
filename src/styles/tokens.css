@@ -83,6 +83,26 @@
   --content-max:    72rem;   /* 1152px — contenedor narrativo */
   --content-narrow: 44rem;   /* 704px  — bloques de lectura  */
 
+  /* ----- Botón / Badge · densidad (M14, TA-05) ----------------------------
+     SSOT de .btn--sm/md/lg (antes rem literales sueltos en global.css) y del
+     font-size de Badge (antes 0.8125rem suelto en Badge.astro). NO son
+     clamp()/fluidos a propósito: el prompt exige preservar el tamaño visible
+     actual de los botones (>=44px táctil en md/lg) y ningún valor de hoy
+     coincide en AMBOS extremos con un token existente de --space-* o --fs-*
+     (ver minuta M14) — se formalizan aquí en vez de forzar un mapeo que
+     movería el tamaño visible. Mismo patrón de tokens componente-scoped que
+     --header-height/--sticky-cta-mobile-h más abajo. */
+  --btn-fs-sm:  0.875rem;
+  --btn-fs-md:  1rem;
+  --btn-fs-lg:  1.0625rem;
+  --btn-pad-sm: 0.625rem 1rem;
+  --btn-pad-md: 0.875rem 1.5rem;
+  --btn-pad-lg: 1.125rem 1.875rem;
+  --btn-h-sm:   2.5rem;
+  --btn-h-md:   3rem;
+  --btn-h-lg:   3.5rem;
+  --badge-fs:   0.8125rem;
+
   /* padding-block mobile-first entre secciones (M14) */
   --section-gap-mobile: clamp(2rem, 5vh, 4rem);
 
