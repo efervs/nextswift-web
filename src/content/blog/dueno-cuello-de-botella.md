@@ -3,7 +3,6 @@ title: "Si te vas una semana y todo se cae, el problema no es el equipo"
 slug: dueno-cuello-de-botella
 date: 2026-05-16
 pillar: autonomia
-cover: /images/blog/dueno-cuello-de-botella.webp
 excerpt: "Si cada decisión escala al dueño, no hay vacaciones, no hay venta del negocio y no hay sucursal 2. El rediseño empieza en roles, no en motivación."
 tags: [autonomia, delegacion, roles, sistemas]
 relatedLanding: autonomia

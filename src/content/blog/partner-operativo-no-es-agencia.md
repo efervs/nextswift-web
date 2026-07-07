@@ -3,7 +3,6 @@ title: "Por qué tu restaurante necesita un partner operativo — no otra agenci
 slug: partner-operativo-no-es-agencia
 date: 2026-05-12
 pillar: transversal
-cover: /images/blog/partner-operativo-no-es-agencia.webp
 excerpt: "La agencia diagnostica afuera y entrega un reporte. El partner operativo entra a la cabina con el dueño y ejecuta. La diferencia: 3-7 puntos de margen."
 tags: [partner-operativo, consultoria, diferenciacion, modelo]
 ---

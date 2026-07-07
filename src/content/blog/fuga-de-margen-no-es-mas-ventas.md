@@ -3,7 +3,6 @@ title: "Tu restaurante vende — pero la fuga de margen no se arregla con más v
 slug: fuga-de-margen-no-es-mas-ventas
 date: 2026-05-18
 pillar: utilidad
-cover: /images/blog/fuga-de-margen-no-es-mas-ventas.webp
 excerpt: "Si vendes y aun así no queda utilidad, el problema casi nunca es de ventas. Es de costeo, mermas y mix. Aquí está el orden para encontrarlo."
 tags: [margen, costeo, mermas, P&L]
 relatedCases: [temaky]

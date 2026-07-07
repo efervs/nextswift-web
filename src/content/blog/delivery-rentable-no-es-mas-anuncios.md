@@ -3,7 +3,6 @@ title: "Las ventas no se arreglan con más anuncios — y el delivery, menos"
 slug: delivery-rentable-no-es-mas-anuncios
 date: 2026-05-17
 pillar: ventas-delivery
-cover: /images/blog/delivery-rentable-no-es-mas-anuncios.webp
 excerpt: "Pagar más a Meta no arregla un delivery que opera en rojo. Aquí está el cálculo real de margen por canal y qué hacer antes de subir presupuesto."
 tags: [delivery, ventas, paid-media, margen-por-canal]
 relatedCases: [temaky, oita-fresh]

@@ -3,7 +3,6 @@ title: "Tu personal no falla por actitud — falla por falta de sistema"
 slug: personal-no-es-actitud-es-sistema
 date: 2026-05-15
 pillar: personal
-cover: /images/blog/personal-no-es-actitud-es-sistema.webp
 excerpt: "Rotación, faltistas, errores en línea. Casi nunca se arreglan motivando. Se arreglan rediseñando selección, capacitación y operación estándar."
 tags: [personal, rotacion, capacitacion, sistemas]
 relatedLanding: personal

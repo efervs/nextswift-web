@@ -62,7 +62,9 @@ const blog = defineCollection({
     /** Última actualización editorial. Si falta, dateModified = date (M15). */
     updatedAt: z.coerce.date().optional(),
     pillar: z.enum(PILLAR_VALUES),
-    cover: z.string(),
+    /** Opcional (M15): si falta o el archivo no carga, BlogCard/BlogHeader
+     * renderizan un bloque tonal con el badge del pilar en vez de romper. */
+    cover: z.string().optional(),
     author: z.string().default('Efer Vázquez'),
     excerpt: z.string().max(160),
     tags: z.array(z.string()),

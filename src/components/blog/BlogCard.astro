@@ -20,12 +20,30 @@ const { post, compact = false } = Astro.props;
 const { data, body } = post;
 const href = `/blog/${data.slug}`;
 const meta = readingTime(body ?? '');
+const hasCover = Boolean(data.cover);
 ---
 
 <Card interactive padding={compact ? 'sm' : 'md'} class="blog-card">
   <a href={href} class="blog-card__link">
+    {/* Decorativo: el titulo (visible justo debajo, en el mismo <a>) ya
+        describe la tarjeta; alt="" evita duplicar el nombre para lectores
+        de pantalla. Fallback tonal con el badge de pilar si falta el cover
+        o si la imagen falla en cargar (onerror). */}
     <div class="blog-card__cover" aria-hidden="true">
-      <img src={data.cover} alt="" loading="lazy" decoding="async" width="640" height="360" />
+      {hasCover && (
+        <img
+          src={data.cover}
+          alt=""
+          loading="lazy"
+          decoding="async"
+          width="640"
+          height="360"
+          onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+        />
+      )}
+      <div class="blog-card__cover-fallback" style={hasCover ? 'display:none' : undefined}>
+        <PillarBadge pillar={data.pillar} size="sm" />
+      </div>
     </div>
     <div class="blog-card__body">
       <div class="blog-card__meta">
@@ -56,6 +74,13 @@ const meta = readingTime(body ?? '');
     aspect-ratio: 16 / 9;
     background: var(--color-surface-alt);
     overflow: hidden;
+  }
+  .blog-card__cover-fallback {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
   .blog-card__cover img {
     width: 100%;

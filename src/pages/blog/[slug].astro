@@ -45,13 +45,15 @@ const canonical = `https://www.nextswift.mx/blog/${post.data.slug}`;
 // prerender de Cloudflare (rompía el build por node:fs y el inline de CSS crítico).
 const COVER_MANIFEST = import.meta.glob('/public/images/blog/*.{webp,png,jpg,jpeg,avif}');
 const cover = post.data.cover;
-const coverIsRemote = cover.startsWith('http');
-const coverExists = coverIsRemote || `/public${cover}` in COVER_MANIFEST;
-const ogImage = coverIsRemote
-  ? cover
-  : coverExists
-    ? `https://www.nextswift.mx${cover}`
-    : 'https://www.nextswift.mx/images/og/default.png';
+const coverIsRemote = Boolean(cover?.startsWith('http'));
+const coverExists = Boolean(cover) && (coverIsRemote || `/public${cover}` in COVER_MANIFEST);
+const ogImage = !cover
+  ? 'https://www.nextswift.mx/images/og/default.png'
+  : coverIsRemote
+    ? cover
+    : coverExists
+      ? `https://www.nextswift.mx${cover}`
+      : 'https://www.nextswift.mx/images/og/default.png';
 
 // dateModified real: updatedAt si el post lo declara; si no, = datePublished (M15).
 const datePublished = post.data.date.toISOString().slice(0, 10);

@@ -3,7 +3,6 @@ title: "Sucursal 2 antes de tiempo: el error más caro del restaurantero exitoso
 slug: sucursal-2-no-antes-de-tiempo
 date: 2026-05-13
 pillar: crecimiento-controlado
-cover: /images/blog/sucursal-2-no-antes-de-tiempo.webp
 excerpt: "Abrir sucursal 2 sin estabilizar la unidad madre multiplica el caos, no la utilidad. Aquí está el filtro de 5 puntos antes de firmar el contrato."
 tags: [expansion, sucursal-2, franquicia, crecimiento]
 relatedLanding: crecimiento-controlado

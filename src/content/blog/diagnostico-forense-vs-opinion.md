@@ -3,7 +3,6 @@ title: "Diagnóstico forense vs opinión bonita: cómo saber si tu consultor sab
 slug: diagnostico-forense-vs-opinion
 date: 2026-05-11
 pillar: transversal
-cover: /images/blog/diagnostico-forense-vs-opinion.webp
 excerpt: "Un buen diagnóstico no opina — verifica con cifras. Aquí están las 7 cosas que cualquier consultor serio te debería pedir antes de proponer nada."
 tags: [diagnostico, P&L, decisiones, criterio]
 ---

@@ -18,6 +18,7 @@ interface Props {
 const { post, readingLabel } = Astro.props;
 const { data } = post;
 const pillarMeta = getPillarMeta(data.pillar);
+const hasCover = Boolean(data.cover);
 ---
 
 <header class="blog-header">
@@ -48,13 +49,19 @@ const pillarMeta = getPillarMeta(data.pillar);
   <Body size="lead" tone="muted" class="blog-header__excerpt">{data.excerpt}</Body>
 
   <figure class="blog-header__cover">
-    <img
-      src={data.cover}
-      alt={`Imagen de portada: ${data.title}`}
-      loading="eager"
-      decoding="async"
-      fetchpriority="high"
-    />
+    {hasCover && (
+      <img
+        src={data.cover}
+        alt={`Imagen de portada: ${data.title}`}
+        loading="eager"
+        decoding="async"
+        fetchpriority="high"
+        onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+      />
+    )}
+    <div class="blog-header__cover-fallback" style={hasCover ? 'display:none' : undefined}>
+      <PillarBadge pillar={data.pillar} />
+    </div>
   </figure>
 </header>
 
@@ -97,5 +104,12 @@ const pillarMeta = getPillarMeta(data.pillar);
   }
   .blog-header__cover img {
     width: 100%; height: 100%; object-fit: cover; display: block;
+  }
+  .blog-header__cover-fallback {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 </style>

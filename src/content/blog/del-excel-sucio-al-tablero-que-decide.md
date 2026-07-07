@@ -3,7 +3,6 @@ title: "Del Excel sucio al tablero semanal que decide por ti"
 slug: del-excel-sucio-al-tablero-que-decide
 date: 2026-05-14
 pillar: metricas-control
-cover: /images/blog/del-excel-sucio-al-tablero-que-decide.webp
 excerpt: "Sin tablero, decides con corazonadas. Aquí está el set mínimo de indicadores que separa al restaurante que crece del que sobrevive."
 tags: [tablero, KPIs, P&L, semanal]
 relatedLanding: metricas-control
