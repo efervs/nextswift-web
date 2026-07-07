@@ -1,0 +1,258 @@
+---
+/**
+ * MarginLeak — Dispositivo-firma de "drenaje de margen" (M16 v3, plan_de_mejoras_v3).
+ *
+ * PROPÓSITO: darle FORMA VISUAL al concepto más ownable de la marca —la coladera
+ * del margen— que hasta ahora era 100% verbal (TB-01/TB-02). Es "la única pieza por
+ * la que la página se recuerda" (frontend-design: Signature).
+ *
+ * IDEA: una regleta del margen operativo. La porción RETENIDA es material sólido
+ * (cyan de marca); la porción que se FUGA es un HUECO — ausencia, no un color: hatch
+ * diagonal oscuro + contorno punteado + sombra interior (recesión). El contraste
+ * "sólido vs vacío" comunica retención-vs-pérdida al instante, y remata con una gota
+ * que cae del hueco (el P&L desangrándose). La cifra REAL etiqueta el hueco.
+ *
+ * PALETA CONGELADA (§2 regla 3-4): CERO color/fuente nuevos. Retenido = --color-accent
+ * (o --color-accent-on-light sobre claro). Hueco = ausencia construida con --color-dark-4
+ * (#233043) + negros/blancos a opacidad (sombra/hatch = técnica de composición, no color
+ * de marca; mismo recurso que Stakes ya usa con rgba(255,255,255,.04)).
+ *
+ * CIFRAS: nunca inventadas. `metric` es un dato ya en producción / autorizado. La
+ * PROPORCIÓN visual (`drained`) es una dramatización legible declarada, no una
+ * afirmación numérica a escala — el dato exacto es siempre el texto de `metric`.
+ *
+ * REUSO: size="hero" (protagonista, con cifra y gota) en Hero; size="inline"
+ * (barra fina, showFigure=false) en cada fuga de Stakes.
+ * TODO(M16 v3, opcional): rematar los artículos de blog con size="inline" tras el
+ *   cuerpo del post (BlogHeader/BlogRelated) — fuera del alcance de este commit.
+ * HOOK(M19): el reveal orquestado del drenaje enganchará en [data-leak-meter];
+ *   este componente entrega el ESTADO FINAL estático (sin animación en M16).
+ */
+type Tone = 'on-light' | 'on-dark';
+type Size = 'hero' | 'inline';
+
+interface Props {
+  /** Cifra real (ya en producción / autorizada). Ej. "3–7 pts", "$60k–$120k", "25–35%". */
+  metric: string;
+  /** Unidad / aclaración bajo la cifra. Ej. "de margen que se fuga cada mes". */
+  unit?: string;
+  /** Etiqueta pequeña sobre la barra. Ej. "Margen operativo · cada mes sin sistema". */
+  caption?: string;
+  /** 0–100: peso visual de la fuga (dramatización legible; el dato exacto es `metric`). */
+  drained?: number;
+  tone?: Tone;
+  size?: Size;
+  /** hero: true (la cifra domina el visual). Stakes: false (la card ya muestra la cifra). */
+  showFigure?: boolean;
+  class?: string;
+}
+
+const {
+  metric,
+  unit,
+  caption,
+  drained = 32,
+  tone = 'on-light',
+  size = 'hero',
+  showFigure = true,
+  class: className = '',
+} = Astro.props;
+
+const drainedPct = Math.max(0, Math.min(100, drained));
+const keptPct = 100 - drainedPct;
+const metricClass = tone === 'on-dark' ? 'metric-xl metric-xl--on-dark' : 'metric-xl';
+---
+
+<figure
+  class:list={['leak-meter', `leak-meter--${size}`, `leak-meter--${tone}`, className]}
+  data-leak-meter
+  style={`--kept:${keptPct}%;--drained:${drainedPct}%`}
+>
+  {caption && <figcaption class="leak-meter__caption">{caption}</figcaption>}
+
+  {/* La barra es refuerzo visual de una cifra que ya es texto → aria-hidden. */}
+  <div class="leak-meter__bar" aria-hidden="true">
+    <div class="leak-meter__track">
+      <span class="leak-meter__kept"></span>
+      <span class="leak-meter__lost"></span>
+    </div>
+    {size === 'hero' && (
+      <svg class="leak-meter__drip" viewBox="0 0 12 20" fill="none" aria-hidden="true">
+        <path
+          d="M6 1c0 4-4 6-4 10a4 4 0 0 0 8 0c0-4-4-6-4-10z"
+          fill="currentColor"
+        />
+      </svg>
+    )}
+  </div>
+
+  {showFigure && (
+    <div class="leak-meter__figure">
+      <span class={metricClass}>{metric}</span>
+      {unit && <span class="leak-meter__unit">{unit}</span>}
+    </div>
+  )}
+</figure>
+
+<style>
+  .leak-meter {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    margin: 0;
+    min-width: 0;
+  }
+
+  .leak-meter__caption {
+    font-family: var(--font-subheading);
+    font-size: var(--fs-eyebrow);
+    font-weight: 600;
+    line-height: var(--line-snug);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-wide);
+  }
+
+  .leak-meter__bar {
+    position: relative;
+    width: 100%;
+  }
+
+  /* La regleta: material retenido (izq) + hueco drenado (der). radius-1 (no pill):
+     lectura de instrumento de P&L, no de burbuja/progress genérico. */
+  .leak-meter__track {
+    display: flex;
+    width: 100%;
+    border-radius: var(--radius-1);
+    overflow: hidden;
+  }
+
+  .leak-meter__kept,
+  .leak-meter__lost {
+    display: block;
+    height: 100%;
+    flex-shrink: 0;
+  }
+
+  /* Retenido: cyan sólido con "puntos de margen" (ticks finos por gradiente, sin nodos). */
+  .leak-meter__kept {
+    width: var(--kept);
+    background-color: var(--color-accent);
+    background-image: repeating-linear-gradient(
+      90deg,
+      transparent 0,
+      transparent calc(var(--seg) - 1px),
+      rgba(0, 26, 51, 0.35) calc(var(--seg) - 1px),
+      rgba(0, 26, 51, 0.35) var(--seg)
+    );
+  }
+
+  /* Lost: el HUECO. Ausencia = hatch diagonal oscuro + sombra interior (recesión). */
+  .leak-meter__lost {
+    width: var(--drained);
+    background-color: var(--color-dark-4);
+    background-image: repeating-linear-gradient(
+      -45deg,
+      rgba(0, 0, 0, 0.28) 0,
+      rgba(0, 0, 0, 0.28) 2px,
+      transparent 2px,
+      transparent 6px
+    );
+    box-shadow: inset 0 2px 4px rgba(0, 12, 26, 0.45);
+  }
+
+  /* Gota que cae del hueco (solo hero): el P&L desangrándose. Estática en M16. */
+  .leak-meter__drip {
+    position: absolute;
+    top: 100%;
+    left: calc(var(--kept) + (var(--drained) / 2));
+    width: 0.75rem;
+    height: 1.25rem;
+    margin-left: -0.375rem;
+    color: var(--color-dark-4);
+    opacity: 0.55;
+  }
+
+  .leak-meter__figure {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+
+  .leak-meter__unit {
+    font-family: var(--font-subheading);
+    font-size: var(--fs-body);
+    font-weight: 600;
+    line-height: var(--line-snug);
+    color: var(--color-text-muted);
+    max-width: 22ch;
+  }
+
+  /* ----- size: hero (protagonista del visual del hero) --------------------- */
+  .leak-meter--hero {
+    --seg: 0.8125rem;
+    gap: var(--space-3);
+  }
+
+  .leak-meter--hero .leak-meter__track {
+    height: clamp(2.75rem, 6vw, 3.75rem);
+  }
+
+  /* ----- size: inline (una barra fina por fuga en Stakes) ----------------- */
+  .leak-meter--inline {
+    --seg: 0.5rem;
+    gap: var(--space-2);
+  }
+
+  .leak-meter--inline .leak-meter__track {
+    height: 0.75rem;
+  }
+
+  /* ----- tono: sobre claro (hero) ----------------------------------------- */
+  .leak-meter--on-light .leak-meter__caption {
+    color: var(--color-text-muted);
+  }
+
+  .leak-meter--on-light .leak-meter__track {
+    /* borde tenue para que el material tenga contorno sobre blanco */
+    box-shadow: inset 0 0 0 1px var(--color-border);
+  }
+
+  /* ----- tono: sobre oscuro (Stakes navy) --------------------------------- */
+  .leak-meter--on-dark .leak-meter__caption {
+    color: var(--color-soft);
+  }
+
+  .leak-meter--on-dark .leak-meter__kept {
+    /* cyan brillante ya contrasta 9:1 sobre navy; ticks en navy translúcido */
+    background-image: repeating-linear-gradient(
+      90deg,
+      transparent 0,
+      transparent calc(var(--seg) - 1px),
+      rgba(3, 51, 102, 0.55) calc(var(--seg) - 1px),
+      rgba(3, 51, 102, 0.55) var(--seg)
+    );
+  }
+
+  .leak-meter--on-dark .leak-meter__lost {
+    /* sobre navy el hueco debe ir MÁS oscuro que el fondo: negro translúcido
+       + una traza cyan tenue en el hatch para que se lea "drenaje", no "sombra". */
+    background-color: rgba(0, 0, 0, 0.38);
+    background-image: repeating-linear-gradient(
+      -45deg,
+      rgba(62, 234, 243, 0.14) 0,
+      rgba(62, 234, 243, 0.14) 2px,
+      transparent 2px,
+      transparent 6px
+    );
+    box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.55);
+  }
+
+  .leak-meter--on-dark .leak-meter__drip {
+    color: var(--color-accent);
+    opacity: 0.5;
+  }
+
+  .leak-meter--on-dark .leak-meter__unit {
+    color: var(--color-soft);
+  }
+</style>

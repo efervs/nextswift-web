@@ -22,6 +22,7 @@ import Eyebrow from '../ui/Eyebrow.astro';
 import Heading from '../ui/Heading.astro';
 import Body from '../ui/Body.astro';
 import Icon from '../ui/Icon.astro';
+import MarginLeak from './MarginLeak.astro';
 
 type Variant = 'home' | 'landing';
 type Dolor =
@@ -48,6 +49,9 @@ interface Leak {
   metric: string;
   title: string;
   body: string;
+  /* M16 v3: peso visual del drenaje en <MarginLeak/> (0-100). Dramatización legible;
+     el dato exacto es `metric`. dependencia-dueno = 100 (0 días de libertad = barra vaciada). */
+  drained: number;
   doloresPrimario: Dolor;
   doloresSecundarios?: Dolor[];
 }
@@ -60,6 +64,7 @@ const leaks: Leak[] = [
     title: 'Promociones sin ROI medido',
     body:
       'Una promo 2x1 o 30% off sin costeo previo, 4 semanas en un negocio de $2M MXN/mes, regala $60k-$120k de utilidad neta. Sin medir ticket pre/post promo, la decisión se repite cada mes.',
+    drained: 32,
     doloresPrimario: 'utilidad',
     doloresSecundarios: ['metricas-control', 'ventas-delivery'],
   },
@@ -70,6 +75,7 @@ const leaks: Leak[] = [
     title: 'Comisiones de marketplaces sin canal directo',
     body:
       'Rappi, UberEats y DiDi cobran 25-35% por orden. Si el delivery vale 20-25% de un negocio de $2M MXN/mes, la comisión se lleva $100k-$175k mensuales que nunca tocan tu utilidad.',
+    drained: 30,
     doloresPrimario: 'ventas-delivery',
     doloresSecundarios: ['utilidad'],
   },
@@ -80,6 +86,7 @@ const leaks: Leak[] = [
     title: 'Rotación de personal sin estructura',
     body:
       'Cada salida cuesta 0.5-1.5 sueldos del puesto entre reclutamiento, formación y errores iniciales. Equipo de 15 con 30-50% rotación anual: $30k-$100k al año en costo directo.',
+    drained: 24,
     doloresPrimario: 'personal',
     doloresSecundarios: ['utilidad', 'autonomia'],
   },
@@ -90,6 +97,7 @@ const leaks: Leak[] = [
     title: 'Dependencia operativa del dueño',
     body:
       'Si no puedes ausentarte 72 horas sin que caiga ticket, merma o satisfacción, el negocio no es un activo: es un empleo caro. Sin SOPs ni encargado, el techo es tu propia agenda.',
+    drained: 100,
     doloresPrimario: 'autonomia',
     doloresSecundarios: ['crecimiento-controlado'],
   },
@@ -189,6 +197,17 @@ const reframe =
             <span class="leak__unit">{metricUnitMap[leak.id]}</span>
           </div>
           <h3 class="leak__title">{leak.title}</h3>
+          {/* M16 v3: dispositivo-firma por fuga (solo barra; la cifra ya la muestra
+              .leak__metric arriba → showFigure=false y aria-hidden en el componente). */}
+          <div class="leak__meter">
+            <MarginLeak
+              size="inline"
+              tone="on-dark"
+              metric={leak.metric}
+              drained={leak.drained}
+              showFigure={false}
+            />
+          </div>
           <p class="leak__body">
             <span class="visually-hidden">Costo estimado: {leak.metric} {metricUnitMap[leak.id]}. </span>
             {leak.body}
@@ -270,6 +289,7 @@ const reframe =
     grid-template-areas:
       'icon head'
       'icon title'
+      'meter meter'
       'body body';
     column-gap: var(--space-4);
     row-gap: var(--space-2);
@@ -340,6 +360,11 @@ const reframe =
     text-wrap: balance;
   }
 
+  .leak__meter {
+    grid-area: meter;
+    margin-top: var(--space-3);
+  }
+
   .leak__body {
     grid-area: body;
     font-family: var(--font-body);
@@ -389,6 +414,7 @@ const reframe =
       grid-template-areas:
         'icon head'
         'title title'
+        'meter meter'
         'body body';
       column-gap: var(--space-3);
       padding: var(--space-5);

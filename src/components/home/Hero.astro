@@ -4,15 +4,13 @@
  * Copy verbatim brief §9.1. CTAs bifurcados Ciancio (brief §5).
  * Tracking dual Pixel + CAPI con dedup event_id (fire-and-forget, no bloquea redirect).
  *
- * Visual (M13 plan_de_mejoras_v1) — dualidad "operador en piso + estratega financiero".
- * FALLBACK ACTIVO: el split-screen real (cocina cliente + dashboard P&L) todavía NO tiene
- * assets. Mientras tanto: foto-efer (operador) + mini-dashboard con datos REALES (estratega).
- * Las 3 cifras salen de testimonios.ts / SocialProof métrica agregada — NO inventadas:
- *   +42% margen delivery neto (Temaky) · 10 días al diagnóstico (promesa core) · 4.6★ (Pangas).
- * TODO(M13): cuando Efer entregue assets, sustituir el fallback por split-screen real:
- *   - public/images/hero-cocina.webp     (cocina real de cliente, con consentimiento; NO stock)
- *   - public/images/hero-dashboard.webp  (screenshot P&L real anonimizado; NO inventar dashboard)
- *   Layout objetivo: top 60% cocina / bottom 40% dashboard, divisor 2px var(--color-accent).
+ * Visual (M16 v3, plan_de_mejoras_v3) — reponderado a la TESIS. Antes: foto-efer grande
+ * + mini-dashboard INVENTADO (confesado aquí como "FALLBACK ACTIVO", TB-02). Ahora la
+ * columna visual ES el drenaje de margen con la cifra REAL vía <MarginLeak/> — el
+ * dispositivo-firma de la marca; el H1 de dolor domina y Efer pasa a firma de apoyo
+ * (avatar). No se inventan cifras: "3–7 pts de margen/mes" = headline de Stakes en vivo
+ * e inverso de "recuperar 3–7 pts en ~90 días" (validado por Efer 2026-07-02). La prueba
+ * (+42% / 10 días / 4.6★) ya vive en <ProofBar/> + <SocialProof/> justo debajo del hero.
  */
 import { Picture } from 'astro:assets';
 import fotoEfer from '../../assets/foto-efer.webp';
@@ -20,6 +18,7 @@ import Heading from '../ui/Heading.astro';
 import Body from '../ui/Body.astro';
 import Eyebrow from '../ui/Eyebrow.astro';
 import CTAs from '../shared/CTAs.astro';
+import MarginLeak from '../shared/MarginLeak.astro';
 
 interface Props {
   eyebrow?: string;
@@ -92,50 +91,38 @@ const {
   </div>
 
   <div class="hero__visual">
-    <div class="hero__visual-frame">
-      {/* M23 (T5-07): migrado de <img> nativa a astro:assets <Picture>. Genera AVIF+WebP
-          responsivos (fallback WebP) desde el original src/assets/foto-efer.webp (640×640).
-          Sigue siendo el LCP del home: loading=eager + fetchpriority=high se reenvían al <img>.
-          El sizing visual lo controla el CSS del frame (4/5, object-fit cover). */}
+    {/* M16 v3 (TB-01/TB-02): el visual ES la tesis. El dispositivo-firma <MarginLeak/>
+        da forma a la fuga de margen con la cifra REAL, reemplazando el mini-dashboard
+        inventado. Cifra en vivo: "3–7 pts de margen/mes" (headline de Stakes; inverso de
+        la promesa core validada por Efer). */}
+    <MarginLeak
+      size="hero"
+      tone="on-light"
+      caption="Margen operativo · cada mes sin sistema"
+      metric="3–7 pts"
+      unit="de margen que se van por la coladera"
+      drained={32}
+    />
+
+    {/* Firma de autoridad en rol de APOYO (decisión Efer, §6): avatar pequeño, no el
+        protagonista. Ya no es el LCP (antes 384px eager+high → ahora 48px). */}
+    <figure class="hero__signature">
       <Picture
         src={fotoEfer}
         formats={['avif', 'webp']}
         fallbackFormat="webp"
-        widths={[384, 480, 640]}
-        sizes="(max-width: 420px) 90vw, 384px"
-        alt="Efer Lara, fundador de NextSwift — operador de restaurantes y consultor B2B"
+        widths={[48, 96, 128]}
+        sizes="48px"
+        alt="Efer Lara, fundador de NextSwift"
         loading="eager"
-        fetchpriority="high"
         decoding="async"
-        class="hero__visual-img"
+        class="hero__signature-img"
       />
-      <div class="hero__visual-scrim" aria-hidden="true"></div>
-
-      {/* "Operador" — caption overlay inferior (M13 §3). Scrim garantiza contraste AA. */}
-      <span class="hero__caption">Operador antes que consultor</span>
-
-      {/* "Estratega" — mini-dashboard P&L (M13 §4, fallback). Cifras reales, sin imágenes nuevas → LCP intacto. */}
-      <aside class="hero__dashboard" aria-label="Resultados documentados con clientes de NextSwift">
-        <p class="hero__dashboard-head">
-          <span class="hero__dashboard-dot" aria-hidden="true"></span>
-          Tablero NextSwift
-        </p>
-        <dl class="hero__dashboard-stats">
-          <div class="hero__stat">
-            <dt class="hero__stat-label">Margen delivery</dt>
-            <dd class="hero__stat-value">+42%</dd>
-          </div>
-          <div class="hero__stat">
-            <dt class="hero__stat-label">Al diagnóstico</dt>
-            <dd class="hero__stat-value">10 días</dd>
-          </div>
-          <div class="hero__stat">
-            <dt class="hero__stat-label">Reseñas</dt>
-            <dd class="hero__stat-value">4.6<span class="hero__stat-star" aria-hidden="true">★</span></dd>
-          </div>
-        </dl>
-      </aside>
-    </div>
+      <figcaption class="hero__signature-cap">
+        <span class="hero__signature-name">Efer Lara</span>
+        <span class="hero__signature-role">Operador antes que consultor</span>
+      </figcaption>
+    </figure>
   </div>
 </section>
 
@@ -160,7 +147,9 @@ const {
      Nota: los @media no pueden leer var(--bp-nav); el literal es el espejo del token. */
   @media (min-width: 821px) { /* --bp-nav + 1 */
     .hero {
-      grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+      /* M16 v3: el H1 de dolor domina — la columna de copy pesa más que el visual
+         (antes 1.15/0.85, billing casi 50/50 con el retrato). */
+      grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.75fr);
       gap: var(--space-9);
       /* M16: bottom space-11 → space-7 (ídem, conecta hero → ProofBar). */
       padding: var(--space-10) 0 var(--space-7);
@@ -301,166 +290,69 @@ const {
     flex-shrink: 0;
   }
 
+  /* M16 v3: la columna visual es ahora la TESIS (drenaje de margen), enmarcada como un
+     readout de P&L (surface-alt + borde) — no una foto. El dispositivo-firma <MarginLeak/>
+     es el protagonista; la firma de Efer va al pie, en rol de apoyo. */
   .hero__visual {
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    align-items: center;
+    gap: var(--space-5);
     min-width: 0;
-  }
-
-  .hero__visual-frame {
-    position: relative;
-    width: 100%;
-    max-width: 24rem;
-    /* M13: retrato 4/5 para dar banda inferior al caption + dashboard sin tapar el rostro
-       (foto 1:1 con object-fit cover recorta solo los lados, nunca la cabeza). */
-    aspect-ratio: 4 / 5;
+    padding: var(--space-6);
+    background: var(--color-surface-alt);
+    border: 1px solid var(--color-border);
     border-radius: var(--radius-5);
-    overflow: hidden;
-    background: linear-gradient(135deg, var(--color-dark-1, #001a33), var(--color-primary-dark, #003366));
-    box-shadow: var(--shadow-3);
+    box-shadow: var(--shadow-1);
   }
 
-  /* M23: la salida de astro:assets <Picture> (<picture> + <img>) no recibe el scope
-     de este componente, así que se apunta vía :global() anclado al frame (sí scopeado).
-     display:contents retira el <picture> del árbol de cajas → el <img> conserva el
-     sizing del frame (100%/100%, object-fit cover), idéntico al <img> nativo anterior. */
-  .hero__visual-frame :global(picture) {
+  /* Firma de autoridad (apoyo): avatar pequeño + nombre/rol, con divisor superior.
+     El retrato dejó de ser el LCP (antes 384px eager+high) → ahora 48px; el LCP pasa
+     al H1 en texto, más rápido de pintar. */
+  .hero__signature {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    margin: 0;
+    padding-top: var(--space-4);
+    border-top: 1px solid var(--color-border);
+  }
+
+  /* astro:assets <Picture> emite <picture><img>; display:contents lo retira del árbol
+     de cajas para que el <img> tome el sizing de .hero__signature-img. */
+  .hero__signature :global(picture) {
     display: contents;
   }
 
-  .hero__visual-frame :global(.hero__visual-img) {
+  .hero__signature :global(.hero__signature-img) {
     display: block;
-    width: 100%;
-    height: 100%;
+    width: 3rem;
+    height: 3rem;
+    border-radius: var(--radius-pill);
     object-fit: cover;
     object-position: center;
-    border-radius: inherit;
-  }
-
-  /* Scrim inferior: garantiza contraste >=4.5:1 del caption blanco sobre cualquier foto. */
-  .hero__visual-scrim {
-    position: absolute;
-    inset: auto 0 0 0;
-    height: 48%;
-    background: linear-gradient(
-      to top,
-      rgba(0, 26, 51, 0.88) 0%,
-      rgba(0, 26, 51, 0.55) 38%,
-      rgba(0, 26, 51, 0) 100%
-    );
-    pointer-events: none;
-  }
-
-  /* Caption "operador" — overlay inferior izquierdo. */
-  .hero__caption {
-    position: absolute;
-    left: var(--space-4);
-    bottom: var(--space-4);
-    z-index: 2;
-    max-width: 8.5rem;
-    margin: 0;
-    color: #fff;
-    font-family: var(--font-subheading);
-    font-size: 0.8125rem;
-    font-weight: 700;
-    line-height: var(--line-snug);
-    letter-spacing: var(--tracking-wide);
-    text-transform: uppercase;
-    text-shadow: 0 1px 4px rgba(0, 12, 26, 0.5);
-  }
-
-  /* Mini-dashboard "estratega" — overlay inferior derecho. */
-  .hero__dashboard {
-    position: absolute;
-    right: var(--space-3);
-    bottom: var(--space-3);
-    z-index: 2;
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-2);
-    width: min(48%, 9.5rem);
-    padding: var(--space-3);
-    background: rgba(0, 26, 51, 0.92);
-    border: 1px solid rgba(62, 234, 243, 0.38);
-    border-radius: var(--radius-3);
-    box-shadow: var(--shadow-2);
-    -webkit-backdrop-filter: blur(6px);
-    backdrop-filter: blur(6px);
-  }
-
-  .hero__dashboard-head {
-    display: flex;
-    align-items: center;
-    gap: 0.375rem;
-    margin: 0;
-    font-family: var(--font-subheading);
-    font-size: 0.625rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: var(--tracking-wide);
-    color: var(--color-accent);
-  }
-
-  .hero__dashboard-dot {
     flex-shrink: 0;
-    width: 0.5rem;
-    height: 0.5rem;
-    border-radius: var(--radius-pill);
-    background: var(--color-accent);
-    box-shadow: 0 0 0 3px rgba(62, 234, 243, 0.22);
   }
 
-  .hero__dashboard-stats {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-2);
-    margin: 0;
-  }
-
-  .hero__stat {
+  .hero__signature-cap {
     display: flex;
     flex-direction: column;
     gap: 0.0625rem;
+    min-width: 0;
   }
 
-  .hero__stat-label {
-    font-family: var(--font-subheading);
-    font-size: 0.625rem;
-    font-weight: 600;
-    line-height: 1.2;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    color: var(--color-blue-light);
-  }
-
-  .hero__stat-value {
+  .hero__signature-name {
     font-family: var(--font-heading);
-    font-size: clamp(1.125rem, 1rem + 0.6vw, 1.5rem);
-    font-weight: 700;
-    line-height: 1;
-    color: #fff;
+    font-size: var(--fs-body);
+    font-weight: 600;
+    line-height: 1.1;
+    color: var(--color-text);
   }
 
-  .hero__stat-star {
-    color: var(--color-accent);
-    margin-left: 0.05em;
-  }
-
-  /* M8 (T6-02): en móvil la PRUEBA se muestra en .hero__metrics (primer viewport), no en el
-     overlay de la foto. Se oculta el dashboard para no duplicar la cifra; la foto conserva
-     solo el caption "operador". En desktop el overlay sigue intacto. */
-  /* M21: oculto en todo el modo móvil (<=820px = --bp-nav), no solo <=767px. Así en la franja
-     768-820px (nav hamburguesa, hero a 1 columna) la prueba se ve en .hero__metrics y no se
-     duplica con el overlay del dashboard. */
-  @media (max-width: 820px) { /* = --bp-nav */
-    .hero__dashboard { display: none; }
-  }
-
-  /* Pantallas muy angostas (<=360px): aprieta el caption para que no se desborde. */
-  @media (max-width: 360px) {
-    .hero__caption { max-width: 7rem; font-size: 0.75rem; }
+  .hero__signature-role {
+    font-family: var(--font-subheading);
+    font-size: 0.8125rem;
+    line-height: var(--line-snug);
+    color: var(--color-text-muted);
   }
 
   @media (prefers-reduced-motion: reduce) {
