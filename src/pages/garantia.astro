@@ -83,6 +83,10 @@ const breadcrumbSchema = {
           <dd>{SLA_DEFAULT.receptor}</dd>
         </div>
       </dl>
+
+      <div class="garantia-hero__cta">
+        <CTAs variant="all" landing="garantia" size="md" showGuarantee={false} />
+      </div>
     </div>
   </section>
 
@@ -162,6 +166,12 @@ const breadcrumbSchema = {
     gap: var(--space-4);
   }
   .garantia-hero__lead { text-wrap: pretty; }
+
+  /* M21 (TD-05): CTA temprano above-fold. Ancla real del observer del
+     sticky (M3) via [data-cta-primary], que ya pone CTAs.astro en el botón
+     primary. size="md" + showGuarantee={false} lo mantiene ligero para no
+     empujar "QUIEN RESPONDE" fuera del primer viewport en tablet (810px). */
+  .garantia-hero__cta { margin-top: var(--space-1); }
 
   .sla-defaults {
     margin: var(--space-4) 0 0;
