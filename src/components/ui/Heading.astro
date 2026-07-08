@@ -2,22 +2,27 @@
 /**
  * Heading — jerarquía Oswald con tamaños clamp().
  * `as` controla el nivel semántico; `size` el tamaño visual (decoupled).
+ * `variant` (M17): tratamiento tipográfico Oswald-firma. 'display' = el H1 de
+ * dolor como DECLARACIÓN (salto de escala + extremo pesado del eje variable de
+ * Oswald). Opt-in: no altera los usos existentes (todos usan 'default').
  */
 type Level = 'h1' | 'h2' | 'h3' | 'h4';
 type Size = 'h1' | 'h2' | 'h3';
+type Variant = 'default' | 'display';
 
 interface Props {
   as?: Level;
   size?: Size;
+  variant?: Variant;
   tone?: 'default' | 'on-dark' | 'muted';
   class?: string;
 }
 
-const { as: Tag = 'h2', size, tone = 'default', class: className = '' } = Astro.props;
+const { as: Tag = 'h2', size, variant = 'default', tone = 'default', class: className = '' } = Astro.props;
 const visualSize: Size = size ?? (Tag === 'h1' ? 'h1' : Tag === 'h2' ? 'h2' : 'h3');
 ---
 
-<Tag class:list={['heading', `heading--${visualSize}`, `heading--${tone}`, className]}>
+<Tag class:list={['heading', `heading--${visualSize}`, `heading--${tone}`, variant === 'display' && 'heading--display', className]}>
   <slot />
 </Tag>
 
@@ -25,14 +30,31 @@ const visualSize: Size = size ?? (Tag === 'h1' ? 'h1' : Tag === 'h2' ? 'h2' : 'h
   .heading {
     font-family: var(--font-heading);
     font-weight: 600;
-    letter-spacing: var(--tracking-tight);
+    /* M17: tracking-firma compartido por h1/h2/h3 (antes --tracking-tight genérico).
+       Es la palanca de distinción con la fuente CONGELADA: Oswald condensada, ceñida
+       un punto, gana carácter editorial sin perder legibilidad. */
+    letter-spacing: var(--tracking-heading);
     line-height: var(--line-tight);
     text-wrap: balance;
     margin: 0;
   }
-  .heading--h1 { font-size: var(--fs-h1); }
+  /* M17: el H1 de dolor (incl. el de las landings, vía size="h1") deja de ser un
+     rótulo modesto — sube al extremo pesado del eje de Oswald (700) y ciñe el
+     tracking. Peso PROPIO dentro de la congelación → se lee como declaración. */
+  .heading--h1 { font-size: var(--fs-h1); font-weight: 700; letter-spacing: var(--tracking-display); }
   .heading--h2 { font-size: var(--fs-h2); }
   .heading--h3 { font-size: var(--fs-h3); line-height: var(--line-snug); }
+
+  /* M17: variante DISPLAY — salto de escala real para el H1 del home hero, que
+     domine el viewport en el layout de 2 columnas de M16. Mismo family (Oswald),
+     leading ceñido (--line-display) para no robar alto vertical (respeta M4).
+     Va DESPUÉS de --h1/--h2/--h3 para ganar el orden de cascada sobre --fs-h1. */
+  .heading--display {
+    font-size: var(--fs-display);
+    font-weight: 700;
+    letter-spacing: var(--tracking-display);
+    line-height: var(--line-display);
+  }
 
   .heading--default { color: var(--color-text); }
   .heading--on-dark { color: var(--color-text-on-dark); }

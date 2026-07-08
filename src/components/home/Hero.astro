@@ -46,8 +46,8 @@ const {
 
 <section class="hero" aria-labelledby="hero-h1">
   <div class="hero__copy">
-    <Eyebrow tone="accent">{eyebrow}</Eyebrow>
-    <Heading as="h1" class="hero__h1">
+    <Eyebrow tone="accent" class="hero__eyebrow">{eyebrow}</Eyebrow>
+    <Heading as="h1" variant="display" class="hero__h1">
       <span id="hero-h1">{h1}</span>
     </Heading>
 
@@ -176,6 +176,23 @@ const {
 
   .hero__h1 {
     text-wrap: balance;
+  }
+
+  /* M17 (TB-04/TB-08): contraste de peso Oswald-firma. El eyebrow (kicker) baja al
+     extremo LIGERO del eje variable de Oswald (300) frente al H1 display a 700 —
+     misma familia CONGELADA, extremos opuestos del eje = la firma tipográfica. Solo
+     el eyebrow del hero (la tesis); los demás eyebrows quedan como están (fuera de
+     alcance). Oswald ya está precargada ATF (M23) → sin costo de LCP. El color y el
+     tracking (--tracking-eyebrow) los hereda del componente Eyebrow → contraste AA
+     intacto (el peso no cambia el contraste de color). */
+  .hero :global(.hero__eyebrow) {
+    font-family: var(--font-heading);
+    font-weight: 300;
+  }
+  @media (max-width: 480px) {
+    /* Piso de peso en móvil: 300 uppercase a ~11px (M20) se afina de más; 400 conserva
+       el contraste con el H1 sin sacrificar escaneabilidad. */
+    .hero :global(.hero__eyebrow) { font-weight: 400; }
   }
 
   .hero__subhead {

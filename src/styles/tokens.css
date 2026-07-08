@@ -48,6 +48,7 @@
   --font-subheading: 'Source Sans Pro', system-ui, sans-serif;
   --font-body:       'Lato', system-ui, sans-serif;
 
+  --line-display: 1.03;  /* M17: leading ceñido del H1 display — compensa el salto de escala y NO roba alto vertical (respeta el above-fold de M4). */
   --line-tight:  1.15;
   --line-snug:   1.35;
   --line-base:   1.6;
@@ -57,6 +58,14 @@
   --tracking-normal: 0;
   --tracking-wide:   0.06em;
   --tracking-eyebrow: 0.14em;
+  /* M17 (TB-04/TB-08) · Tracking-firma de headlines Oswald. Antes toda .heading
+     usaba --tracking-tight genérico (compartido con otros usos sueltos). Se les
+     da un tracking PROPIO y deliberado: condensar levemente Oswald es la palanca
+     de carácter editorial disponible con la fuente CONGELADA.
+       --tracking-heading → h1/h2/h3 de sección comparten esta firma.
+       --tracking-display → el H1 de dolor cierra un punto más (bloque-declaración). */
+  --tracking-heading: -0.015em;
+  --tracking-display: -0.02em;
 
   /* Escala tipográfica fluida — clamp(min, vw-based, max) */
   --fs-eyebrow:  clamp(0.75rem, 0.72rem + 0.15vw, 0.875rem);   /* 12 → 14 */
@@ -65,6 +74,12 @@
   --fs-h3:       clamp(1.375rem, 1.25rem + 0.6vw, 1.75rem);    /* 22 → 28 */
   --fs-h2:       clamp(1.75rem,  1.45rem + 1.5vw, 2.75rem);    /* 28 → 44 */
   --fs-h1:       clamp(2.25rem,  1.8rem  + 2.4vw, 4rem);       /* 36 → 64 */
+  /* M17: escala DISPLAY — salto real por encima de --fs-h1 para el H1 de dolor del
+     home hero (variant="display"), que domine el viewport en el layout de 2 columnas
+     de M16. Solo lo consume la variante display (opt-in); el resto de H1 sigue en
+     --fs-h1. En la banda tablet (481–820px) el propio .hero__h1 acota el tamaño
+     (M21); en móvil (<=480px) hay override compacto abajo (M20). */
+  --fs-display:  clamp(2.5rem,   1.55rem + 3.6vw, 4.75rem);    /* 40 → 76 */
 
   /* ----- Espacio fluido (base 4px) ---------------------------------------- */
   --space-1:  clamp(0.25rem, 0.24rem + 0.05vw, 0.3125rem);   /* 4 → 5  */
@@ -157,6 +172,11 @@
   :root {
     --fs-h1: clamp(1.875rem, 1.55rem + 1.6vw, 2.25rem);  /* 30 → 32.5 (antes 36.5 → 40) */
     --tracking-eyebrow: 0.06em;                          /* antes 0.14em */
+    /* M17: el H1 display (home hero) sigue el mismo recorte que --fs-h1 en móvil.
+       El salto de escala desktop es para dominar la columna en 2 col; en teléfono
+       el hero es 1 col above-fold → se iguala al H1 de dolor de las landings, sin
+       reventar el primer viewport (mismo objetivo que M20/M8). */
+    --fs-display: clamp(1.875rem, 1.5rem + 1.7vw, 2.375rem);  /* 30 → 38 */
   }
 }
 
