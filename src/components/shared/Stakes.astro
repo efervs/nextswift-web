@@ -388,6 +388,66 @@ const reframe =
     text-wrap: pretty;
   }
 
+  /* ----- M19 (TB-05): reveal orquestado del drenaje ----------------------
+     UN solo momento coreografiado que dramatiza la tesis (el margen que se fuga),
+     en lugar del hover-lift disperso que M18 ya retiró. Al entrar la lista de fugas
+     en viewport, cada barra <MarginLeak> "drena" desde el margen lleno hasta su nivel
+     real. Es un momento con significado, no decoración: dispara UNA vez (IO once).
+
+     Estado final = estado por defecto. Los custom props --kept/--drained ya llegan
+     con el valor REAL en el style inline de cada [data-leak-meter] (MarginLeak.astro),
+     así que SIN JS o con prefers-reduced-motion las barras se pintan directamente en su
+     nivel de fuga: mismo resultado visual, cero movimiento. El JS solo AÑADE la entrada.
+
+     Sin CLS: la caja (.leak-meter__track) tiene alto/ancho fijos desde el inicio; solo
+     cambia el reparto interno kept/lost. No se anima layout externo — nada alrededor
+     se mueve. Se transicionan los custom props tipados (@property) que alimentan el
+     width de dos hijos DENTRO del track reservado (patrón endosado por el plan: "anima
+     una CSS custom property"), no top/height del contenedor. */
+  @property --kept {
+    syntax: '<percentage>';
+    inherits: true;
+    initial-value: 100%;
+  }
+  @property --drained {
+    syntax: '<percentage>';
+    inherits: true;
+    initial-value: 0%;
+  }
+
+  /* Los valores --kept/--drained viven en el style INLINE de cada [data-leak-meter]
+     (los pone MarginLeak.astro con el nivel real). El inline gana en especificidad a
+     cualquier selector, así que el "lleno" del priming y el retorno al valor real los
+     escribe el JS sobre el propio .style del elemento. Aquí el CSS solo aporta la
+     transición (y el stagger) sobre los custom props tipados (@property). */
+  .stakes__list[data-drain] .leak :global([data-leak-meter]) {
+    transition:
+      --drained 900ms cubic-bezier(0.22, 0.61, 0.36, 1),
+      --kept 900ms cubic-bezier(0.22, 0.61, 0.36, 1);
+  }
+
+  /* prime: la transición se apaga durante el frame en que el JS fija el estado lleno,
+     para que el salto a "lleno" sea instantáneo y solo se anime la caída al soltar. */
+  .stakes__list[data-drain='prime'] .leak :global([data-leak-meter]) {
+    transition: none;
+  }
+
+  /* Stagger sutil por posición: se lee como un momento en cascada, no como parpadeo
+     simultáneo. Cada fuga arranca su caída ~110ms después de la anterior. */
+  .stakes__list[data-drain='run'] .leak:nth-child(1) :global([data-leak-meter]) { transition-delay: 0ms; }
+  .stakes__list[data-drain='run'] .leak:nth-child(2) :global([data-leak-meter]) { transition-delay: 110ms; }
+  .stakes__list[data-drain='run'] .leak:nth-child(3) :global([data-leak-meter]) { transition-delay: 220ms; }
+  .stakes__list[data-drain='run'] .leak:nth-child(4) :global([data-leak-meter]) { transition-delay: 330ms; }
+
+  /* Guard de accesibilidad (patrón inline, igual que Hero L375 y ThreeStepPlan):
+     sin animación bajo prefers-reduced-motion. El estado final ya es el por defecto,
+     así que anular la transición basta — las barras quedan estáticas en su nivel real. */
+  @media (prefers-reduced-motion: reduce) {
+    .stakes__list[data-drain] .leak :global([data-leak-meter]) {
+      transition: none;
+    }
+  }
+
   /* ----- A11y helper ----------------------------------------------------- */
   .visually-hidden {
     position: absolute;
@@ -425,3 +485,61 @@ const reframe =
     }
   }
 </style>
+
+<script>
+  /* M19 (TB-05): reveal orquestado del drenaje. UN momento, disparado una vez al
+     entrar la lista de fugas en viewport. El JS solo AÑADE la animación de entrada:
+     el estado final ya es el por defecto (los custom props --kept/--drained llegan
+     con el valor real en el style inline de cada [data-leak-meter]). Por eso, si el
+     usuario pide menos movimiento, no tocamos nada y las barras quedan en su nivel
+     real, estáticas. */
+  const REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (!REDUCED && 'IntersectionObserver' in window) {
+    const lists = document.querySelectorAll<HTMLElement>('.stakes__list');
+
+    const play = (list: HTMLElement) => {
+      const meters = list.querySelectorAll<HTMLElement>('[data-leak-meter]');
+      // Captura el nivel REAL (lo puso MarginLeak.astro en el style inline). Es el
+      // estado final: al soltar prime, cada barra vuelve a este valor y lo transiciona.
+      const finals = Array.from(meters).map((m) => ({
+        kept: m.style.getPropertyValue('--kept'),
+        drained: m.style.getPropertyValue('--drained'),
+      }));
+
+      // 1) prime: transicion OFF (via CSS) + salto instantaneo al margen LLENO.
+      list.dataset.drain = 'prime';
+      meters.forEach((m) => {
+        m.style.setProperty('--kept', '100%');
+        m.style.setProperty('--drained', '0%');
+      });
+
+      // 2) doble rAF: garantiza que el estado "lleno" ya se pinto antes de reactivar
+      //    la transicion. Al pasar a 'run' devolvemos el valor real -> se anima la caida
+      //    (drenaje) con el stagger por CSS. UN solo momento, no se repite.
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          list.dataset.drain = 'run';
+          meters.forEach((m, i) => {
+            m.style.setProperty('--kept', finals[i].kept);
+            m.style.setProperty('--drained', finals[i].drained);
+          });
+        });
+      });
+    };
+
+    const io = new IntersectionObserver(
+      (entries, observer) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            observer.unobserve(entry.target); // once: no se repite
+            play(entry.target as HTMLElement);
+          }
+        }
+      },
+      { threshold: 0.35 },
+    );
+
+    lists.forEach((list) => io.observe(list));
+  }
+</script>
