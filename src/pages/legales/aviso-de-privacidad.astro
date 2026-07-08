@@ -421,6 +421,13 @@ const RESPONSIBLE_PHONE = '+52 811 042 5674';
     margin-bottom: var(--space-4, 1rem);
     overflow-x: auto;
     display: block;
+    /* CLS fix (M20): sin altura reservada, estas 3 tablas (filas variables)
+       provocan el reflow que dispara CLS 0.158 en Lighthouse móvil. contain:
+       layout aísla el layout interno de la tabla del resto del documento, y
+       min-height evita que el bloque "salte" mientras el navegador calcula
+       las filas/columnas reales. */
+    contain: layout;
+    min-height: 3rem;
   }
 
   .legal-table th {
