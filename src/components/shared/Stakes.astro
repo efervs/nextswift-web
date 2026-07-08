@@ -299,15 +299,9 @@ const reframe =
     border: 1px solid rgba(255, 255, 255, 0.10);
     border-left: 4px solid var(--color-accent);
     border-radius: var(--radius-4);
-    transition: border-color var(--dur-3) var(--ease-out),
-                background var(--dur-3) var(--ease-out),
-                transform var(--dur-3) var(--ease-out);
-  }
-
-  .leak:hover {
-    border-color: rgba(62, 234, 243, 0.45);
-    border-left-color: var(--color-accent);
-    background: rgba(255, 255, 255, 0.06);
+    /* M18 (TB-06): sin hover — la fuga NO es navegable. El hover-lift/tint aquí era
+       ruido ambiental (la misma textura de card que todo lo demás); se reserva el
+       hover para cards navegables (blog/casos). El estado final es estático. */
   }
 
   .leak__icon {

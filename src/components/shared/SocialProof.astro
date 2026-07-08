@@ -84,7 +84,7 @@ function getInitials(name: string): string {
   tone === 'transparent' ? (
     <aside class="sp-agregada sp-agregada--inline" aria-label="Métrica agregada de clientes">
       <p class="sp-agregada__metric">
-        <strong class="metric-md">{metricaAgregada}</strong>
+        <strong class="sp-agregada__figure">{metricaAgregada}</strong>
         <span class="sp-agregada__context">— {contexto}</span>
       </p>
     </aside>
@@ -92,7 +92,7 @@ function getInitials(name: string): string {
     <Section spacing="sm" tone={tone === 'surface' ? 'surface' : 'alt'} as="div">
       <aside class="sp-agregada" aria-label="Métrica agregada de clientes">
         <p class="sp-agregada__metric">
-          <strong class="metric-md">{metricaAgregada}</strong>
+          <strong class="sp-agregada__figure">{metricaAgregada}</strong>
           <span class="sp-agregada__context">— {contexto}</span>
         </p>
       </aside>
@@ -196,13 +196,18 @@ function getInitials(name: string): string {
     color: var(--color-text);
   }
 
-  /* .sp-agregada__metric strong — tipografía gobernada por .metric-md (utilities.css / M15).
-     font-family, font-weight, color y font-size eliminados para que la util-class global
-     gane especificidad (los estilos scoped de Astro con data-astro-* ganarían si se
-     repitieran las mismas props). Se conservan solo las props de layout. */
-  .sp-agregada__metric strong {
+  /* M18 (TB-06): la cifra agregada era el 4º big-number (.metric-md, Oswald hasta 2.5rem)
+     con tratamiento casi idéntico al hero/ProofBar → diluía el impacto. Se COLAPSA a texto
+     de apoyo (subheading a --fs-lead, 700, primary-dark): la prueba con FORMA PROPIA es el
+     dispositivo-firma <MarginLeak/> (hero + Stakes); esto la acompaña sin competir. */
+  .sp-agregada__figure {
     display: block;
     margin-bottom: var(--space-2);
+    font-family: var(--font-subheading);
+    font-size: var(--fs-lead);
+    font-weight: 700;
+    line-height: var(--line-snug);
+    color: var(--color-primary-dark);
   }
 
   .sp-agregada__context {
@@ -294,8 +299,6 @@ function getInitials(name: string): string {
     border: 1px solid var(--color-border, rgba(0, 51, 102, 0.12));
     box-shadow: var(--shadow-1);
     background: var(--color-surface, #fff);
-    transition: transform var(--dur-2, 180ms) var(--ease-out, ease-out),
-                box-shadow var(--dur-2, 180ms) var(--ease-out, ease-out);
   }
 
   @media (min-width: 768px) {
@@ -311,12 +314,9 @@ function getInitials(name: string): string {
     transition: opacity var(--dur-2, 180ms) var(--ease-out, ease-out);
   }
 
-  .sp-logos-band__item:hover,
-  .sp-logos-band__item:focus-within {
-    transform: scale(1.05);
-    box-shadow: var(--shadow-2, 0 8px 24px rgba(0, 51, 102, 0.14));
-  }
-
+  /* M18 (TB-06): sin lift/scale — los logos NO son navegables (el hover-lift se reserva
+     para cards navegables blog/casos). Se conserva SOLO el realce de opacidad: es una
+     ayuda de legibilidad del logo, no la textura ambiental de card. */
   .sp-logos-band__item:hover .sp-logos-band__img,
   .sp-logos-band__item:focus-within .sp-logos-band__img {
     opacity: 1;
@@ -481,13 +481,9 @@ function getInitials(name: string): string {
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .sp-logos-band__item,
+    /* M18: ya no hay transform/lift en los logos; solo queda el fundido de opacidad. */
     .sp-logos-band__img {
       transition: none;
-    }
-    .sp-logos-band__item:hover,
-    .sp-logos-band__item:focus-within {
-      transform: none;
     }
   }
 </style>

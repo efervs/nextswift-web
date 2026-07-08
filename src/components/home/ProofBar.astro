@@ -13,8 +13,10 @@
  *   - ProofBar (aquí)  = promesa (10 días · +3-7 pp · garantía firmada)
  *
  * Diseño: barra contenida, tono superficie-alt, 3 columnas equiespaciadas con divisores
- * (ícono pequeño + cifra .metric-md + label). Mobile: stack vertical de 3 filas. Alto < 100px
+ * (ícono pequeño + cifra + label). Mobile: stack vertical de 3 filas. Alto < 100px
  * en desktop. Íconos SVG inline provisionales — M18 los centralizará en <Icon/>.
+ * M18 (TB-06): la cifra baja de .metric-md (big-number) a texto de apoyo (--fs-lead) para
+ * no competir con el dispositivo-firma <MarginLeak/>; son promesas, no prueba.
  */
 type IconName = 'dias' | 'margen' | 'garantia';
 
@@ -64,7 +66,7 @@ const {
           )}
         </span>
         <span class="proof-bar__text">
-          <span class="proof-bar__metric metric-md">{p.metric}</span>
+          <span class="proof-bar__metric">{p.metric}</span>
           <span class="proof-bar__label">{p.label}</span>
         </span>
       </li>
@@ -133,11 +135,17 @@ const {
     min-width: 0;
   }
 
-  /* .proof-bar__metric hereda tipografía de .metric-md (utilities.css / M15).
-     Aquí solo se ajusta layout: line-height 1 (en vez de 1.1) para apretar el alto del bar. */
+  /* M18 (TB-06): estas son PROMESAS (no prueba), y el big-number (.metric-md, Oswald
+     hasta 2.5rem) competía con el dispositivo-firma <MarginLeak/> —el único artefacto de
+     prueba con forma propia—. Se baja a texto de apoyo: Oswald a --fs-lead, sin escala
+     display. La cifra sigue legible y anclada; deja de ser un big-number repetido. */
   .proof-bar__metric {
     display: block;
+    font-family: var(--font-heading);
+    font-size: var(--fs-lead);
+    font-weight: 600;
     line-height: 1;
+    color: var(--color-primary-dark);
   }
 
   .proof-bar__label {

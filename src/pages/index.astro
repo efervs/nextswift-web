@@ -5,6 +5,14 @@
  * ProofBar legacy (P4: métrica agregada + logos) → cubierto por <SocialProof variant="agregada"/> + variant="logos".
  * M16: ProofBar reescrito como barra de 3 PROMESAS operativas, anclada bajo el hero (entre Hero y SocialProof agregada).
  * P20: LocalBusiness + Service schema vía slot="head".
+ *
+ * M18 (TB-03/TB-06) — ritmo compositivo del home:
+ *  - Momento ASIMÉTRICO: <OfertaResumen/> pasa de 3 cards idénticas a ancla (Financiera) +
+ *    2 satélites → rompe la retícula de "N cards iguales" que se repetía sección a sección.
+ *  - Prueba con FORMA PROPIA una sola vez: el dispositivo-firma <MarginLeak/> (hero + Stakes).
+ *    El big-number repetido (Oswald hasta 2.5rem) se colapsa a texto de apoyo en <ProofBar/>
+ *    y en <SocialProof variant="agregada"/> para no competir con la firma.
+ *  - hover-lift reservado a cards NAVEGABLES (blog/casos): retirado de Stakes, Oferta y logos.
  */
 import Base from '../layouts/Base.astro';
 import Hero from '../components/home/Hero.astro';

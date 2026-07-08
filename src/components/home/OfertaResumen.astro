@@ -7,11 +7,15 @@
  * M8: diferenciación visual de las 3 palancas (antes idénticas, Captura7.png).
  * Cada palanca recibe un `icon` (del sistema central Icon.astro, M18) y un
  * `accentColor` propio: Financiera → accent cyan, Operativa → primary azul,
- * Comercial → primary-dark navy. Cada card lleva top-bar 6px + chip 40×40 del
- * color de su palanca, título a `--fs-h2` y hover-lift. `accentInk` define el
- * color del trazo del ícono para legibilidad sobre el chip (vía currentColor).
- * Sin emojis (regla CLAUDE.md anti-decorativo). Copy de promesas y CTA primary
- * intactos.
+ * Comercial → primary-dark navy. `accentInk` define el color del trazo del ícono
+ * para legibilidad sobre el chip (vía currentColor).
+ *
+ * M18 v3 (TB-03): se rompe el grid de 3 cards IDÉNTICAS —la textura de plantilla—
+ * por una COMPOSICIÓN ASIMÉTRICA. La palanca ANCLA (Financiera, que carga la
+ * promesa-tesis de margen) domina como card grande vertical con top-bar; Operativa
+ * y Comercial orbitan como dos SATÉLITES compactos horizontales con acento a la
+ * izquierda. Sin hover-lift (bloques no navegables → M18 change 3). Sin big-number
+ * nuevo. Copy de promesas y CTA intactos (solo composición/jerarquía).
  */
 import Eyebrow from '../ui/Eyebrow.astro';
 import Heading from '../ui/Heading.astro';
@@ -54,6 +58,9 @@ const palancas: Palanca[] = [
     accentInk: '#FFFFFF',
   },
 ];
+
+// M18: la palanca-tesis (Financiera) es el ancla; el resto orbita como satélites.
+const [anchor, ...satellites] = palancas;
 ---
 
 <section class="oferta-resumen" aria-labelledby="oferta-resumen-heading">
@@ -68,17 +75,35 @@ const palancas: Palanca[] = [
       </Body>
     </header>
 
-    <ul class="oferta-resumen__palancas" role="list">
-      {palancas.map((p) => (
-        <li class="palanca-tile" style={`--accent: ${p.accentColor}; --accent-ink: ${p.accentInk};`}>
-          <span class="palanca-tile__icon" aria-hidden="true">
-            <Icon name={p.icon} />
-          </span>
-          <h3 class="palanca-tile__nombre">Palanca {p.nombre}</h3>
-          <p class="palanca-tile__promesa">{p.promesa}</p>
-        </li>
-      ))}
-    </ul>
+    {/* M18: composición asimétrica ancla + 2 satélites (rompe el grid de N cards iguales). */}
+    <div class="oferta-resumen__grid">
+      <article
+        class="palanca-anchor"
+        style={`--accent: ${anchor.accentColor}; --accent-ink: ${anchor.accentInk};`}
+      >
+        <span class="palanca-anchor__icon" aria-hidden="true">
+          <Icon name={anchor.icon} size={28} />
+        </span>
+        <div class="palanca-anchor__text">
+          <h3 class="palanca-anchor__nombre">Palanca {anchor.nombre}</h3>
+          <p class="palanca-anchor__promesa">{anchor.promesa}</p>
+        </div>
+      </article>
+
+      <ul class="oferta-resumen__satellites" role="list">
+        {satellites.map((p) => (
+          <li class="palanca-sat" style={`--accent: ${p.accentColor}; --accent-ink: ${p.accentInk};`}>
+            <span class="palanca-sat__icon" aria-hidden="true">
+              <Icon name={p.icon} />
+            </span>
+            <div class="palanca-sat__text">
+              <h3 class="palanca-sat__nombre">Palanca {p.nombre}</h3>
+              <p class="palanca-sat__promesa">{p.promesa}</p>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </div>
 
     <div class="oferta-resumen__cta">
       <Button variant="primary" size="lg" href="/acelerador">
@@ -108,7 +133,79 @@ const palancas: Palanca[] = [
     gap: var(--space-2);
     max-width: var(--content-narrow);
   }
-  .oferta-resumen__palancas {
+
+  /* M18 — retícula ASIMÉTRICA: ancla (izq, grande) + columna de 2 satélites (der).
+     Mobile: una sola columna, apilado (ancla primero). */
+  .oferta-resumen__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+  }
+  @media (min-width: 768px) {
+    .oferta-resumen__grid {
+      grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+      gap: var(--space-5);
+      align-items: stretch;
+    }
+  }
+
+  /* Ancla: card grande vertical con top-bar de acento (la palanca-tesis domina).
+     SIN hover-lift (M18 change 3): bloque no navegable, el CTA vive aparte. */
+  .palanca-anchor {
+    --accent: var(--color-accent);   /* fallback; sobreescrito inline */
+    --accent-ink: #FFFFFF;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    padding: var(--space-6);
+    background: var(--color-surface-alt);
+    border: 1px solid var(--color-border);
+    border-top: 6px solid var(--accent);
+    border-radius: var(--radius-4);
+  }
+
+  .palanca-anchor__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: none;
+    width: 52px;
+    height: 52px;
+    border-radius: var(--radius-3);
+    background: var(--accent);
+    color: var(--accent-ink);
+  }
+
+  .palanca-anchor__text {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    min-width: 0;
+  }
+
+  .palanca-anchor__nombre {
+    font-family: var(--font-heading);
+    font-size: var(--fs-h2);
+    line-height: var(--line-tight);
+    color: var(--color-primary-dark);
+    margin: 0;
+  }
+
+  /* Promesa-tesis a --fs-lead (subheading): pesa más que la de los satélites. */
+  .palanca-anchor__promesa {
+    font-family: var(--font-subheading);
+    font-size: var(--fs-lead);
+    font-weight: 600;
+    line-height: var(--line-snug);
+    color: var(--color-text);
+    margin: 0;
+    text-wrap: pretty;
+  }
+
+  /* Satélites: 2 cards compactas horizontales, apiladas; acento a la IZQUIERDA
+     (no top-bar) → tratamiento distinto al ancla = asimetría deliberada.
+     SIN hover-lift (M18 change 3). */
+  .oferta-resumen__satellites {
     list-style: none;
     margin: 0;
     padding: 0;
@@ -117,42 +214,24 @@ const palancas: Palanca[] = [
     gap: var(--space-4);
   }
   @media (min-width: 768px) {
-    .oferta-resumen__palancas { grid-template-columns: repeat(3, 1fr); gap: var(--space-5); }
+    .oferta-resumen__satellites {
+      grid-auto-rows: 1fr;   /* los 2 satélites reparten la altura del ancla */
+    }
   }
 
-  /* M8 — card diferenciada: top-bar 6px + chip de ícono, ambos en --accent. */
-  .palanca-tile {
-    --accent: var(--color-primary);   /* fallback; sobreescrito inline por palanca */
-    --accent-ink: #FFFFFF;
-    padding: var(--space-5);
+  .palanca-sat {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: var(--space-3);
+    align-items: start;
+    padding: var(--space-4) var(--space-5);
     background: var(--color-surface-alt);
     border: 1px solid var(--color-border);
-    border-top: 6px solid var(--accent);
+    border-left: 4px solid var(--accent);
     border-radius: var(--radius-4);
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-3);
-    transition:
-      transform var(--dur-2) var(--ease-out),
-      border-top-width var(--dur-2) var(--ease-out),
-      box-shadow var(--dur-2) var(--ease-out);
   }
 
-  .palanca-tile:hover {
-    transform: translateY(-4px);
-    border-top-width: 8px;
-    box-shadow: var(--shadow-3);
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .palanca-tile { transition: box-shadow var(--dur-2) var(--ease-out); }
-    .palanca-tile:hover { transform: none; }
-  }
-
-  /* Chip 40×40 con el ícono (ui/Icon.astro, M18). El chip da fondo --accent y
-     color --accent-ink (que Icon hereda vía currentColor); Icon se dimensiona a
-     24×24 por su atributo size. */
-  .palanca-tile__icon {
+  .palanca-sat__icon {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -164,19 +243,28 @@ const palancas: Palanca[] = [
     color: var(--accent-ink);
   }
 
-  .palanca-tile__nombre {
+  .palanca-sat__text {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    min-width: 0;
+  }
+
+  .palanca-sat__nombre {
     font-family: var(--font-heading);
-    font-size: var(--fs-h2);
+    font-size: var(--fs-h3);
     line-height: var(--line-tight);
     color: var(--color-primary-dark);
     margin: 0;
   }
-  .palanca-tile__promesa {
+
+  .palanca-sat__promesa {
     font-family: var(--font-body);
     font-size: var(--fs-body);
     line-height: var(--line-base);
     color: var(--color-text);
     margin: 0;
   }
+
   .oferta-resumen__cta { display: flex; flex-wrap: wrap; gap: var(--space-3); }
 </style>
