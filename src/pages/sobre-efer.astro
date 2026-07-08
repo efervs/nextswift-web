@@ -204,9 +204,9 @@ const personSchema = {
       </Heading>
 
       <ul class="sef-anclas" role="list">
-        {filosofiaAnclas.map((frase, i) => (
+        {filosofiaAnclas.map((frase) => (
           <li class="sef-ancla">
-            <span class="sef-ancla__num" aria-hidden="true">0{i + 1}</span>
+            <span class="sef-ancla__marca" aria-hidden="true">&mdash;</span>
             <p class="sef-ancla__texto">{frase}</p>
           </li>
         ))}
@@ -437,11 +437,15 @@ const personSchema = {
     flex-direction: column;
     gap: var(--space-3);
   }
-  .sef-ancla__num {
+  /* No-ordinal por diseño (TB-07): las tres anclas son principios PARALELOS,
+     no una secuencia. Un guion largo señala "conjunto/ítem de lista", nunca
+     orden — a diferencia de la numeración 01/02/03 que sí aplica en
+     ThreeStepPlan.astro (ese sí es una secuencia real). */
+  .sef-ancla__marca {
     font-family: var(--font-heading);
     font-size: 1.5rem;
+    line-height: 1;
     color: var(--color-accent);
-    letter-spacing: var(--tracking-tight);
   }
   .sef-ancla__texto {
     margin: 0;

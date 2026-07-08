@@ -246,6 +246,20 @@ const {
     color: var(--color-dark-3); /* 7.7:1 sobre surface-alt (AA) */
   }
 
+  /* TD-08: en el breakpoint angosto (~360-390px) "Margen delivery" (la etiqueta
+     más larga) rompe a 2 líneas dentro de su tercio de flex mientras "Al
+     diagnóstico" y "Reseñas" quedan en 1 → filas dispares dentro del chip.
+     Se afina SOLO tamaño/tracking del label (sin tocar el texto) y se reserva
+     una altura de 2 líneas fija para las 3 columnas, así el chip queda con
+     filas parejas sin importar cuál etiqueta envuelve. */
+  @media (max-width: 390px) {
+    .hero__metric-label {
+      font-size: 0.625rem;
+      letter-spacing: 0.02em;
+      min-height: calc(1.2em * 2);
+    }
+  }
+
   .hero__metric-value {
     margin: 0;
     font-family: var(--font-heading);
