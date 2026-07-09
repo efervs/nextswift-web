@@ -43,6 +43,14 @@
   --color-text-muted: var(--color-text-muted);
   --color-border: var(--color-border);
 
+  /* v4 (2026-07-09) — paleta descongelada; utilities bg-action/text-loss/bg-ink-deep/... */
+  --color-action: var(--color-action);
+  --color-action-hover: var(--color-action-hover);
+  --color-spark: var(--color-spark);
+  --color-loss: var(--color-loss);
+  --color-ink: var(--color-ink);
+  --color-ink-deep: var(--color-ink-deep);
+
   --font-heading: var(--font-heading);
   --font-subheading: var(--font-subheading);
   --font-body: var(--font-body);

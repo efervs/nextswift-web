@@ -7,7 +7,7 @@
 
 :root {
   /* ----- Color · Paleta primaria (light) ---------------------------------- */
-  --color-accent:        #3EEAF3;  /* acento crítico — CTAs primarias, eyebrow */
+  --color-accent:        #3EEAF3;  /* v4: DEPRECADO como CTA (el neón lee "barato"). Se conserva SOLO en transición para consumidores no migrados; CTAs -> --color-action y highlight -> --color-spark. Consumos se re-mapean en V4-04. */
   --color-accent-ink:    #003366;  /* texto sobre accent (contraste 7.3:1)   */
   --color-accent-on-light: #147D83;  /* M19/H-D: variante oscura del accent para TEXTO/iconos sobre fondo claro → 4.89:1 sobre blanco (AA). El #3EEAF3 sobre blanco = 1.47, falla. */
   --color-primary:       #4A90E2;
@@ -27,11 +27,11 @@
 
   /* ----- Color · Roles semánticos ---------------------------------------- */
   --color-surface:        var(--color-bg);
-  --color-surface-alt:    #F6F8FB;
+  --color-surface-alt:    #F4F2ED;  /* v4 (2026-07-09): papel cálido premium. Reemplaza el gris frío #F6F8FB (look de plantilla). text-muted encima = 4.91:1 (AA). */
   --color-text:           var(--color-dark-1);
-  --color-text-muted:     #57738E;  /* M19/H-D: variante oscura de neutral-700 (#5C7A96) → 4.65:1 sobre surface-alt (#F6F8FB) y 4.94:1 sobre blanco — AA. neutral-700 se conserva para bordes. */
+  --color-text-muted:     #5A6B7B;  /* v4: 5.49:1 sobre blanco y 4.91:1 sobre surface-alt cálido (#F4F2ED) — AA. (antes #57738E, calibrado al gris frío #F6F8FB). */
   --color-text-on-dark:   #FFFFFF;
-  --color-border:         var(--color-neutral-300);
+  --color-border:         #E6E2D9;  /* v4: hairline cálido. Reemplaza el gris pesado #B3BEC9 (= neutral-300, que se conserva como token por si hay consumos directos). */
   --color-border-strong:  var(--color-neutral-700);
   --color-focus-ring:     var(--color-accent);
 
@@ -42,6 +42,23 @@
   --color-error:   #B3261E;  /* 6.53:1 sobre blanco — mensajes de validación */
   --color-success: #2E7D32;  /* 5.13:1 sobre blanco */
   --color-warning: #B25000;  /* 5.2:1 sobre blanco — el ambar estandar falla AA */
+
+  /* ----- Color · Paleta v4 (descongelada 2026-07-09) ----------------------
+     Decisión de Efer (plan v4 §1/§2): se DESCONGELA la paleta para
+     des-templatizar el sitio, conservando el navy de marca (#003366) y los
+     estados M11. El acento CTA deja de ser el neón #3EEAF3 (lee "barato") y
+     pasa a un deep teal premium; el neón se degrada a highlight fino (spark).
+     Aquí solo se DEFINEN/exponen los tokens: los consumidores de CTA/estilo
+     se re-mapean en sus tareas (V4-04 CTAs, V4-12 Stakes, etc.).
+     Contrastes verificados WCAG 2.x (ver minuta V4-01, 2026-07-09):
+       action/blanco 6.16:1 · action-hover/blanco 8.52:1 (AA)
+       loss/blanco 5.18:1 (AA) · loss/ink-deep 3.01:1 (AA large >=3:1, ver nota). */
+  --color-action:       #0A6C74;  /* fill del CTA primario, texto blanco = 6.16:1 (AA). Deep teal; hilo con --color-accent-on-light #147D83. Reemplaza el neón como acción. */
+  --color-action-hover: #08555C;  /* hover/pressed del primario; texto blanco = 8.52:1 (AA). */
+  --color-spark:        #4ED8E0;  /* cyan degradado a highlight fino (relleno retenido del medidor, micro-detalles). NUNCA como fill de CTA ni como texto. */
+  --color-loss:         #C2410C;  /* señal de pérdida (rust cálido). Sobre blanco = 5.18:1 (AA texto). Sobre --color-ink-deep SOLO como CIFRA grande = 3.01:1 (AA large >=3:1); imposible 4.5:1 sobre blanco Y ink-deep a la vez. */
+  --color-ink:          var(--color-dark-1);  /* alias semántico del navy de marca (#003366): texto, header, superficies oscuras. */
+  --color-ink-deep:     #04263B;  /* superficie oscura profunda (Stakes/footer v4): da profundidad bajo el navy. */
 
   /* ----- Tipografía ------------------------------------------------------- */
   --font-heading:    'Oswald Variable', 'Oswald', system-ui, sans-serif;
