@@ -135,9 +135,23 @@ const {
        bajo el hero y conectar con la <ProofBar/> de promesas.
        M8 (T6-01): padding-top móvil recortado (space-9 → space-4). La <Section spacing="lg">
        que envuelve al hero ya aporta el padding superior (~space-11); el padding-top propio
-       lo duplicaba → ~163px de vacío entre header y H1 en <=375px. */
+       lo duplicaba → ~163px de vacío entre header y H1 en <=375px.
+       V4-03: align-items pasa a start. Con center, la columna visual (MarginLeak + firma,
+       más alta que la copy) centraba verticalmente el bloque de texto y lo empujaba hacia
+       abajo — la causa real del fold vacío en desktop. */
     padding: var(--space-4) 0 var(--space-7);
-    align-items: center;
+    align-items: start;
+  }
+
+  /* V4-03: la <Section spacing="lg"> que envuelve al hero (index.astro) sigue aportando su
+     padding-top completo (--space-11) al resto de sus hijos (ProofBar/SocialProof), pero el
+     hero es el único bloque above-the-fold: descuenta ese padding heredado hasta --space-4
+     (mismo valor que ya usa como propio en móvil) para que eyebrow + H1 queden inmediatos
+     bajo el header en vez de sumarse a su padding propio. El margen negativo colapsa contra
+     el padding-top de <Section> (que no tiene borde/padding propio en .section__inner), sin
+     tocar el header (fuera de <Section>, sticky, en flujo normal). */
+  :global(.section--spacing-lg) .hero {
+    margin-top: calc(-1 * var(--space-11) + var(--space-4));
   }
 
   /* M21 (T6-04): 2 columnas SOLO a partir de 821px = por encima del breakpoint de
@@ -151,8 +165,11 @@ const {
          (antes 1.15/0.85, billing casi 50/50 con el retrato). */
       grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.75fr);
       gap: var(--space-9);
-      /* M16: bottom space-11 → space-7 (ídem, conecta hero → ProofBar). */
-      padding: var(--space-10) 0 var(--space-7);
+      /* M16: bottom space-11 → space-7 (ídem, conecta hero → ProofBar).
+         V4-03: top space-10 → space-6. El space-10 (80-110px) sumado al padding heredado
+         de <Section> y al centrado vertical (ya corregido arriba) producía ~250px de vacío
+         entre el header y el eyebrow (home__pc1920__viewport.png). */
+      padding: var(--space-6) 0 var(--space-7);
     }
   }
 
@@ -329,6 +346,10 @@ const {
     flex-direction: column;
     gap: var(--space-5);
     min-width: 0;
+    /* V4-03: align-self propio (además de align-items:start del grid) para que esta columna
+       nunca se estire a la altura de la fila — su alto lo dicta su propio contenido, la
+       columna de copy (izquierda) es la que manda en la jerarquía visual. */
+    align-self: start;
     padding: var(--space-6);
     background: var(--color-surface-alt);
     border: 1px solid var(--color-border);
@@ -393,14 +414,16 @@ const {
     }
   }
 
-  /* M4 (TD-03): en laptops de poca altura (<=900px, p.ej. 1366x768 o 1440x900) el
-     padding-top propio (space-10, arriba) se suma al padding superior de la
-     <Section spacing="lg"> que envuelve al hero (~space-11) y empuja el CTA primario
-     fuera del primer viewport — mismo bug que M8 ya resolvió en móvil, aquí reaparecido
-     en el breakpoint desktop. Se recorta el padding-top y el ritmo vertical interno SOLO
-     por altura; el ancho sigue mandando en el layout de 2 columnas (sin cambios ahí).
-     Va al final de la hoja para ganar la cascada sobre las reglas base de igual
-     especificidad (@media no suma especificidad). */
+  /* M4 (TD-03), recortado por V4-03: en laptops de poca altura (<=900px, p.ej. 1366x768) el
+     padding-top propio se suma al padding superior heredado de <Section spacing="lg"> y puede
+     empujar el CTA primario fuera del primer viewport — mismo bug que M8 ya resolvió en móvil,
+     aquí reaparecido en el breakpoint desktop. Se recorta el padding-top y el ritmo vertical
+     interno SOLO por altura; el ancho sigue mandando en el layout de 2 columnas (sin cambios
+     ahí). Va al final de la hoja para ganar la cascada sobre las reglas base de igual
+     especificidad (@media no suma especificidad).
+     V4-03: se retira la banda 901-1100px de alto (p.ej. 1920x1080) que recortaba el
+     padding-top a space-9 — con la base ya bajada a space-6 (arriba) ese override quedaba
+     MÁS alto que la base y reintroducía el vacío justo en el viewport de la evidencia. */
   @media (min-width: 821px) and (max-height: 900px) {
     .hero {
       padding-top: 0;
@@ -410,15 +433,6 @@ const {
     }
     .hero__bullets {
       gap: 0;
-    }
-  }
-
-  /* Banda 901-1100px de alto (p.ej. 1920x1080): el hero ya casi cabe completo; solo se
-     recorta el padding-top lo justo para que el 2do CTA no quede cortado en el borde
-     inferior, sin tocar el ritmo interno (hero se mantiene "intacto"). */
-  @media (min-width: 821px) and (min-height: 901px) and (max-height: 1100px) {
-    .hero {
-      padding-top: var(--space-9);
     }
   }
 </style>
