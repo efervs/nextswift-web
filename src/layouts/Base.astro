@@ -10,16 +10,15 @@ import StickyCTAMobile from '../components/layout/StickyCTAMobile.astro';
 import CookieBanner from '../components/legal/CookieBanner.astro';
 
 // Font preloads — Vite resuelve URL con content-hash; reduce FOUT en LCP.
-// M23 (T5-08): solo se precargan las fuentes ATF-críticas (las que pintan el
-// above-the-fold), no las 5 en todas las rutas. Los pesos secundarios usados
-// below-the-fold (SSP 400, Lato 700) ya no se precargan: se sirven vía el
-// stylesheet self-host con font-display: swap, sin competir con el LCP.
-//   Oswald (variable)   → H1 / headings   (ATF en toda ruta)
-//   Source Sans Pro 600 → nav, eyebrows, labels, CTAs (ATF en toda ruta)
-//   Lato 400            → cuerpo           (ATF en toda ruta)
-import oswald from '@fontsource-variable/oswald/files/oswald-latin-wght-normal.woff2?url';
-import sspSb from '@fontsource/source-sans-pro/files/source-sans-pro-latin-600-normal.woff2?url';
-import latoN from '@fontsource/lato/files/lato-latin-400-normal.woff2?url';
+// v4 · V4-02: el tri-stack colapsa a 2 faces VARIABLES ATF-críticas (display +
+// body); una sola preload de cada una cubre TODO su rango de pesos (variable).
+// Antes eran 3 estáticas (Oswald + SSP 600 + Lato 400). JetBrains Mono (datos)
+// NO se precarga: es cifra, mayormente below-the-fold, y swap-ea sin coste de LCP
+// (plan v4 §1: "preload solo display + Inter").
+//   Fraunces (variable) → display / H1 / headings              (ATF en toda ruta)
+//   Inter (variable)    → body/UI: nav, eyebrows, CTAs, cuerpo (ATF en toda ruta)
+import fraunces from '@fontsource-variable/fraunces/files/fraunces-latin-standard-normal.woff2?url';
+import inter from '@fontsource-variable/inter/files/inter-latin-wght-normal.woff2?url';
 
 interface Props {
   title?: string;
@@ -43,11 +42,13 @@ const {
 const META_PIXEL_ID = '1545738293336210';
 const GA4_MEASUREMENT_ID = import.meta.env.PUBLIC_GA4_MEASUREMENT_ID ?? '';
 
-// M23 (T5-08): preload de fuentes POR RUTA. La mayoría de rutas precarga las 3
-// fuentes ATF-críticas. Las páginas "gracias-*" son post-conversión (sin presión
-// de LCP/SEO, ATF mínimo) → solo H1 + cuerpo; la subheading swap-ea sin coste real.
+// Preload de fuentes POR RUTA (M23 / T5-08, actualizado en V4-02). La mayoría de
+// rutas precarga las 2 faces variables ATF (display + body). Las páginas
+// "gracias-*" son post-conversión (sin presión de LCP/SEO, ATF mínimo) → solo el
+// body (Inter); el display serif (Fraunces, la preload más pesada) swap-ea desde
+// el fallback Georgia sin coste real de LCP.
 const isThanks = Astro.url.pathname.includes('/gracias-');
-const fontPreloads = isThanks ? [oswald, latoN] : [oswald, sspSb, latoN];
+const fontPreloads = isThanks ? [inter] : [fraunces, inter];
 
 const orgSchema = {
   '@context': 'https://schema.org',

@@ -61,9 +61,27 @@
   --color-ink-deep:     #04263B;  /* superficie oscura profunda (Stakes/footer v4): da profundidad bajo el navy. */
 
   /* ----- Tipografía ------------------------------------------------------- */
-  --font-heading:    'Oswald Variable', 'Oswald', system-ui, sans-serif;
-  --font-subheading: 'Source Sans Pro', system-ui, sans-serif;
-  --font-body:       'Lato', system-ui, sans-serif;
+  /* v4 · V4-02 (2026-07-09) — tri-stack tipográfico (descongelado; §2 regla 3).
+     Reemplaza Oswald / Source Sans Pro / Lato (look "templated") por un tri-stack
+     distintivo, con mono para datos (firma "tablero de operador"). Se auto-hostean
+     vía @fontsource-variable (subset latin, font-display: swap) en global.css. El
+     @font-face real se llama '<Familia> Variable' (igual que 'Oswald Variable'),
+     por eso encabeza cada stack; luego el nombre corto y el fallback de sistema.
+       --font-display : Fraunces variable (ejes opsz + SOFT) — serif con carácter.
+       --font-body    : Inter variable — un solo body/UI face (reemplaza SSP + Lato).
+       --font-mono    : JetBrains Mono variable — cifras tabulares (rol NUEVO).
+     Alterno documentado si Fraunces se siente fina: Calistoga (slab cálido, peso
+     único) + Inter para H2/H3. La escala clamp() NO cambia: solo cambia el face. */
+  --font-display:    'Fraunces Variable', 'Fraunces', Georgia, serif;
+  --font-body:       'Inter Variable', 'Inter', system-ui, sans-serif;
+  --font-mono:       'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, monospace;
+  /* Aliases de compatibilidad: los ~60 consumidores usan estos tokens vía var()
+     (no hardcode), así que la migración es a nivel de token, sin tocar componentes.
+       --font-heading    -> display (Fraunces): H1 y headings.
+       --font-subheading -> body (Inter): eyebrows, labels, nav, CTAs, botones…
+                            (es la migración "--font-subheading -> --font-body" del plan). */
+  --font-heading:    var(--font-display);
+  --font-subheading: var(--font-body);
 
   --line-display: 1.03;  /* M17: leading ceñido del H1 display — compensa el salto de escala y NO roba alto vertical (respeta el above-fold de M4). */
   --line-tight:  1.15;

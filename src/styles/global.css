@@ -5,19 +5,24 @@
 
 /* =========================================================================
    Fontsource self-host (paquetes en package.json).
-   M23 (T5-09): en los pesos estáticos (Source Sans Pro, Lato) se importa SOLO el
-   subset `latin` de cada peso. Antes `<peso>.css` arrastraba TODOS los subsets
-   (latin-ext, cyrillic, vietnamese…) con ~13 KiB de @font-face/CSS no usado.
-   El sitio es es-MX → solo latin.
-   Oswald es una fuente VARIABLE: su paquete no expone un CSS `latin` aparte
-   (solo `index.css`/`wght.css`), así que se queda en `index.css`.
-   font-display: swap por defecto.
+   v4 · V4-02 (2026-07-09): tri-stack VARIABLE que reemplaza Oswald/Source Sans/Lato.
+     - Fraunces        -> display (H1/headings). standard.css = ejes opsz+SOFT+wght.
+     - Inter           -> body/UI (reemplaza SSP + Lato). wght.css = eje wght (100..900).
+     - JetBrains Mono  -> datos/cifras (rol NUEVO, mono tabular). wght.css.
+   Los 3 son fuentes VARIABLES: el paquete no expone un CSS `latin` aparte (solo los
+   CSS por-eje wght.css/standard.css, que declaran @font-face para TODOS los subsets).
+   El sitio es es-MX y el español entero cae en el subset `latin` (U+0000-00FF: incluye
+   á é í ó ú ñ ü ¡ ¿); el `unicode-range` de cada @font-face hace que el navegador SOLO
+   descargue el woff2 `-latin-*` (latin-ext/vietnamese/cyrillic/greek nunca se piden).
+   Así se preserva el objetivo de M23 (cero descargas de subset no usado) sin un CSS
+   latin dedicado. font-display: swap viene por defecto en @fontsource.
+   Nota: los paquetes viejos (oswald/source-sans-pro/lato) NO se desinstalan aún:
+   `scripts/gen-og.mjs` (generador de imágenes OG) todavía los referencia por ruta —
+   migrarlo + regenerar los PNG de OG es un follow-up (fuera del alcance de V4-02).
    ========================================================================= */
-@import "@fontsource-variable/oswald/index.css";
-@import "@fontsource/source-sans-pro/latin-400.css";
-@import "@fontsource/source-sans-pro/latin-600.css";
-@import "@fontsource/lato/latin-400.css";
-@import "@fontsource/lato/latin-700.css";
+@import "@fontsource-variable/fraunces/standard.css";
+@import "@fontsource-variable/inter/wght.css";
+@import "@fontsource-variable/jetbrains-mono/wght.css";
 
 /* =========================================================================
    Tailwind v4 @theme — expone tokens como utilities (bg-accent, text-dark-1,
@@ -51,9 +56,14 @@
   --color-ink: var(--color-ink);
   --color-ink-deep: var(--color-ink-deep);
 
+  /* v4 · V4-02 — tri-stack expuesto como utilities: font-display / font-body / font-mono.
+     Se conservan font-heading/font-subheading como alias (compat con utilities y con
+     el tema; ambos resuelven al nuevo tri-stack vía los tokens de :root). */
+  --font-display: var(--font-display);
+  --font-body: var(--font-body);
+  --font-mono: var(--font-mono);
   --font-heading: var(--font-heading);
   --font-subheading: var(--font-subheading);
-  --font-body: var(--font-body);
 
   --radius-card: var(--radius-4);
   --radius-tile: var(--radius-5);
@@ -96,6 +106,21 @@ button, input, select, textarea { font: inherit; color: inherit; }
 
 a { color: var(--color-primary-dark); text-decoration-thickness: 1px; text-underline-offset: 0.18em; }
 a:hover { color: var(--color-primary); }
+
+/* =========================================================================
+   v4 · V4-02 — Datos en mono tabular ("tablero de operador").
+   Utilidad para cifras/métricas: mono variable (JetBrains Mono) + numerales
+   tabulares (ancho fijo, para que los dígitos no "salten" al actualizarse o
+   animarse) + lining-nums. La consumen hero stats, MarginLeak, ProofBar, Stakes
+   y las métricas de logos en sus tareas (V4-05/06/07/08/12), que también pueden
+   aplicar `font-family: var(--font-mono)` directo en su CSS de componente.
+   ========================================================================= */
+.font-data {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums lining-nums;
+  font-feature-settings: "tnum" 1, "lnum" 1;
+  letter-spacing: 0;
+}
 
 /* =========================================================================
    Focus visible global — anillo cyan, único patrón en toda la app.
