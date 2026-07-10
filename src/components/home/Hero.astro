@@ -191,6 +191,21 @@ const {
     min-width: 0;
   }
 
+  /* V4-04 — Fold móvil (<=480px): el CTA primario quedaba FUERA del fold a
+     360-393px (hero-movil-01/02). Con eyebrow + H1 + claim + subhead + chip de
+     métricas + 3 bullets por delante, el botón caía ~700px abajo. Se sube el
+     bloque de CTAs por encima de los bullets (que pasan a apoyo, debajo) y se
+     compacta el ritmo vertical → el primario entra/roza el fold. Los bullets son
+     solo texto (sin elementos focoables), así que el orden de foco de los 3 CTAs
+     no se altera (WCAG 2.4.3) y el DOM/orden de lectura para lectores de pantalla
+     permanece intacto: solo cambia el orden VISUAL vía `order`. Complementa a
+     V4-03 (que recortó el vacío superior). */
+  @media (max-width: 480px) {
+    .hero__copy { gap: var(--space-4); }
+    .hero__copy > :global(.ctas-block) { order: 1; }
+    .hero__bullets { order: 2; }
+  }
+
   .hero__h1 {
     text-wrap: balance;
   }

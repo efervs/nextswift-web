@@ -350,6 +350,21 @@ const sizeClass = size === 'md' ? 'btn--md' : 'btn--lg';
      primario+WhatsApp (flex `order`, sin tocar el DOM ni el href/tracking).
      En desktop (>480px) el trío de 3 botones queda intacto (sin @media). */
   @media (max-width: 480px) {
+    /* V4-04 — en <=480px el trío se APILA y el primario ocupa el ancho completo:
+       inconfundible, con mayor área táctil, y sin que su texto largo ("Verificar
+       si su restaurante califica ->") desborde por el `white-space: nowrap` de
+       .btn a 360px. Se conserva el patrón de M5 (par primario + WA arriba, ghost
+       degradado a enlace debajo). Jerarquía resultante: primario (teal sólido,
+       full-width) > WhatsApp (outline) > ghost (enlace de texto). */
+    .ctas-trio {
+      flex-direction: column;
+      align-items: stretch;
+    }
+    .ctas-trio__primary {
+      white-space: normal;
+      text-align: center;
+    }
+
     .ctas-trio__ghost {
       order: 1;
       background: none;

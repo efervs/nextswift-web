@@ -218,14 +218,22 @@ a:hover { color: var(--color-primary); }
 
 .btn--full { width: 100%; }
 
-/* Primary — relleno sólido cyan; texto navy 7.3:1 sobre fondo accent */
+/* v4 · V4-04 (2026-07-09) — Botón primario ÚNICO: deep teal sólido
+   (--color-action #0A6C74), texto blanco = 6.16:1 (AA, ver tokens.css V4-01).
+   Reemplaza el neón #3EEAF3 como fill del CTA (leía "barato" e invertía la
+   jerarquía). El radio lo aporta la clase de tamaño (--radius-3 en .btn--md/--lg)
+   → ni pill ni rect afilado; la flecha ya vive en el markup de CTAs.astro. Esta
+   ÚNICA regla global unifica TODA instancia de .btn--primary (hero, cierres,
+   nav de formularios /auditoria y /diagnostico, páginas gracias-*) en un solo
+   tratamiento idéntico en todos los breakpoints. Hover -> --color-action-hover
+   (#08555C, blanco 8.52:1). */
 .btn--primary {
-  background: var(--color-accent);
-  color: var(--color-accent-ink);
+  background: var(--color-action);
+  color: var(--color-text-on-dark);
   box-shadow: var(--shadow-2);
 }
 .btn--primary:hover {
-  background: var(--color-primary);
+  background: var(--color-action-hover);
   color: var(--color-text-on-dark);
   box-shadow: var(--shadow-3);
 }
