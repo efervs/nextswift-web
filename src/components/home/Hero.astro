@@ -60,7 +60,9 @@ const {
     {/* M8 (T6-02): tira de PRUEBA — solo móvil (<768px). Sube las 3 cifras del
         mini-dashboard al primer viewport, donde >70% del tráfico sí las ve.
         En desktop se oculta: ahí las cifras viven en el overlay de la foto
-        (.hero__dashboard). Mismos datos reales: +42% (Temaky) · 10 días (promesa) · 4.6★ (Pangas). */}
+        (.hero__dashboard). Mismos datos reales: +42% (Temaky) · 10 días (promesa) · 4.6★ (Pangas).
+        V4-06: cifras en --font-mono tabular / --color-action (ver comentario junto a
+        .hero__metric-value más abajo — reemplaza el tratamiento accent-on-light previo). */}
     <dl class="hero__metrics" aria-label="Resultados documentados con clientes de NextSwift">
       <div class="hero__metric">
         <dt class="hero__metric-label">Margen delivery</dt>
@@ -208,25 +210,26 @@ const {
     .hero__bullets { order: 2; }
   }
 
+  /* V4-06: declarado explícito (no solo heredado vía .heading--display) para que el H1
+     del hero no dependa en silencio del alias --font-heading -> --font-display: si ese
+     alias cambia en el futuro, el H1 de dolor conserva su tratamiento display propio. */
   .hero__h1 {
+    font-family: var(--font-display);
+    line-height: var(--line-display);
+    letter-spacing: var(--tracking-display);
     text-wrap: balance;
   }
 
-  /* M17 (TB-04/TB-08): contraste de peso Oswald-firma. El eyebrow (kicker) baja al
-     extremo LIGERO del eje variable de Oswald (300) frente al H1 display a 700 —
-     misma familia CONGELADA, extremos opuestos del eje = la firma tipográfica. Solo
-     el eyebrow del hero (la tesis); los demás eyebrows quedan como están (fuera de
-     alcance). Oswald ya está precargada ATF (M23) → sin costo de LCP. El color y el
-     tracking (--tracking-eyebrow) los hereda del componente Eyebrow → contraste AA
-     intacto (el peso no cambia el contraste de color). */
+  /* V4-06: el contraste "extremo ligero vs extremo pesado de un mismo eje variable"
+     (M17/TB-04/TB-08) era una firma propia de Oswald. Con --font-heading ahora
+     aliasado a Fraunces (V4-02), un kicker uppercase en serif a peso 300 deja de leerse
+     como "tablero" y pierde legibilidad a 11-14px. El eyebrow del hero vuelve al
+     sistema Inter (--font-body) que ya usa el resto de eyebrows del sitio vía el
+     componente base Eyebrow.astro, con peso propio (700) para conservar su jerarquía
+     de apertura sobre el H1. tracking-eyebrow y color siguen heredados del componente. */
   .hero :global(.hero__eyebrow) {
-    font-family: var(--font-heading);
-    font-weight: 300;
-  }
-  @media (max-width: 480px) {
-    /* Piso de peso en móvil: 300 uppercase a ~11px (M20) se afina de más; 400 conserva
-       el contraste con el H1 sin sacrificar escaneabilidad. */
-    .hero :global(.hero__eyebrow) { font-weight: 400; }
+    font-family: var(--font-body);
+    font-weight: 700;
   }
 
   .hero__subhead {
@@ -249,8 +252,9 @@ const {
     text-wrap: balance;
   }
 
-  /* M8 (T6-02): tira de PRUEBA móvil. Tono surface-alt (fondo claro del hero) con valores
-     en accent-on-light (#147D83, 4.89:1 AA) — el #3EEAF3 fallaría contraste sobre claro. */
+  /* M8 (T6-02): tira de PRUEBA móvil. Tono surface-alt (fondo claro del hero); V4-06
+     migra el color de las cifras a --color-action (5.5:1 AA, ver comentario junto a
+     .hero__metric-value) — el #3EEAF3 crudo fallaría contraste sobre claro igual que antes. */
   .hero__metrics {
     display: flex;
     gap: var(--space-3);
@@ -276,7 +280,7 @@ const {
     font-weight: 600;
     line-height: 1.2;
     text-transform: uppercase;
-    letter-spacing: 0.04em;
+    letter-spacing: var(--tracking-eyebrow); /* V4-06: token compartido con Eyebrow, firma "tablero" */
     color: var(--color-dark-3); /* 7.7:1 sobre surface-alt (AA) */
   }
 
@@ -289,22 +293,33 @@ const {
   @media (max-width: 390px) {
     .hero__metric-label {
       font-size: 0.625rem;
+      /* V4-06: se mantiene el hardcode (no var(--tracking-eyebrow), que aquí ya vale
+         0.06em) porque este valor angosto fue el ajuste fino que resolvió TD-08; la
+         paridad de filas la garantiza sobre todo min-height abajo, pero no vale la
+         pena reabrir ese breakpoint verificado sin evidencia nueva. */
       letter-spacing: 0.02em;
       min-height: calc(1.2em * 2);
     }
   }
 
+  /* V4-06: cifras del chip en JetBrains Mono tabular — mismo tratamiento que el
+     dato-héroe de <MarginLeak/> (firma "tablero de operador"). --color-action en vez
+     de --color-accent-on-light: 5.5:1 sobre --color-surface-alt vs 4.37:1 del
+     accent-on-light (queda al borde de AA-normal a 18px/700, que no llega al piso de
+     "texto grande" de WCAG de 18.66px). */
   .hero__metric-value {
     margin: 0;
-    font-family: var(--font-heading);
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums lining-nums;
+    font-feature-settings: "tnum" 1, "lnum" 1;
     font-size: clamp(1.125rem, 1rem + 0.6vw, 1.5rem);
-    font-weight: 700;
+    font-weight: 600;
     line-height: 1;
-    color: var(--color-accent-on-light);
+    color: var(--color-action);
   }
 
   .hero__metric-star {
-    color: var(--color-accent-on-light);
+    color: var(--color-action);
     margin-left: 0.05em;
   }
 
