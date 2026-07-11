@@ -17,6 +17,14 @@
  * en desktop. Íconos SVG inline provisionales — M18 los centralizará en <Icon/>.
  * M18 (TB-06): la cifra baja de .metric-md (big-number) a texto de apoyo (--fs-lead) para
  * no competir con el dispositivo-firma <MarginLeak/>; son promesas, no prueba.
+ *
+ * V4-07 (2026-07-11): la franja leía como 3 cards genéricas bordeadas (borde+sombra+radius
+ * en el contenedor) -> refuerza el card-soup que v4 está matando. Se aplana a franja de
+ * datos: el contenedor pierde borde/sombra/radius y queda acotado solo por hairlines
+ * top/bottom (--color-border), sin elevación. La cifra pasa a --font-mono tabular +
+ * --color-action y el label adopta el MISMO tratamiento que .hero__metric-label (uppercase,
+ * --tracking-eyebrow) -> unifica el lenguaje "tablero de operador" entre Hero y ProofBar.
+ * Las 3 promesas y su copy NO cambian.
  */
 type IconName = 'dias' | 'margen' | 'garantia';
 
@@ -76,13 +84,14 @@ const {
 
 <style>
   /* Barra contenida (vive dentro del Section del hero, entre <Hero/> y la métrica agregada).
-     Tono superficie-alt para diferenciarse del fondo blanco del hero sin gritar. */
+     Tono superficie-alt para diferenciarse del fondo blanco del hero sin gritar.
+     V4-07: sin borde+sombra+radius (eso leía como card) -> solo hairlines top/bottom que
+     acotan la franja, superficie quieta, cero elevación. */
   .proof-bar {
     margin-block: var(--space-2);
     background: var(--color-surface-alt);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-4);
-    box-shadow: var(--shadow-1);
+    border-top: 1px solid var(--color-border);
+    border-bottom: 1px solid var(--color-border);
     /* space-3 (no space-4): mantiene el alto < 100px desktop — criterio de verificación M16.
        Sigue siendo "compacto"; el contenido de cada columna ya ronda ~64px. */
     padding-block: var(--space-3);
@@ -137,21 +146,32 @@ const {
 
   /* M18 (TB-06): estas son PROMESAS (no prueba), y el big-number (.metric-md, Oswald
      hasta 2.5rem) competía con el dispositivo-firma <MarginLeak/> —el único artefacto de
-     prueba con forma propia—. Se baja a texto de apoyo: Oswald a --fs-lead, sin escala
-     display. La cifra sigue legible y anclada; deja de ser un big-number repetido. */
+     prueba con forma propia—. Se baja a texto de apoyo, sin escala display.
+     V4-07: de Fraunces a --font-mono tabular + --color-action — mismo tratamiento que
+     .hero__metric-value (Hero.astro), firma "tablero de operador" compartida entre hero
+     y esta franja. */
   .proof-bar__metric {
     display: block;
-    font-family: var(--font-heading);
-    font-size: var(--fs-lead);
+    margin: 0;
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums lining-nums;
+    font-feature-settings: "tnum" 1, "lnum" 1;
+    font-size: clamp(1.125rem, 1rem + 0.6vw, 1.5rem);
     font-weight: 600;
     line-height: 1;
-    color: var(--color-primary-dark);
+    color: var(--color-action);
   }
 
+  /* V4-07: mismo tratamiento que .hero__metric-label (Hero.astro) — uppercase +
+     --tracking-eyebrow — para que la franja lea como continuación del "tablero" del hero
+     en vez de un label de card genérica. */
   .proof-bar__label {
     font-family: var(--font-subheading);
-    font-size: 0.8125rem;
-    line-height: var(--line-snug);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    line-height: 1.2;
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-eyebrow);
     /* dark-3 (no text-muted): pasa WCAG AA 4.5:1 sobre surface-alt (~7.7:1). */
     color: var(--color-dark-3);
   }
