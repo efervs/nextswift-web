@@ -91,16 +91,18 @@ const {
   </div>
 
   <div class="hero__visual">
-    {/* M16 v3 (TB-01/TB-02): el visual ES la tesis. El dispositivo-firma <MarginLeak/>
-        da forma a la fuga de margen con la cifra REAL, reemplazando el mini-dashboard
-        inventado. Cifra en vivo: "3–7 pts de margen/mes" (headline de Stakes; inverso de
-        la promesa core validada por Efer). */}
+    {/* M16 v3 (TB-01/TB-02) + V4-05: el visual ES la tesis y el medidor es el PROTAGONISTA
+        (dato-héroe). El dispositivo-firma <MarginLeak/> da forma a la fuga de margen con la
+        cifra REAL en mono tabular — drenado en rust (--color-loss), retenido en spark. Cifra
+        en vivo: "3–7 pts de margen/mes" (headline de Stakes; inverso de la promesa core
+        validada por Efer). V4-05: el `unit` deja la jerga ("coladera") por su equivalente
+        llano en $ — misma afirmación (3–7 pts = $3–$7 por cada $100), sin inventar cifra. */}
     <MarginLeak
       size="hero"
       tone="on-light"
-      caption="Margen operativo · cada mes sin sistema"
+      caption="Fuga de margen · cada mes sin sistema"
       metric="3–7 pts"
-      unit="de margen que se van por la coladera"
+      unit="De cada $100 de venta se escurren $3–$7."
       drained={32}
     />
 
@@ -355,7 +357,11 @@ const {
 
   /* M16 v3: la columna visual es ahora la TESIS (drenaje de margen), enmarcada como un
      readout de P&L (surface-alt + borde) — no una foto. El dispositivo-firma <MarginLeak/>
-     es el protagonista; la firma de Efer va al pie, en rol de apoyo. */
+     es el protagonista; la firma de Efer va al pie, en rol de apoyo.
+     V4-05: superficie QUIETA (papel cálido + hairline), no card. Se retira la elevación
+     (box-shadow: var(--shadow-1)) — la doctrina v4 reserva la sombra para 2 momentos firma
+     (oferta + garantía); el hero es papel plano con regla fina para que el medidor —no la
+     caja— sea lo que pesa. */
   .hero__visual {
     display: flex;
     flex-direction: column;
@@ -369,7 +375,6 @@ const {
     background: var(--color-surface-alt);
     border: 1px solid var(--color-border);
     border-radius: var(--radius-5);
-    box-shadow: var(--shadow-1);
   }
 
   /* Firma de autoridad (apoyo): avatar pequeño + nombre/rol, con divisor superior.
