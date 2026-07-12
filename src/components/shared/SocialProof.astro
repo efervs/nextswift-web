@@ -27,6 +27,14 @@ interface Logo {
    * (ej. Sr. Boneless, solo-en-banda por decisión de Efer) se omite: hueco marcado.
    */
   metric?: string;
+  /**
+   * V4-08: los .webp fuente son rasters OPACOS con el fondo de marca ya horneado
+   * en el pixel (negro/verde/crema/blanco según el logo) — no hay versión con
+   * alpha. 'dark' marca los que traen fondo oscuro (Pangas, Temaky, Oita Fresh):
+   * se invierten antes del blend para poder "apagar" ese fondo sobre la tarjeta
+   * clara común. 'light' (default) es el resto (Sr. Boneless, Hare Krishna).
+   */
+  tone?: 'dark' | 'light';
 }
 
 interface Props {
@@ -48,12 +56,12 @@ const {
   contexto = 'en 3 de 5 restaurantes acompañados por NextSwift en Monterrey',
   logos = [
     // M11: micro-métrica real bajo cada logo (cifras de src/content/cases/*.md).
-    { src: '/images/logos/pangas.webp', alt: 'Pangas Sabores del Mar — cliente NextSwift', metric: '4.4★ → 4.6★' },
-    { src: '/images/logos/temaky.webp', alt: 'Temaky Sushi — cliente NextSwift', metric: '+42% margen neto' },
-    { src: '/images/logos/oita-fresh.webp', alt: 'Oita Fresh — cliente NextSwift', metric: '$0 → $300k/mes' },
+    { src: '/images/logos/pangas.webp', alt: 'Pangas Sabores del Mar — cliente NextSwift', metric: '4.4★ → 4.6★', tone: 'dark' },
+    { src: '/images/logos/temaky.webp', alt: 'Temaky Sushi — cliente NextSwift', metric: '+42% margen neto', tone: 'dark' },
+    { src: '/images/logos/oita-fresh.webp', alt: 'Oita Fresh — cliente NextSwift', metric: '$0 → $300k/mes', tone: 'dark' },
     // TODO Efer: Sr. Boneless no tiene caso/cifra publicable (solo-en-banda). Sin métrica = hueco marcado.
-    { src: '/images/logos/sr-boneless.webp', alt: 'Sr. Boneless — cliente NextSwift' },
-    { src: '/images/logos/hare-krishna.webp', alt: 'Hare Krishna — cliente NextSwift', metric: 'Caso activo 2026' },
+    { src: '/images/logos/sr-boneless.webp', alt: 'Sr. Boneless — cliente NextSwift', tone: 'light' },
+    { src: '/images/logos/hare-krishna.webp', alt: 'Hare Krishna — cliente NextSwift', metric: 'Caso activo 2026', tone: 'light' },
   ],
   tone = 'alt',
 } = Astro.props;
@@ -103,7 +111,7 @@ function getInitials(name: string): string {
 {showLogos && (
   <Section spacing="sm" tone={tone === 'surface' ? 'surface' : 'alt'} as="div">
     <aside class="sp-logos-band" aria-label="Restaurantes representativos atendidos por NextSwift">
-      <p class="sp-logos-band__lede">Acompañando restaurantes en Monterrey:</p>
+      <Eyebrow as="p" tone="neutral" class="sp-logos-band__lede">Acompañando restaurantes en Monterrey</Eyebrow>
       <ul class="sp-logos-band__list" role="list">
         {logos.map((l, i) => (
           <li class="sp-logos-band__cell">
@@ -115,7 +123,7 @@ function getInitials(name: string): string {
                 decoding="async"
                 width="480"
                 height="240"
-                class="sp-logos-band__img"
+                class:list={['sp-logos-band__img', l.tone === 'dark' && 'sp-logos-band__img--dark']}
               />
             </span>
             {l.metric
@@ -223,13 +231,10 @@ function getInitials(name: string): string {
     align-items: center;
   }
 
+  /* V4-08: el título de franja migra al componente Eyebrow compartido (nuevo
+     sistema) — deja de tener CSS propio; solo se centra dentro del flex column. */
   .sp-logos-band__lede {
     margin: 0;
-    font-family: var(--font-subheading);
-    font-size: 0.875rem;
-    color: var(--color-text-muted);
-    letter-spacing: var(--tracking-wide);
-    text-transform: uppercase;
   }
 
   .sp-logos-band__list {
@@ -266,13 +271,17 @@ function getInitials(name: string): string {
     width: 100%;
   }
 
-  /* M11 — micro-métrica real bajo el logo. primary-dark sobre surface-alt = alto contraste AA.
-     min-height reserva la línea para que los logos sin cifra (hueco) sigan alineados. */
+  /* M11/V4-08 — micro-métrica real bajo el logo, tratada como lectura de tablero:
+     font-mono (cifra tabular, firma v4) + micro-label uppercase. primary-dark
+     sobre surface-alt = alto contraste AA. min-height reserva la línea para que
+     los logos sin cifra (hueco) sigan alineados. */
   .sp-logos-band__metric {
-    font-family: var(--font-subheading);
-    font-size: 0.8125rem;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
     font-weight: 700;
     line-height: var(--line-snug);
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
     color: var(--color-primary-dark);
     text-align: center;
     text-wrap: balance;
@@ -284,42 +293,63 @@ function getInitials(name: string): string {
     visibility: hidden;
   }
 
-  /* Cada logo en un tile uniforme 2:1. El fondo nativo de la marca (negro, verde,
-     crema, blanco) queda enmarcado como card para que los logos claros no se fundan
-     con la sección y los oscuros lean a color, sin grayscale. */
+  /* V4-08 — lockup monocromo unificado. Los .webp fuente son rasters OPACOS con
+     el fondo de marca horneado en el pixel (negro, verde, crema, blanco según el
+     caso) → antes cada tile leía a un color distinto y la franja se veía messy.
+     Se normaliza TODO sobre una única superficie (surface-alt cálido) con
+     mix-blend-mode: multiply, que "apaga" el fondo propio de cada raster y deja
+     solo el trazo en tinta oscura. Los tone="dark" (Pangas/Temaky/Oita, fondo
+     negro/verde) se invierten primero para que su fondo también quede claro
+     antes del blend — sin eso, multiply no puede apagar un fondo oscuro.
+     isolation:isolate confina el blend a esta tarjeta (no se filtra a hermanos). */
   .sp-logos-band__item {
     display: flex;
     align-items: center;
     justify-content: center;
     width: 100%;
-    max-width: 6rem;            /* 2:1 → altura <= 3rem en mobile */
+    max-width: 7.5rem;           /* 2:1 → altura <= 3.75rem en mobile */
     aspect-ratio: 2 / 1;
+    padding: var(--space-2);
     overflow: hidden;
     border-radius: var(--radius-3, 0.75rem);
     border: 1px solid var(--color-border, rgba(0, 51, 102, 0.12));
     box-shadow: var(--shadow-1);
-    background: var(--color-surface, #fff);
+    background: var(--color-surface-alt);
+    isolation: isolate;
   }
 
   @media (min-width: 768px) {
-    .sp-logos-band__item { max-width: 8rem; }  /* 2:1 → altura <= 4rem en desktop */
+    .sp-logos-band__item { max-width: 10rem; }  /* 2:1 → altura <= 5rem en desktop */
   }
 
   .sp-logos-band__img {
     display: block;
     width: 100%;
     height: 100%;
-    object-fit: cover;          /* el tile ya es 2:1 → llena la card sin distorsión */
-    opacity: 0.85;
-    transition: opacity var(--dur-2, 180ms) var(--ease-out, ease-out);
+    object-fit: contain;        /* respeta el padding: la marca "flota" en la tarjeta, no la llena */
+    mix-blend-mode: multiply;
+    filter: grayscale(1) contrast(1.15) brightness(1.05);
+    transition: filter var(--dur-2, 180ms) var(--ease-out, ease-out);
+  }
+
+  /* tone="dark" (Pangas, Temaky, Oita Fresh): fondo negro/verde horneado en el
+     raster → se invierte antes del multiply para poder apagarlo sobre la
+     tarjeta clara común (mismo resultado final que los tone="light"). */
+  .sp-logos-band__img--dark {
+    filter: grayscale(1) invert(1) brightness(1.8) contrast(1.15);
   }
 
   /* M18 (TB-06): sin lift/scale — los logos NO son navegables (el hover-lift se reserva
-     para cards navegables blog/casos). Se conserva SOLO el realce de opacidad: es una
-     ayuda de legibilidad del logo, no la textura ambiental de card. */
+     para cards navegables blog/casos). Se conserva un realce sutil de contraste como
+     única señal de interacción, coherente con el tratamiento monocromo. */
   .sp-logos-band__item:hover .sp-logos-band__img,
   .sp-logos-band__item:focus-within .sp-logos-band__img {
-    opacity: 1;
+    filter: grayscale(1) contrast(1.3) brightness(1);
+  }
+
+  .sp-logos-band__item:hover .sp-logos-band__img--dark,
+  .sp-logos-band__item:focus-within .sp-logos-band__img--dark {
+    filter: grayscale(1) invert(1) brightness(1.9) contrast(1.3);
   }
 
   /* ----- Capa 3: testimonios contextuales ------------------------------- */
@@ -481,7 +511,7 @@ function getInitials(name: string): string {
   }
 
   @media (prefers-reduced-motion: reduce) {
-    /* M18: ya no hay transform/lift en los logos; solo queda el fundido de opacidad. */
+    /* M18/V4-08: sin transform/lift en los logos; solo queda el fundido de filter (contraste). */
     .sp-logos-band__img {
       transition: none;
     }
