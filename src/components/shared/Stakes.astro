@@ -193,7 +193,10 @@ const reframe =
             )}
           </span>
           <div class="leak__head">
-            <span class="leak__metric metric-xl" aria-hidden="true">{leak.metric}</span>
+            {/* V4-12: la cifra de PÉRDIDA en --font-mono tabular + rust (--loss-on-dark),
+                NO la utilidad global .metric-xl (que gobierna --font-heading + teal y la
+                comparte SocialProof). El número ES la fuga → mono-textura sobre navy profundo. */}
+            <span class="leak__metric" aria-hidden="true">{leak.metric}</span>
             <span class="leak__unit">{metricUnitMap[leak.id]}</span>
           </div>
           <h3 class="leak__title">{leak.title}</h3>
@@ -223,9 +226,18 @@ const reframe =
 </section>
 
 <style>
+  /* V4-12: superficie sobre --color-ink-deep (#04263B, navy profundo v4) en vez del
+     --color-dark-1 plano. Es la cara oscura donde la firma cool/warm de v4 explota:
+     texto frío on-dark, PÉRDIDA cálida en rust. --loss-on-dark es un sibling ACLARADO
+     de --color-loss (#C2410C, token semántico de pérdida): a ese hue lift alcanza AA
+     sobre ink-deep. #C2410C directo da 3.01:1 (solo AA-large); #E8622A da 4.62:1 sobre
+     #04263B → AA texto normal, manteniendo el rust cálido. No se toca tokens.css (SSOT,
+     fuera del lane): se deriva localmente por la restricción de contraste declarada en
+     el propio token (--color-loss L59: "imposible 4.5:1 sobre blanco Y ink-deep a la vez"). */
   .stakes {
+    --loss-on-dark: #E8622A;
     width: 100%;
-    background: var(--color-dark-1);
+    background: var(--color-ink-deep);
     color: var(--color-text-on-dark);
     position: relative;
     isolation: isolate;
@@ -236,8 +248,9 @@ const reframe =
     position: absolute;
     inset: 0;
     background:
-      radial-gradient(ellipse at top right, rgba(62, 234, 243, 0.08), transparent 55%),
-      linear-gradient(180deg, var(--color-dark-1) 0%, var(--color-dark-4) 100%);
+      /* brasa cálida tenue (pérdida) arriba-derecha — siembra la tensión warm, sin neón */
+      radial-gradient(ellipse at top right, rgba(232, 98, 42, 0.07), transparent 55%),
+      linear-gradient(180deg, var(--color-ink-deep) 0%, #021826 100%);
     z-index: -1;
   }
 
@@ -268,13 +281,20 @@ const reframe =
   }
 
   /* ----- Lista de fugas --------------------------------------------------- */
+  /* V4-12 (anti card-soup): las fugas dejan de ser 4 cards bordeadas idénticas y pasan
+     a una REJILLA de filas agrupadas por HAIRLINES (una sola regla fina entre celdas),
+     no 4 cajas con borde+radio+sombra. La cohesión la da la mono-textura de las cifras
+     grandes en rust, no el contorno de cada card. Un hairline exterior enmarca el grupo
+     como "un solo tablero de pérdidas". */
   .stakes__list {
     list-style: none;
     margin: 0;
     padding: 0;
     display: grid;
     grid-template-columns: 1fr;
-    gap: var(--space-6);
+    gap: 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+    border-left: 1px solid rgba(255, 255, 255, 0.12);
   }
 
   @media (min-width: 720px) {
@@ -295,15 +315,17 @@ const reframe =
     row-gap: var(--space-2);
     align-items: start;
     padding: var(--space-6);
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.10);
-    border-left: 4px solid var(--color-accent);
-    border-radius: var(--radius-4);
+    /* Hairlines de agrupación (no cajas): una regla fina cierra cada celda por derecha
+       y abajo → rejilla continua, sin card-soup. Sin fill, sin radio, sin borde de acento. */
+    border-right: 1px solid rgba(255, 255, 255, 0.12);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
     /* M18 (TB-06): sin hover — la fuga NO es navegable. El hover-lift/tint aquí era
        ruido ambiental (la misma textura de card que todo lo demás); se reserva el
        hover para cards navegables (blog/casos). El estado final es estático. */
   }
 
+  /* Micro-acento cálido de pérdida: un tick rust fino al inicio de cada fila (reemplaza
+     el neón border-left de las cards). Señal de "aquí se drena", coherente con la firma. */
   .leak__icon {
     grid-area: icon;
     display: inline-flex;
@@ -311,7 +333,8 @@ const reframe =
     justify-content: center;
     width: 32px;
     height: 32px;
-    color: var(--color-accent);
+    color: var(--loss-on-dark);
+    opacity: 0.85; /* la CIFRA rust es el protagonista; el ícono acompaña sin competir */
     flex-shrink: 0;
   }
 
@@ -329,18 +352,32 @@ const reframe =
     min-width: 0;
   }
 
-  /* .leak__metric — tipografía gobernada por .metric-xl (utilities.css / M15).
-     Sin props aquí para que la util-class global gane especificidad
-     (el atributo data-astro-* de Astro elevaría la especificidad scoped
-     sobre cualquier selector global si se repitieran las mismas props). */
+  /* V4-12: la cifra de pérdida ES el protagonista visual. Mono tabular (firma "tablero de
+     operador", igual que MarginLeak.leak-meter__metric) en rust --loss-on-dark sobre navy
+     profundo → la tensión cool/warm de v4. tabular-nums fija el ancho de dígitos (sin salto
+     de layout). El tamaño display la vuelve texto grande → AA-large cubierto con holgura;
+     además --loss-on-dark alcanza 4.62:1 sobre --color-ink-deep = AA texto normal. */
+  .leak__metric {
+    display: block;
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums lining-nums;
+    font-feature-settings: "tnum" 1, "lnum" 1;
+    font-size: clamp(2.25rem, 1.7rem + 2.6vw, 3.5rem);
+    font-weight: 600;
+    line-height: 1;
+    letter-spacing: -0.01em;
+    color: var(--loss-on-dark);
+    overflow-wrap: break-word;
+  }
 
+  /* Micro-label uppercase bajo la cifra: la unidad de la pérdida, en tono frío on-dark. */
   .leak__unit {
-    font-family: var(--font-body);
+    font-family: var(--font-mono);
     font-size: var(--fs-small, 0.8125rem);
     line-height: 1.2;
     color: var(--color-soft);
     text-transform: uppercase;
-    letter-spacing: 0.06em;
+    letter-spacing: 0.08em;
   }
 
   .leak__title {
@@ -369,10 +406,14 @@ const reframe =
     max-width: 56ch;
   }
 
-  /* ----- Reframe final (Ciancio: gasto de protección) -------------------- */
+  /* ----- Reframe final (Ciancio: gasto de protección) --------------------
+     V4-12: cierre del arco pérdida->protección. Se retira el borde neón --color-accent
+     y se sella con una regla cálida rust (--loss-on-dark): el mismo hilo warm que marcó
+     cada fuga ahora encabeza el reencuadre. Fondo apenas elevado sobre el navy profundo
+     (rgba clara) → una superficie quieta, no otra card bordeada. */
   .stakes__reframe {
-    background: var(--color-dark-2);
-    border-top: 3px solid var(--color-accent);
+    background: rgba(255, 255, 255, 0.05);
+    border-top: 3px solid var(--loss-on-dark);
     border-radius: var(--radius-4);
     padding: var(--space-7) var(--space-6);
     text-align: center;
@@ -474,7 +515,7 @@ const reframe =
       padding: var(--space-5);
     }
 
-    /* .leak__metric mobile override eliminado — .metric-xl ya escala por vw (M15). */
+    /* .leak__metric mobile override innecesario — .leak__metric (mono) ya escala por vw (V4-12). */
 
     .leak__title {
       margin-top: var(--space-2);
