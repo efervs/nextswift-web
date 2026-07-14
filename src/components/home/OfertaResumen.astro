@@ -16,6 +16,12 @@
  * y Comercial orbitan como dos SATÉLITES compactos horizontales con acento a la
  * izquierda. Sin hover-lift (bloques no navegables → M18 change 3). Sin big-number
  * nuevo. Copy de promesas y CTA intactos (solo composición/jerarquía).
+ *
+ * V4-13 (anti card-soup): esta es la OFERTA ANCLA = MOMENTO-FIRMA #1 del home. La
+ * sección pasa a superficie papel (surface-alt) y la card ancla recibe la ÚNICA
+ * elevación reservada (--elevation-signature) del bloque → sobresale del ritmo plano.
+ * Los satélites quedan quietos (superficie blanca + hairline, sin sombra). Se preserva
+ * la asimetría M18 (ancla vertical + 2 satélites orbitando). No se toca copy ni items.
  */
 import Eyebrow from '../ui/Eyebrow.astro';
 import Heading from '../ui/Heading.astro';
@@ -115,17 +121,19 @@ const [anchor, ...satellites] = palancas;
 </section>
 
 <style>
+  /* V4-13: superficie PAPEL (surface-alt) — momento-firma #1. Contra este fondo cálido,
+     la card ancla elevada (--elevation-signature) sobresale del ritmo plano del home. */
   .oferta-resumen {
     width: 100%;
-    background: var(--color-surface);
+    background: var(--color-surface-alt);
   }
   .oferta-resumen__inner {
     max-width: var(--content-max);
     margin-inline: auto;
-    padding: var(--space-9) var(--space-4);
+    padding: var(--rhythm-block) var(--space-4);
     display: flex;
     flex-direction: column;
-    gap: var(--space-6);
+    gap: var(--rhythm-within);
   }
   .oferta-resumen__header {
     display: flex;
@@ -150,7 +158,9 @@ const [anchor, ...satellites] = palancas;
   }
 
   /* Ancla: card grande vertical con top-bar de acento (la palanca-tesis domina).
-     SIN hover-lift (M18 change 3): bloque no navegable, el CTA vive aparte. */
+     SIN hover-lift (M18 change 3): bloque no navegable, el CTA vive aparte.
+     V4-13: ÚNICO portador de elevación reservada (--elevation-signature) del bloque.
+     Superficie blanca sobre el papel (surface-alt) → sobresale del ritmo plano. */
   .palanca-anchor {
     --accent: var(--color-accent);   /* fallback; sobreescrito inline */
     --accent-ink: #FFFFFF;
@@ -158,10 +168,11 @@ const [anchor, ...satellites] = palancas;
     flex-direction: column;
     gap: var(--space-4);
     padding: var(--space-6);
-    background: var(--color-surface-alt);
+    background: var(--color-surface);
     border: 1px solid var(--color-border);
     border-top: 6px solid var(--accent);
     border-radius: var(--radius-4);
+    box-shadow: var(--elevation-signature);
   }
 
   .palanca-anchor__icon {
@@ -219,13 +230,15 @@ const [anchor, ...satellites] = palancas;
     }
   }
 
+  /* Satélites: QUIETOS (sin sombra) — la elevación es exclusiva del ancla. Superficie
+     blanca + hairline + acento a la izquierda; orbitan sin competir con el ancla. */
   .palanca-sat {
     display: grid;
     grid-template-columns: auto 1fr;
     gap: var(--space-3);
     align-items: start;
     padding: var(--space-4) var(--space-5);
-    background: var(--color-surface-alt);
+    background: var(--color-surface);
     border: 1px solid var(--color-border);
     border-left: 4px solid var(--accent);
     border-radius: var(--radius-4);

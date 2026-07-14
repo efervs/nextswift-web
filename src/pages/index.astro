@@ -13,6 +13,15 @@
  *    El big-number repetido (Oswald hasta 2.5rem) se colapsa a texto de apoyo en <ProofBar/>
  *    y en <SocialProof variant="agregada"/> para no competir con la firma.
  *  - hover-lift reservado a cards NAVEGABLES (blog/casos): retirado de Stakes, Oferta y logos.
+ *
+ * V4-13 (anti card-soup) — doctrina de ritmo + elevación reservada:
+ *  - RITMO por alternancia de SUPERFICIE, no por cajas: surface / surface-alt se turnan para
+ *    separar secciones sin que cada una sea una card bordeada. Secuencia de fondos:
+ *      Hero(surface) · logos(alt) · Stakes(ink-deep) · Plan(surface) · testimonios(surface)
+ *      · Oferta(alt, FIRMA) · agregada(alt) · Garantías(surface, FIRMA) · FAQ(alt).
+ *  - ELEVACIÓN RESERVADA a 2 momentos-firma (--elevation-signature): la oferta ancla y la
+ *    garantía. Todo lo demás queda PLANO (superficies quietas + hairline). Tokens de ritmo
+ *    (--rhythm-block/-lg/-within/-hairline, --elevation-signature/-flat) viven en tokens.css.
  */
 import Base from '../layouts/Base.astro';
 import Hero from '../components/home/Hero.astro';
@@ -48,12 +57,17 @@ const serviceSchema = buildServiceSchema({
 
   <SocialProof variant="logos" tone="alt" />
 
+  {/* V4-13: momento oscuro-firma (ink-deep). Ancla el arco de pérdida antes del plan. */}
   <Stakes variant="home" />
 
+  {/* V4-13: superficie blanca quieta — el plan es SECUENCIA (timeline numerado), no cards.
+      Plano (sin elevación); el respiro y la numeración dan la jerarquía. */}
   <ThreeStepPlan variant="home" />
 
   <SocialProof variant="testimonios" />
 
+  {/* V4-13: MOMENTO-FIRMA #1 — la oferta ancla. Superficie papel (alt) + card ancla ELEVADA
+      (--elevation-signature). Es de los 2 únicos bloques con sombra en el home. */}
   <OfertaResumen />
 
   {/* M11 (T1-05): prueba social pegada al CTA primario de la oferta. La cifra agregada real
@@ -67,7 +81,9 @@ const serviceSchema = buildServiceSchema({
 
   {/* M12: withCta={true} convierte GarantiasResumen en sección de cierre (garantía + CTA),
       repitiendo la llamada a la acción tras la lectura de las 4 garantías ancla.
-      La garantía verbatim ya aparece junto al CTA primario del hero vía CTAs.astro. */}
+      La garantía verbatim ya aparece junto al CTA primario del hero vía CTAs.astro.
+      V4-13: MOMENTO-FIRMA #2 — la garantía. Superficie blanca + cards ELEVADAS
+      (--elevation-signature). El otro único bloque con sombra del home. */}
   <GarantiasResumen tone="light" withCta={true} />
 
   <FAQ variant="global" tone="alt" />

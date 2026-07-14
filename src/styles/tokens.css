@@ -156,6 +156,30 @@
   /* padding-block mobile-first entre secciones (M14) */
   --section-gap-mobile: clamp(2rem, 5vh, 4rem);
 
+  /* ----- Doctrina de ritmo vertical (V4-13) ------------------------------
+     SSOT del ritmo del home para MATAR el card-soup: en vez de que cada
+     bloque sea una card bordeada idéntica, la jerarquía la da el RESPIRO
+     (espacio) + reglas hairline + alternancia de superficie. 3 TIERS,
+     nombres estables para que V4-14 (FAQ) y V4-15 (Footer) los CONSUMAN sin
+     adivinar (aguas abajo). Son ALIAS semánticos de --space-*: no crean
+     escala nueva, la nombran por intención.
+       Tier 1 · respiro GRANDE entre bloques narrativos distintos:
+         --rhythm-block-lg (space-11) · --rhythm-block (space-10).
+       Tier 2 · respiro MEDIO dentro de un bloque (header↔contenido↔cta):
+         --rhythm-within (space-7).
+       Tier 3 · HAIRLINE: agrupar/separar filas sin cajas (border cálido). */
+  --rhythm-block-lg: var(--space-11);   /* separación máxima entre movimientos narrativos */
+  --rhythm-block:    var(--space-10);   /* separación estándar entre secciones */
+  --rhythm-within:   var(--space-7);    /* respiro dentro de un bloque */
+  --rhythm-hairline: 1px solid var(--color-border);  /* regla fina cálida para agrupar sin caja */
+
+  /* Elevación RESERVADA (V4-13): la sombra deja de ser textura ambiental de
+     "toda card". Solo 2 momentos-firma del home la usan → señalan qué importa.
+       --elevation-signature: la oferta ancla (OfertaResumen) y la garantía.
+     El resto de superficies quedan PLANAS (0 sombra, apoyadas en hairline). */
+  --elevation-signature: var(--shadow-3);
+  --elevation-flat:      none;
+
   /* ----- Radios ----------------------------------------------------------- */
   --radius-1: 0.25rem;   /* 4  — chips, badges                   */
   --radius-2: 0.5rem;    /* 8  — inputs, buttons sm              */

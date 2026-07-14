@@ -12,6 +12,14 @@
  *
  * M18: la iconografía pasó al sistema central `ui/Icon.astro` (24×24, stroke
  * 1.75, hereda color vía currentColor). Se elimina el SVG inline provisional.
+ *
+ * V4-13 (anti card-soup): los 3 pasos dejan de ser cards bordeadas idénticas
+ * con borde+radio+hover-shadow (la misma textura de plantilla que Oferta y
+ * Garantías) y pasan a una SECUENCIA numerada (timeline): número display
+ * dominante que ENCODA el orden, unidos por una regla hairline continua (spine).
+ * Superficie blanca quieta, SIN elevación (la elevación queda reservada a los 2
+ * momentos-firma: oferta + garantía). La jerarquía la da la numeración + el
+ * respiro, no el contorno de cada celda.
  */
 import Heading from '../ui/Heading.astro';
 import Body from '../ui/Body.astro';
@@ -104,19 +112,23 @@ const pasos: [Paso, Paso, Paso] = [
 </section>
 
 <style>
+  /* V4-13: superficie blanca quieta (era surface-alt). En el ritmo del home queda
+     entre Stakes (oscuro) y testimonios (blanco); la alternancia de fondo la maneja
+     index.astro. Sin card-soup: el bloque es una SECUENCIA, no una rejilla de cajas. */
   .plan {
     width: 100%;
-    background: var(--color-surface-alt);
+    background: var(--color-surface);
     color: var(--color-text);
   }
 
   .plan__inner {
     max-width: var(--content-max);
     margin-inline: auto;
-    padding: var(--space-9) var(--space-4);
+    /* Ritmo tier-1 (respiro entre secciones) via padding-block; tier-2 dentro del bloque. */
+    padding: var(--rhythm-block) var(--space-4);
     display: flex;
     flex-direction: column;
-    gap: var(--space-6);
+    gap: var(--rhythm-within);
   }
 
   .plan__header {
@@ -126,94 +138,63 @@ const pasos: [Paso, Paso, Paso] = [
     max-width: var(--content-narrow);
   }
 
+  /* SECUENCIA numerada (timeline). Mobile: columna con spine vertical hairline a la
+     izquierda de los números. Sin cards: cada paso es una celda plana. */
   .plan__steps {
     list-style: none;
     margin: 0;
     padding: 0;
     display: grid;
     grid-template-columns: 1fr;
-    /* gap holgado: los badges sobresalen -28px y deben caber entre cards apiladas */
-    gap: var(--space-7);
-    counter-reset: step;
+    gap: var(--space-6);
     position: relative;
-    /* colchón superior para el badge del primer paso (sobresale del card) */
-    margin-top: var(--space-5);
-  }
-
-  @media (min-width: 768px) {
-    .plan__steps {
-      grid-template-columns: repeat(3, 1fr);
-      gap: var(--space-6);
-    }
-
-    /* Línea conectora horizontal: une los centros de los 3 badges.
-       Vive detrás de las cards (z-index 0); solo visible en los gaps. */
-    .plan__steps::before {
-      content: '';
-      position: absolute;
-      top: -1px;            /* centrada en el eje de los badges (borde sup. de las cards) */
-      left: 16.666%;        /* centro de la 1ª columna */
-      right: 16.666%;       /* centro de la 3ª columna */
-      height: 2px;
-      background: var(--color-accent);
-      z-index: 0;
-    }
   }
 
   .step {
     position: relative;
-    z-index: 1;                       /* sobre la línea conectora */
-    display: flex;
-    flex-direction: column;
-    text-align: center;
-    gap: var(--space-2);
-    /* padding-top holgado: deja pasar el badge que cabalga en top:-28px */
-    padding: var(--space-7) var(--space-4) var(--space-5);
-    background: var(--color-surface);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-4);
-    transition: transform var(--dur-2) var(--ease-out), border-color var(--dur-2) var(--ease-out), box-shadow var(--dur-2) var(--ease-out);
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-template-areas:
+      'num  icon'
+      'num  title'
+      'num  desc';
+    column-gap: var(--space-4);
+    row-gap: var(--space-2);
+    align-items: start;
   }
 
-  .step:hover {
-    transform: translateY(-4px);
-    border-color: var(--color-border-strong);
-    box-shadow: var(--shadow-3);
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .step { transition: border-color var(--dur-2) var(--ease-out), box-shadow var(--dur-2) var(--ease-out); }
-    .step:hover { transform: none; }
-  }
-
-  /* Badge circular numerado: cabalga sobre la línea conectora. */
+  /* Número display dominante: ENCODA el orden (01 · 02 · 03). Es el ancla visual del
+     paso, no una card. Mono tabular = firma "tablero de operador" (igual que Stakes). */
   .step__num {
-    position: absolute;
-    top: -28px;                       /* centro del badge = borde sup. del card */
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 2;                       /* sobre la línea y el card */
+    grid-area: num;
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 56px;
-    height: 56px;
-    border-radius: var(--radius-pill);
-    background: var(--color-accent);
-    color: var(--color-dark-1);
-    border: 3px solid var(--color-surface);   /* anillo que lo separa de la línea */
-    font-family: var(--font-heading);
-    font-size: 1.25rem;
-    font-weight: 700;
+    width: 3.25rem;
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums lining-nums;
+    font-feature-settings: "tnum" 1, "lnum" 1;
+    font-size: clamp(2rem, 1.4rem + 2vw, 2.75rem);
+    font-weight: 600;
     line-height: 1;
-    letter-spacing: var(--tracking-tight);
+    letter-spacing: -0.02em;
+    color: var(--color-action);        /* deep teal v4: el número es el acento, no un badge neón */
   }
 
-  /* Ícono por paso (search → gear → chart-up) vía ui/Icon.astro (M18).
-     El chip fija caja 24×24 y color; Icon hereda color (currentColor) y se
-     dimensiona por su atributo size (default 24). */
+  /* Spine hairline vertical que une los números en la secuencia (mobile). Reemplaza la
+     línea conectora neón que cabalgaba sobre las cards. */
+  .step:not(:last-child) .step__num::after {
+    content: '';
+    position: absolute;
+    top: 3rem;
+    bottom: calc(-1 * var(--space-6) - 0.5rem);
+    left: calc(1.625rem - 1px);        /* centrado bajo el número (mitad de 3.25rem) */
+    width: 2px;
+    background: var(--color-border);
+  }
+
   .step__icon {
-    align-self: center;               /* centra el SVG; título/desc quedan full-width */
+    grid-area: icon;
     display: inline-flex;
     width: 24px;
     height: 24px;
@@ -221,7 +202,7 @@ const pasos: [Paso, Paso, Paso] = [
   }
 
   .step__title {
-    align-self: center;               /* se ajusta al texto: subrayado del enlace acotado */
+    grid-area: title;
     max-width: 100%;
     font-family: var(--font-heading);
     font-size: var(--fs-h3);
@@ -229,36 +210,89 @@ const pasos: [Paso, Paso, Paso] = [
     line-height: var(--line-snug);
     color: var(--color-text);
     text-decoration: none;
+    text-wrap: balance;
   }
 
   a.step__title {
+    align-self: start;
+    justify-self: start;
     border-bottom: 2px solid transparent;
     transition: border-color var(--dur-2) var(--ease-out), color var(--dur-2) var(--ease-out);
   }
 
   a.step__title:hover {
-    color: var(--color-primary-dark);
-    border-bottom-color: var(--color-accent);
+    color: var(--color-action);
+    border-bottom-color: var(--color-action);
   }
 
   a.step__title:focus-visible {
-    outline: 3px solid var(--color-accent);
+    outline: 3px solid var(--color-action);
     outline-offset: 2px;
     box-shadow: var(--shadow-focus);
     border-radius: var(--radius-1);
   }
 
   .step__desc {
+    grid-area: desc;
     margin: 0;
     font-family: var(--font-body);
     font-size: var(--fs-body);
     line-height: var(--line-base);
     color: var(--color-text-muted);
+    max-width: 46ch;
   }
 
-  /* Compacto en landing: bloque ≤ 200px alto desktop (criterio aceptación).
-     Se conserva el padding-top space-7 para que el badge no se recorte. */
-  .plan--landing .plan__inner { padding-block: var(--space-7); }
-  .plan--landing .step { padding: var(--space-7) var(--space-4) var(--space-3); }
+  /* Desktop: la secuencia se despliega en 3 columnas, número arriba de cada paso,
+     unidos por una regla hairline HORIZONTAL continua (el spine se voltea). */
+  @media (min-width: 768px) {
+    .plan__steps {
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--space-8);
+    }
+
+    /* Regla horizontal continua que atraviesa la fila de números (la secuencia). */
+    .plan__steps::before {
+      content: '';
+      position: absolute;
+      top: calc((clamp(2rem, 1.4rem + 2vw, 2.75rem)) / 2);   /* centro vertical del número */
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: var(--color-border);
+      z-index: 0;
+    }
+
+    .step {
+      grid-template-columns: 1fr;
+      grid-template-areas:
+        'num'
+        'icon'
+        'title'
+        'desc';
+      row-gap: var(--space-3);
+      text-align: left;
+    }
+
+    .step__num {
+      justify-content: flex-start;
+      width: auto;
+      /* El número se apoya sobre la regla horizontal con un respaldo de superficie que
+         la "corta", dando la sensación de nodo en la línea. */
+      position: relative;
+      z-index: 1;
+      padding-right: var(--space-3);
+      background: var(--color-surface);
+    }
+
+    /* En desktop el spine es la regla horizontal (::before), no el pseudo del número. */
+    .step:not(:last-child) .step__num::after { display: none; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    a.step__title { transition: none; }
+  }
+
+  /* Compacto en landing: se conserva la secuencia, más apretada. */
+  .plan--landing .plan__inner { padding-block: var(--rhythm-within); }
   .plan--landing .step__desc { font-size: 0.9375rem; }
 </style>
