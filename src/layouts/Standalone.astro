@@ -1,0 +1,53 @@
+---
+/**
+ * Standalone — layout mínimo y AISLADO (sin Header/Footer/StickyCTA/CookieBanner
+ * ni scripts de Pixel/GA4 del sitio). Para páginas de una sola función que NO deben
+ * heredar la cáscara institucional de NextSwift — p. ej. una herramienta de cliente
+ * con su propia marca (formulario de Depósito Intocables en /retro-drivers).
+ *
+ * Importa global.css SOLO por reset + fuentes self-host (Inter / JetBrains Mono) +
+ * escalas de espacio; el COLOR de marca lo define la página que lo usa.
+ * `noindex` por defecto (herramienta interna / de cliente, fuera del nav y del SEO).
+ */
+import '../styles/global.css';
+import inter from '@fontsource-variable/inter/files/inter-latin-wght-normal.woff2?url';
+
+interface Props {
+  title?: string;
+  description?: string;
+  themeColor?: string;
+  lang?: string;
+}
+
+const {
+  title = 'NextSwift',
+  description = '',
+  themeColor = '#16243F',
+  lang = 'es-MX',
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="generator" content={Astro.generator} />
+    <meta name="theme-color" content={themeColor} />
+    <meta name="color-scheme" content="light" />
+    <meta name="robots" content="noindex,nofollow" />
+
+    <title>{title}</title>
+    {description && <meta name="description" content={description} />}
+
+    {/* Inter (UI) es la face crítica above-the-fold; se precarga. JetBrains Mono
+        (cifras) swap-ea sin coste de LCP. */}
+    <link rel="preload" as="font" type="font/woff2" crossorigin href={inter} />
+
+    <slot name="head" />
+  </head>
+
+  <body>
+    <slot />
+  </body>
+</html>

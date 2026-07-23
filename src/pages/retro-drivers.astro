@@ -1,0 +1,588 @@
+---
+/**
+ * /retro-drivers — Hoja de retroalimentación de repartidores de Depósito Intocables
+ * (cliente "repartidores" de NextSwift). Página STANDALONE con marca Intocables
+ * (navy #16243F + naranja #E8622A), mobile-first, para que los dos encargados
+ * (Chely = día · Brayan = tarde-noche) califiquen a los 4 drivers de forma comparable.
+ *
+ * Al enviar postea same-origin a /api/retro-drivers (Worker) → Apps Script → Google Sheet.
+ * Contrato de datos: 01-clientes/repartidores/.../formulario/contrato-campos.md
+ * NO usa el layout Base (sin nav/footer/tracking); usa Standalone.
+ */
+import Standalone from '../layouts/Standalone.astro';
+
+interface Encargado { value: string; sub: string; }
+interface Driver { id: string; nombre: string; corto: string; turno: string; tag: 'dia' | 'tarde' | 'noche'; tagLabel: string; }
+interface Criterio { clave: string; etiqueta: string; ayuda: string; star?: boolean; }
+
+const ENCARGADOS: Encargado[] = [
+  { value: 'Chely', sub: 'Turno de día / mañana' },
+  { value: 'Brayan', sub: 'Turno de tarde-noche' },
+];
+
+const DRIVERS: Driver[] = [
+  { id: 'juan-antonio', nombre: 'Juan Antonio Peñaflor Balderas', corto: 'Juan Antonio', turno: '8:00 pm – 4:00 am', tag: 'noche', tagLabel: 'Noche' },
+  { id: 'gerardo', nombre: 'Gerardo Ramírez Hernández', corto: 'Gerardo', turno: '12:00 pm – 8:00 pm', tag: 'dia', tagLabel: 'Día' },
+  { id: 'federico', nombre: 'Federico Espinoza Aguilar', corto: 'Federico', turno: 'Antes 8:00 pm – 4:00 am', tag: 'noche', tagLabel: 'Noche' },
+  { id: 'james', nombre: 'James Brayan Macías Flores', corto: 'James', turno: '4:00 pm – 12:00 am', tag: 'tarde', tagLabel: 'Tarde' },
+];
+
+const CRITERIOS: Criterio[] = [
+  { clave: 'puntualidad', etiqueta: 'Puntualidad', ayuda: 'Llega a tiempo; avisa si falta o llega tarde.' },
+  { clave: 'actividad_horas_muertas', etiqueta: 'Actividad en horas muertas', ayuda: 'En los ratos sin pedidos, ¿se mantiene activo y listo, o se recuesta / desaparece?', star: true },
+  { clave: 'profesionalismo', etiqueta: 'Profesionalismo y trato', ayuda: 'Buen trato con los clientes y contigo.' },
+  { clave: 'rapidez', etiqueta: 'Rapidez de entrega', ayuda: 'Qué tan rápido sale y entrega en la ruta.' },
+  { clave: 'presentacion_requisitos', etiqueta: 'Presentación y requisitos', ayuda: 'Moto en condiciones, caja y casco, buena presentación.' },
+  { clave: 'cuidado_producto', etiqueta: 'Cuidado del producto y exactitud', ayuda: 'Cuida el producto y lleva el pedido correcto.' },
+  { clave: 'comunicacion', etiqueta: 'Comunicación', ayuda: 'Avisa incidencias y responde el WhatsApp.' },
+  { clave: 'confiabilidad', etiqueta: 'Confiabilidad y estabilidad', ayuda: '¿Falta?, ¿se va antes?, ¿anda con otro trabajo?' },
+];
+
+const ESCALA = [
+  { v: 1, label: 'Muy mal' },
+  { v: 2, label: 'Mal' },
+  { v: 3, label: 'Regular' },
+  { v: 4, label: 'Bien' },
+  { v: 5, label: 'Excelente' },
+];
+---
+
+<Standalone
+  title="Retroalimentación de repartidores · Depósito Intocables"
+  description="Califica a los repartidores para decidir turnos y permanencia."
+>
+  <main class="retro">
+    <header class="hd">
+      <div class="hd__inner">
+        <p class="wm"><span class="wm__d">DEPÓSITO</span> <span class="wm__i">INTOCABLES</span></p>
+        <h1 class="hd__title">Retroalimentación de repartidores</h1>
+        <p class="hd__lead">Tu opinión de cada repartidor. Nos toma <strong>2 minutos</strong> y sirve para
+          decidir turnos y permanencia. Responde con confianza: es solo para uso interno.</p>
+      </div>
+      <div class="hd__rule" aria-hidden="true"></div>
+    </header>
+
+    <form id="retro-form" novalidate>
+      {/* Honeypot anti-bot — oculto para humanos. */}
+      <div class="hp" aria-hidden="true">
+        <label>No llenar<input type="text" name="hp" id="hp" tabindex="-1" autocomplete="off" /></label>
+      </div>
+
+      {/* Paso 1 — identidad */}
+      <section class="step" id="step-encargado" aria-labelledby="lbl-encargado">
+        <div class="step__head">
+          <span class="step__kicker">Paso 1</span>
+          <h2 class="step__title" id="lbl-encargado">¿Quién eres?</h2>
+        </div>
+        <div class="who" role="radiogroup" aria-label="Encargado">
+          {ENCARGADOS.map((e) => (
+            <div class="who__opt">
+              <input class="who__in" type="radio" name="encargado" id={`enc-${e.value}`} value={e.value} />
+              <label class="who__card" for={`enc-${e.value}`}>
+                <span class="who__name">{e.value}</span>
+                <span class="who__sub">{e.sub}</span>
+              </label>
+            </div>
+          ))}
+        </div>
+        <p class="err" id="err-encargado" hidden>Elige quién eres para empezar.</p>
+
+        <label class="week">
+          <span class="week__lbl">Semana que evalúas <em>(opcional)</em></span>
+          <input type="date" id="semana" name="semana" />
+        </label>
+      </section>
+
+      {/* Paso 2 — drivers */}
+      <section class="step" aria-labelledby="lbl-drivers">
+        <div class="step__head">
+          <span class="step__kicker">Paso 2</span>
+          <h2 class="step__title" id="lbl-drivers">Califica a los repartidores</h2>
+          <p class="step__note">Del <strong>1</strong> (muy mal) al <strong>5</strong> (excelente). Si no
+            lo ves en tu turno, dilo y pasa al siguiente.</p>
+        </div>
+
+        {DRIVERS.map((d) => (
+          <article class="driver" data-id={d.id} data-nombre={d.nombre} data-turno={d.turno}>
+            <div class="driver__top">
+              <div class="driver__id">
+                <h3 class="driver__name">{d.corto}</h3>
+                <p class="driver__full">{d.nombre}</p>
+              </div>
+              <span class={`tag tag--${d.tag}`}>{d.tagLabel}<span class="tag__time">{d.turno}</span></span>
+            </div>
+
+            <div class="gate">
+              <span class="gate__q">¿Lo alcanzas a ver en tu turno?</span>
+              <div class="seg3" role="radiogroup" aria-label={`¿Ves a ${d.corto} en tu turno?`}>
+                <input class="seg3__in" type="radio" name={`gate__${d.id}`} id={`gate-${d.id}-si`} value="si" />
+                <label class="seg3__lbl" for={`gate-${d.id}-si`}>Sí</label>
+                <input class="seg3__in" type="radio" name={`gate__${d.id}`} id={`gate-${d.id}-poco`} value="poco" />
+                <label class="seg3__lbl" for={`gate-${d.id}-poco`}>Poco</label>
+                <input class="seg3__in seg3__in--no" type="radio" name={`gate__${d.id}`} id={`gate-${d.id}-no`} value="no" />
+                <label class="seg3__lbl" for={`gate-${d.id}-no`}>No</label>
+              </div>
+            </div>
+
+            <p class="driver__nosee">Ok — no lo ves en tu turno. Si sabes algo de él, déjalo en el comentario.</p>
+
+            <div class="driver__body">
+              {CRITERIOS.map((c) => (
+                <fieldset class={`crit${c.star ? ' crit--star' : ''}`} data-clave={c.clave}>
+                  <legend class="crit__legend">
+                    {c.star && <span class="crit__star" aria-hidden="true">★</span>}
+                    <span class="crit__label">{c.etiqueta}</span>
+                    <span class="crit__help">{c.ayuda}</span>
+                  </legend>
+                  <div class="scale" role="radiogroup" aria-label={`${c.etiqueta} para ${d.corto}, del 1 al 5`}>
+                    {ESCALA.map((s) => (
+                      <Fragment>
+                        <input class="scale__in" type="radio" name={`c__${d.id}__${c.clave}`} id={`c-${d.id}-${c.clave}-${s.v}`} value={s.v} aria-label={`${s.v} — ${s.label}`} />
+                        <label class="scale__seg" for={`c-${d.id}-${c.clave}-${s.v}`}>{s.v}</label>
+                      </Fragment>
+                    ))}
+                  </div>
+                  <div class="scale__anchors"><span>1 · Muy mal</span><span>5 · Excelente</span></div>
+                  <details class="note">
+                    <summary class="note__toggle">＋ Agregar nota</summary>
+                    <textarea class="note__area" rows="2" maxlength="1000" placeholder="Opcional…"></textarea>
+                  </details>
+                </fieldset>
+              ))}
+
+              <div class="closer">
+                <div class="closer__field">
+                  <span class="closer__q">¿En qué turno rinde mejor?</span>
+                  <div class="chips" role="radiogroup" aria-label={`Mejor turno para ${d.corto}`}>
+                    <input class="chips__in" type="radio" name={`turno__${d.id}`} id={`turno-${d.id}-dia`} value="dia" />
+                    <label class="chips__lbl" for={`turno-${d.id}-dia`}>Día</label>
+                    <input class="chips__in" type="radio" name={`turno__${d.id}`} id={`turno-${d.id}-tarde`} value="tarde" />
+                    <label class="chips__lbl" for={`turno-${d.id}-tarde`}>Tarde</label>
+                    <input class="chips__in" type="radio" name={`turno__${d.id}`} id={`turno-${d.id}-noche`} value="noche" />
+                    <label class="chips__lbl" for={`turno-${d.id}-noche`}>Noche</label>
+                    <input class="chips__in" type="radio" name={`turno__${d.id}`} id={`turno-${d.id}-sin`} value="sin-opinion" />
+                    <label class="chips__lbl" for={`turno-${d.id}-sin`}>Sin opinión</label>
+                  </div>
+                </div>
+                <div class="closer__field">
+                  <span class="closer__q">Tu recomendación</span>
+                  <div class="chips" role="radiogroup" aria-label={`Recomendación para ${d.corto}`}>
+                    <input class="chips__in" type="radio" name={`reco__${d.id}`} id={`reco-${d.id}-mantener`} value="mantener" />
+                    <label class="chips__lbl chips__lbl--ok" for={`reco-${d.id}-mantener`}>Mantener igual</label>
+                    <input class="chips__in" type="radio" name={`reco__${d.id}`} id={`reco-${d.id}-reubicar`} value="reubicar" />
+                    <label class="chips__lbl chips__lbl--warn" for={`reco-${d.id}-reubicar`}>Reubicar de turno</label>
+                    <input class="chips__in" type="radio" name={`reco__${d.id}`} id={`reco-${d.id}-baja`} value="baja" />
+                    <label class="chips__lbl chips__lbl--bad" for={`reco-${d.id}-baja`}>Dar de baja</label>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="driver__coment">
+              <label class="coment__lbl" for={`coment-${d.id}`}>¿Algo que quieras explicar de {d.corto}?</label>
+              <textarea class="coment__area" id={`coment-${d.id}`} rows="2" maxlength="1000" placeholder="Opcional — para argumentar tu versión."></textarea>
+            </div>
+
+            <p class="err driver__err" hidden>Dinos al menos si lo ves en tu turno.</p>
+          </article>
+        ))}
+      </section>
+
+      <div class="submitbar">
+        <div class="submitbar__meta">
+          <span class="progress" id="progress"><strong id="progress-n">0</strong>/4 repartidores</span>
+          <span class="submitbar__hint" id="submit-hint">Elige quién eres arriba</span>
+        </div>
+        <button type="submit" class="send" id="send">Enviar evaluación</button>
+      </div>
+    </form>
+
+    <div class="thanks" id="thanks" hidden role="status" aria-live="polite">
+      <div class="thanks__mark" aria-hidden="true">✓</div>
+      <h2 class="thanks__title">¡Gracias, <span id="thanks-name">encargado</span>!</h2>
+      <p class="thanks__body">Recibimos tu evaluación de los repartidores. Con tu versión y la del otro
+        encargado decidimos los turnos. No necesitas hacer nada más.</p>
+      <p class="thanks__brand"><span class="wm__d">DEPÓSITO</span> <span class="wm__i">INTOCABLES</span></p>
+    </div>
+  </main>
+</Standalone>
+
+<style>
+  .retro {
+    /* ---- Marca Depósito Intocables (override local; NO usa los tokens NextSwift) ---- */
+    --in-navy: #16243F;
+    --in-navy-deep: #0E1826;
+    --in-orange: #E8622A;
+    --in-orange-deep: #C24E1E;
+    --in-bg: #EEF1F5;
+    --in-surface: #FFFFFF;
+    --in-ink: #16243F;
+    --in-muted: #566476;
+    --in-border: #D8DEE7;
+    --in-border-strong: #B8C2CF;
+    --in-ok: #2E7D32;
+    --in-warn: #B25000;
+    --in-bad: #B3261E;
+    --in-amber: #C98A16;
+
+    display: block;
+    max-width: 560px;
+    margin: 0 auto;
+    padding: 0 0 9rem;
+    background: var(--in-bg);
+    color: var(--in-ink);
+    font-family: var(--font-body);
+    min-height: 100dvh;
+  }
+  .retro :is(h1, h2, h3) { font-weight: 800; letter-spacing: -0.01em; margin: 0; line-height: 1.15; }
+  .retro ::selection { background: var(--in-orange); color: #fff; }
+  .retro :focus-visible { outline: 3px solid var(--in-orange); outline-offset: 2px; box-shadow: none; }
+
+  /* ------------------------------------------------------------------ header */
+  .hd { background: var(--in-navy); color: #fff; }
+  .hd__inner { padding: 1.75rem 1.25rem 1.5rem; }
+  .wm { margin: 0 0 0.9rem; font-weight: 900; letter-spacing: 0.06em; font-size: 0.95rem; }
+  .wm__d { color: #fff; }
+  .wm__i { color: var(--in-orange); }
+  .hd__title { font-size: 1.6rem; color: #fff; }
+  .hd__lead { margin: 0.6rem 0 0; color: #C7D0DC; font-size: 0.95rem; line-height: 1.5; }
+  .hd__lead strong { color: #fff; }
+  .hd__rule { height: 5px; background: linear-gradient(90deg, var(--in-orange) 0 40%, var(--in-orange-deep) 40% 100%); }
+
+  /* ------------------------------------------------------------------ steps */
+  .step { padding: 1.5rem 1.25rem 0.25rem; }
+  .step__head { margin-bottom: 1rem; }
+  .step__kicker {
+    display: inline-block; font-family: var(--font-mono); font-size: 0.72rem; font-weight: 700;
+    letter-spacing: 0.14em; text-transform: uppercase; color: var(--in-orange-deep);
+    background: #FBE7DC; padding: 0.2rem 0.5rem; border-radius: 4px; margin-bottom: 0.5rem;
+  }
+  .step__title { font-size: 1.28rem; }
+  .step__note, .step__head .step__note { margin: 0.45rem 0 0; color: var(--in-muted); font-size: 0.92rem; line-height: 1.5; }
+
+  /* who (encargado) */
+  .who { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+  .who__in { position: absolute; opacity: 0; pointer-events: none; }
+  .who__card {
+    display: flex; flex-direction: column; gap: 0.15rem; align-items: flex-start;
+    padding: 0.95rem 1rem; min-height: 64px; justify-content: center;
+    background: var(--in-surface); border: 2px solid var(--in-border); border-radius: 14px;
+    cursor: pointer; transition: border-color .15s, box-shadow .15s, background .15s;
+  }
+  .who__name { font-weight: 800; font-size: 1.1rem; }
+  .who__sub { font-size: 0.8rem; color: var(--in-muted); }
+  .who__in:checked + .who__card { border-color: var(--in-orange); background: #FFF6F1; box-shadow: 0 0 0 3px rgba(232,98,42,.18); }
+  .who__in:focus-visible + .who__card { outline: 3px solid var(--in-orange); outline-offset: 2px; }
+
+  .week { display: flex; flex-direction: column; gap: 0.3rem; margin: 1rem 0 0; }
+  .week__lbl { font-size: 0.82rem; color: var(--in-muted); font-weight: 600; }
+  .week__lbl em { font-style: normal; font-weight: 400; }
+  .week input {
+    max-width: 220px; padding: 0.6rem 0.7rem; border: 1.5px solid var(--in-border); border-radius: 10px;
+    background: var(--in-surface); font-family: var(--font-mono); color: var(--in-ink);
+  }
+
+  /* ------------------------------------------------------------------ driver card */
+  .driver {
+    background: var(--in-surface); border: 1px solid var(--in-border); border-radius: 16px;
+    padding: 1.1rem 1rem 1rem; margin: 0 1.25rem 1rem; box-shadow: 0 2px 10px rgba(22,36,63,.05);
+  }
+  .step + .step .driver:first-of-type { margin-top: 0; }
+  .driver__top { display: flex; align-items: flex-start; justify-content: space-between; gap: 0.75rem; }
+  .driver__name { font-size: 1.22rem; }
+  .driver__full { margin: 0.1rem 0 0; font-size: 0.78rem; color: var(--in-muted); }
+  .tag {
+    display: inline-flex; flex-direction: column; align-items: flex-end; gap: 0.1rem;
+    padding: 0.35rem 0.6rem; border-radius: 10px; font-weight: 800; font-size: 0.82rem;
+    color: #fff; white-space: nowrap; flex-shrink: 0;
+  }
+  .tag__time { font-family: var(--font-mono); font-size: 0.66rem; font-weight: 500; opacity: 0.92; letter-spacing: 0; }
+  .tag--dia { background: var(--in-amber); }
+  .tag--tarde { background: var(--in-orange); }
+  .tag--noche { background: var(--in-navy); }
+
+  /* gate */
+  .gate { margin-top: 0.9rem; padding-top: 0.9rem; border-top: 1px solid var(--in-border); }
+  .gate__q { display: block; font-weight: 700; font-size: 0.95rem; margin-bottom: 0.5rem; }
+  .seg3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.4rem; }
+  .seg3__in { position: absolute; opacity: 0; pointer-events: none; }
+  .seg3__lbl {
+    display: flex; align-items: center; justify-content: center; min-height: 46px; padding: 0 0.5rem;
+    border: 1.5px solid var(--in-border-strong); border-radius: 10px; background: var(--in-surface);
+    font-weight: 700; cursor: pointer; transition: all .12s;
+  }
+  .seg3__in:checked + .seg3__lbl { background: var(--in-navy); color: #fff; border-color: var(--in-navy); }
+  .seg3__in--no:checked + .seg3__lbl { background: var(--in-bad); border-color: var(--in-bad); }
+  .seg3__in:focus-visible + .seg3__lbl { outline: 3px solid var(--in-orange); outline-offset: 2px; }
+
+  .driver__nosee {
+    display: none; margin: 0.75rem 0 0; padding: 0.6rem 0.75rem; background: #FDECEC;
+    border-radius: 10px; color: #7a1f1a; font-size: 0.86rem; line-height: 1.4;
+  }
+  .driver:has(.seg3__in--no:checked) .driver__nosee { display: block; }
+  .driver:has(.seg3__in--no:checked) .driver__body { display: none; }
+
+  .driver__body { margin-top: 0.5rem; }
+
+  /* criterio */
+  .crit { border: 0; padding: 0; margin: 0.9rem 0 0; }
+  .crit__legend { padding: 0; display: block; }
+  .crit__label { display: block; font-weight: 700; font-size: 0.98rem; }
+  .crit__help { display: block; font-size: 0.8rem; color: var(--in-muted); line-height: 1.4; margin-top: 0.1rem; }
+  .crit--star {
+    background: #FFF6F1; border-left: 4px solid var(--in-orange);
+    padding: 0.7rem 0.75rem 0.75rem; margin-left: -0.25rem; margin-right: -0.25rem; border-radius: 0 10px 10px 0;
+  }
+  .crit__star { color: var(--in-orange); margin-right: 0.3rem; }
+
+  .scale { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.4rem; margin-top: 0.55rem; }
+  .scale__in { position: absolute; opacity: 0; pointer-events: none; }
+  .scale__seg {
+    display: flex; align-items: center; justify-content: center; min-height: 48px;
+    border: 1.5px solid var(--in-border-strong); border-radius: 10px; background: var(--in-surface);
+    font-family: var(--font-mono); font-weight: 700; font-size: 1.05rem; color: var(--in-ink);
+    cursor: pointer; transition: all .12s;
+  }
+  .scale__in:checked + .scale__seg {
+    background: var(--in-orange); border-color: var(--in-orange); color: #fff; transform: translateY(-1px);
+    box-shadow: 0 3px 10px rgba(232,98,42,.3);
+  }
+  .scale__in:focus-visible + .scale__seg { outline: 3px solid var(--in-navy); outline-offset: 2px; }
+  .scale__anchors { display: flex; justify-content: space-between; margin-top: 0.35rem; font-size: 0.72rem; color: var(--in-muted); }
+
+  .note { margin-top: 0.5rem; }
+  .note__toggle {
+    display: inline-block; font-size: 0.82rem; font-weight: 600; color: var(--in-orange-deep);
+    cursor: pointer; list-style: none; padding: 0.2rem 0;
+  }
+  .note__toggle::-webkit-details-marker { display: none; }
+  .note[open] .note__toggle { color: var(--in-muted); }
+  .note__area, .coment__area {
+    width: 100%; margin-top: 0.35rem; padding: 0.6rem 0.7rem; border: 1.5px solid var(--in-border);
+    border-radius: 10px; background: var(--in-surface); resize: vertical; font-size: 0.95rem; color: var(--in-ink);
+  }
+
+  /* cierre por driver */
+  .closer { margin-top: 1.1rem; padding-top: 0.9rem; border-top: 1px dashed var(--in-border); display: grid; gap: 0.85rem; }
+  .closer__q { display: block; font-weight: 700; font-size: 0.95rem; margin-bottom: 0.45rem; }
+  .chips { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+  .chips__in { position: absolute; opacity: 0; pointer-events: none; }
+  .chips__lbl {
+    display: inline-flex; align-items: center; min-height: 44px; padding: 0 0.85rem;
+    border: 1.5px solid var(--in-border-strong); border-radius: 999px; background: var(--in-surface);
+    font-weight: 600; font-size: 0.9rem; cursor: pointer; transition: all .12s;
+  }
+  .chips__in:checked + .chips__lbl { background: var(--in-navy); color: #fff; border-color: var(--in-navy); }
+  .chips__in:checked + .chips__lbl--ok { background: var(--in-ok); border-color: var(--in-ok); }
+  .chips__in:checked + .chips__lbl--warn { background: var(--in-warn); border-color: var(--in-warn); }
+  .chips__in:checked + .chips__lbl--bad { background: var(--in-bad); border-color: var(--in-bad); }
+  .chips__in:focus-visible + .chips__lbl { outline: 3px solid var(--in-orange); outline-offset: 2px; }
+
+  .driver__coment { margin-top: 1rem; }
+  .coment__lbl { display: block; font-weight: 700; font-size: 0.9rem; margin-bottom: 0.35rem; }
+
+  .err { color: var(--in-bad); font-size: 0.85rem; font-weight: 600; margin: 0.6rem 0 0; }
+  .driver__err { margin-top: 0.8rem; }
+  .driver.is-error { border-color: var(--in-bad); box-shadow: 0 0 0 2px rgba(179,38,30,.15); }
+
+  /* honeypot */
+  .hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+
+  /* submit bar */
+  .submitbar {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 40;
+    max-width: 560px; margin: 0 auto; padding: 0.7rem 1.25rem calc(0.7rem + env(safe-area-inset-bottom));
+    background: rgba(255,255,255,.96); backdrop-filter: blur(8px); border-top: 1px solid var(--in-border);
+    display: flex; align-items: center; gap: 0.85rem;
+  }
+  .submitbar__meta { display: flex; flex-direction: column; line-height: 1.2; flex-shrink: 0; }
+  .progress { font-family: var(--font-mono); font-size: 0.95rem; font-weight: 700; }
+  .submitbar__hint { font-size: 0.72rem; color: var(--in-muted); }
+  .send {
+    flex: 1; min-height: 52px; border: 0; border-radius: 12px; background: var(--in-orange); color: #fff;
+    font-weight: 800; font-size: 1.02rem; cursor: pointer; transition: background .15s, transform .1s;
+    box-shadow: 0 4px 14px rgba(232,98,42,.35);
+  }
+  .send:hover { background: var(--in-orange-deep); }
+  .send:active { transform: translateY(1px); }
+  .send:disabled { opacity: 0.6; cursor: not-allowed; box-shadow: none; }
+
+  /* gracias */
+  .thanks { text-align: center; padding: 3.5rem 1.5rem; }
+  .thanks__mark {
+    width: 76px; height: 76px; margin: 0 auto 1.25rem; border-radius: 50%; background: var(--in-ok);
+    color: #fff; font-size: 2.4rem; display: flex; align-items: center; justify-content: center;
+  }
+  .thanks__title { font-size: 1.6rem; }
+  .thanks__body { margin: 0.75rem auto 0; max-width: 34ch; color: var(--in-muted); line-height: 1.55; }
+  .thanks__brand { margin-top: 1.75rem; font-weight: 900; letter-spacing: 0.06em; font-size: 0.9rem; }
+
+  @media (min-width: 480px) {
+    .hd__inner { padding: 2.25rem 1.5rem 1.75rem; }
+    .hd__title { font-size: 1.9rem; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .scale__in:checked + .scale__seg { transform: none; }
+  }
+</style>
+
+<script>
+  type Dict = Record<string, unknown>;
+
+  const form = document.getElementById('retro-form') as HTMLFormElement | null;
+  const sendBtn = document.getElementById('send') as HTMLButtonElement | null;
+  const thanks = document.getElementById('thanks') as HTMLElement | null;
+  const progressN = document.getElementById('progress-n') as HTMLElement | null;
+  const submitHint = document.getElementById('submit-hint') as HTMLElement | null;
+  const errEncargado = document.getElementById('err-encargado') as HTMLElement | null;
+  const DRAFT_KEY = 'retro-drivers-draft-v1';
+
+  if (form && sendBtn) {
+    const driverEls = Array.from(document.querySelectorAll<HTMLElement>('.driver'));
+
+    const checkedVal = (name: string): string => {
+      const el = form.querySelector<HTMLInputElement>(`input[name="${CSS.escape(name)}"]:checked`);
+      return el ? el.value : '';
+    };
+    const numOrNull = (s: string): number | null => {
+      if (!s) return null;
+      const n = Number(s);
+      return Number.isFinite(n) ? n : null;
+    };
+    const encargadoVal = (): string => checkedVal('encargado');
+
+    /* -------- progreso + hint -------- */
+    const refresh = () => {
+      let done = 0;
+      driverEls.forEach((el) => { if (checkedVal(`gate__${el.dataset.id}`)) done++; });
+      if (progressN) progressN.textContent = String(done);
+      if (submitHint) {
+        if (!encargadoVal()) submitHint.textContent = 'Elige quién eres arriba';
+        else if (done < driverEls.length) submitHint.textContent = `Faltan ${driverEls.length - done} por marcar`;
+        else submitHint.textContent = 'Listo para enviar';
+      }
+    };
+
+    /* -------- draft anti-pérdida (localStorage) -------- */
+    const saveDraft = () => {
+      try {
+        const data: Dict = {};
+        form.querySelectorAll<HTMLInputElement>('input[type="radio"]:checked').forEach((r) => { data[r.name] = r.value; });
+        form.querySelectorAll<HTMLTextAreaElement>('textarea').forEach((t, i) => { if (t.value) data[`t${i}`] = t.value; });
+        const semana = (document.getElementById('semana') as HTMLInputElement | null)?.value;
+        if (semana) data.semana = semana;
+        localStorage.setItem(DRAFT_KEY, JSON.stringify(data));
+      } catch { /* modo privado */ }
+    };
+    const restoreDraft = () => {
+      try {
+        const raw = localStorage.getItem(DRAFT_KEY);
+        if (!raw) return;
+        const data = JSON.parse(raw) as Dict;
+        Object.keys(data).forEach((k) => {
+          if (k === 'semana') { const s = document.getElementById('semana') as HTMLInputElement | null; if (s) s.value = String(data[k]); return; }
+          if (k.startsWith('t')) return;
+          const r = form.querySelector<HTMLInputElement>(`input[name="${CSS.escape(k)}"][value="${CSS.escape(String(data[k]))}"]`);
+          if (r) r.checked = true;
+        });
+        const tas = form.querySelectorAll<HTMLTextAreaElement>('textarea');
+        tas.forEach((t, i) => { if (data[`t${i}`]) t.value = String(data[`t${i}`]); });
+      } catch { /* noop */ }
+    };
+
+    /* -------- validación -------- */
+    const clearErrors = () => {
+      errEncargado?.setAttribute('hidden', '');
+      driverEls.forEach((el) => { el.classList.remove('is-error'); el.querySelector('.driver__err')?.setAttribute('hidden', ''); });
+    };
+    const validate = (): HTMLElement | null => {
+      clearErrors();
+      let firstBad: HTMLElement | null = null;
+      if (!encargadoVal()) { errEncargado?.removeAttribute('hidden'); firstBad = document.getElementById('step-encargado'); }
+      driverEls.forEach((el) => {
+        if (!checkedVal(`gate__${el.dataset.id}`)) {
+          el.classList.add('is-error');
+          el.querySelector('.driver__err')?.removeAttribute('hidden');
+          if (!firstBad) firstBad = el;
+        }
+      });
+      return firstBad;
+    };
+
+    /* -------- payload -------- */
+    const buildPayload = (): Dict => {
+      const drivers = driverEls.map((el) => {
+        const id = el.dataset.id as string;
+        const out: Dict = {
+          id,
+          nombre: el.dataset.nombre,
+          turno_actual: el.dataset.turno,
+          ve_en_turno: checkedVal(`gate__${id}`),
+          turno_ideal: checkedVal(`turno__${id}`),
+          recomendacion: checkedVal(`reco__${id}`),
+          comentario_libre: (el.querySelector<HTMLTextAreaElement>('.coment__area')?.value || '').trim(),
+        };
+        const notas: Dict = {};
+        el.querySelectorAll<HTMLElement>('.crit').forEach((f) => {
+          const clave = f.dataset.clave as string;
+          out[clave] = numOrNull(checkedVal(`c__${id}__${clave}`));
+          notas[clave] = (f.querySelector<HTMLTextAreaElement>('.note__area')?.value || '').trim();
+        });
+        out.notas = notas;
+        return out;
+      });
+      return {
+        encargado: encargadoVal(),
+        semana: (document.getElementById('semana') as HTMLInputElement | null)?.value || '',
+        hp: (document.getElementById('hp') as HTMLInputElement | null)?.value || '',
+        drivers,
+      };
+    };
+
+    /* -------- eventos -------- */
+    form.addEventListener('change', () => { refresh(); saveDraft(); });
+    form.addEventListener('input', saveDraft);
+
+    form.addEventListener('submit', async (ev) => {
+      ev.preventDefault();
+      const bad = validate();
+      if (bad) { bad.scrollIntoView({ behavior: 'smooth', block: 'center' }); return; }
+
+      sendBtn.disabled = true;
+      const original = sendBtn.textContent;
+      sendBtn.textContent = 'Enviando…';
+
+      try {
+        const res = await fetch('/api/retro-drivers', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(buildPayload()),
+        });
+        const data = (await res.json().catch(() => ({}))) as { success?: boolean; error?: string };
+        if (!res.ok || !data.success) {
+          sendBtn.disabled = false;
+          sendBtn.textContent = original;
+          if (submitHint) submitHint.textContent = data.error || 'No se pudo enviar. Intenta de nuevo.';
+          return;
+        }
+      } catch {
+        sendBtn.disabled = false;
+        sendBtn.textContent = original;
+        if (submitHint) submitHint.textContent = 'Sin conexión. Intenta de nuevo en unos segundos.';
+        return;
+      }
+
+      try { localStorage.removeItem(DRAFT_KEY); } catch { /* noop */ }
+      const nameEl = document.getElementById('thanks-name');
+      if (nameEl) nameEl.textContent = encargadoVal();
+      form.hidden = true;
+      const bar = document.querySelector('.submitbar') as HTMLElement | null;
+      if (bar) bar.style.display = 'none';
+      if (thanks) { thanks.hidden = false; thanks.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    restoreDraft();
+    refresh();
+  }
+</script>
