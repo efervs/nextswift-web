@@ -5,7 +5,8 @@
  * (navy #16243F + naranja #E8622A), mobile-first, para que los dos encargados
  * (Chely = día · Brayan = tarde-noche) califiquen a los 4 drivers de forma comparable.
  *
- * Al enviar postea same-origin a /api/retro-drivers (Worker) → Apps Script → Google Sheet.
+ * Al enviar postea DIRECTO al Apps Script Web App (fetch no-cors) → Google Sheet. NO pasa por
+ * /api/retro-drivers: el sitio se despliega solo-estático y ese endpoint server no corre.
  * Contrato de datos: 01-clientes/repartidores/.../formulario/contrato-campos.md
  * NO usa el layout Base (sin nav/footer/tracking); usa Standalone.
  */
@@ -543,6 +544,10 @@ const ESCALA = [
     form.addEventListener('change', () => { refresh(); saveDraft(); });
     form.addEventListener('input', saveDraft);
 
+    // Web App de Apps Script (Ejecutar como: Efer · Acceso: cualquiera). El form postea
+    // aquí DIRECTO porque el sitio no ejecuta rutas /api server-side. Rotar si se filtra.
+    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxs6Xv5M2QE0bcJQuys5wVXNXi_vAH9SFjHyS3dgNScja393B3huSXaLIj9CR0qaLlM/exec';
+
     form.addEventListener('submit', async (ev) => {
       ev.preventDefault();
       const bad = validate();
@@ -553,18 +558,16 @@ const ESCALA = [
       sendBtn.textContent = 'Enviando…';
 
       try {
-        const res = await fetch('/api/retro-drivers', {
+        // 'no-cors' + text/plain = petición "simple" (sin preflight CORS): el navegador
+        // envía el cuerpo y el Apps Script lo lee con JSON.parse(e.postData.contents). La
+        // respuesta es opaque (no legible por CORS), así que si no hubo error de red lo
+        // damos por enviado; el payload ya se validó en validate() arriba.
+        await fetch(APPS_SCRIPT_URL, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
           body: JSON.stringify(buildPayload()),
         });
-        const data = (await res.json().catch(() => ({}))) as { success?: boolean; error?: string };
-        if (!res.ok || !data.success) {
-          sendBtn.disabled = false;
-          sendBtn.textContent = original;
-          if (submitHint) submitHint.textContent = data.error || 'No se pudo enviar. Intenta de nuevo.';
-          return;
-        }
       } catch {
         sendBtn.disabled = false;
         sendBtn.textContent = original;
