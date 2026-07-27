@@ -1,0 +1,730 @@
+---
+/**
+ * /arranque-reparto — Encuesta de arranque para clientes nuevos del servicio de reparto.
+ * Página STANDALONE con marca NextSwift (deep teal #0A6C74), mobile-first, para que el
+ * dueño conteste con el pulgar en ~5 min todo lo operativo que hoy se pregunta por WhatsApp.
+ *
+ * REUTILIZABLE: se personaliza con ?c=<slug> (ej. ?c=mr-plug). El slug se resuelve en el
+ * cliente contra el array CLIENTES; sin parámetro cae al DEFAULT_SLUG. La página se
+ * prerenderiza una sola vez (sitio estático) y Cloudflare la sirve con cualquier query.
+ *
+ * Al enviar postea DIRECTO al Apps Script Web App (fetch no-cors) → Google Sheet. NO pasa
+ * por /api/*: el sitio se despliega solo-estático y esas rutas devuelven 405 (commit 00363c6).
+ *
+ * Contrato de datos (FUENTE DE VERDAD — el orden de PREGUNTAS debe coincidir con el .gs):
+ *   01-clientes/repartidores/03-expansion/03-arranque/formulario/contrato-campos.md
+ */
+import Standalone from '../layouts/Standalone.astro';
+
+interface Opcion { v: string; label: string; mark?: string; }
+interface Extra { clave: string; label: string; placeholder?: string; }
+interface Pregunta {
+  clave: string;
+  seccion: number;
+  texto: string;
+  ayuda?: string;
+  ops: Opcion[];
+  otro?: boolean;              // por defecto true
+  otroLabel?: string;
+  otroPlaceholder?: string;
+  grupo?: string;              // agrupa para el colapso con :has()
+  sub?: boolean;               // se oculta cuando el grupo lo dicta
+  extras?: Extra[];            // campos de texto que dependen de esta pregunta
+}
+
+const CLIENTES: Record<string, { nombre: string; giro: string }> = {
+  'mr-plug': { nombre: 'MR PLUG', giro: 'Refaccionaria' },
+};
+const DEFAULT_SLUG = 'mr-plug';
+
+const SECCIONES = [
+  { n: 1, titulo: 'Cómo nos va a ocupar', nota: '' },
+  { n: 2, titulo: 'El día a día del reparto', nota: '' },
+  { n: 3, titulo: 'La moto y el equipo', nota: 'Como la moto la pone usted, aquí solo dejamos claro quién ve qué. Es para que nadie se lleve una sorpresa.' },
+  { n: 4, titulo: 'Cómo contamos los pedidos', nota: '' },
+  { n: 5, titulo: 'Pagos y papeles', nota: '' },
+];
+
+/* ORDEN CANÓNICO — debe coincidir EXACTAMENTE con PREGUNTAS en apps-script/codigo.gs.
+   Preguntas nuevas van SIEMPRE al final (el .gs escribe por posición de columna). */
+const PREGUNTAS: Pregunta[] = [
+  { clave: 'dias_servicio', seccion: 1, texto: '¿Qué días va a ocupar al repartidor?', ops: [
+    { v: 'lunes_a_viernes', label: 'De lunes a viernes' },
+    { v: 'lunes_a_sabado', label: 'De lunes a sábado' },
+    { v: 'todos_los_dias', label: 'Todos los días' },
+    { v: 'solo_algunos', label: 'Solo algunos días, se los aviso' },
+  ] },
+  { clave: 'horario', seccion: 1, texto: '¿A qué hora entra y a qué hora sale el repartidor?', ops: [
+    { v: '9_7', label: 'De 9:00 am a 7:00 pm (como quedamos)' },
+    { v: '9_6', label: 'De 9:00 am a 6:00 pm' },
+    { v: '8_6', label: 'De 8:00 am a 6:00 pm' },
+    { v: 'varia', label: 'Cambia según el día' },
+  ] },
+  { clave: 'aviso_anticipacion', seccion: 1, texto: '¿Con cuánto tiempo nos puede avisar qué días sí lo va a ocupar?',
+    ayuda: 'Es para tenerle apartado al repartidor. Entre más aviso, mejor gente le mandamos.', ops: [
+    { v: 'semana_completa', label: 'Le paso la semana completa' },
+    { v: 'tres_dias', label: 'Como tres días antes' },
+    { v: 'un_dia_antes', label: 'Un día antes' },
+    { v: 'mismo_dia', label: 'El mismo día' },
+  ] },
+
+  { clave: 'pedidos_por_dia', seccion: 2, texto: '¿Cuántos pedidos cree que va a entregar un repartidor al día?', otro: false, ops: [
+    { v: 'hasta_8', label: 'Hasta 8' },
+    { v: '8_12', label: 'Entre 8 y 12' },
+    { v: '12_16', label: 'Entre 12 y 16' },
+    { v: 'mas_16', label: 'Más de 16' },
+    { v: 'varia_mucho', label: 'Cambia mucho de un día a otro' },
+  ] },
+  { clave: 'como_pasa_pedidos', seccion: 2, texto: '¿Cómo le pasan los pedidos al repartidor?', ops: [
+    { v: 'whatsapp', label: 'Por WhatsApp' },
+    { v: 'hoja_impresa', label: 'En una hoja impresa' },
+    { v: 'sistema_propio', label: 'En un sistema o app del negocio' },
+    { v: 'de_voz', label: 'Se los dicen en el mostrador' },
+  ] },
+  { clave: 'quien_arma_pedido', seccion: 2, texto: 'El pedido, ¿se lo entregan listo o el repartidor lo busca?', ops: [
+    { v: 'listo', label: 'Ya se lo damos listo y empacado' },
+    { v: 'listo_el_carga', label: 'Listo, pero él lo carga' },
+    { v: 'el_lo_busca', label: 'Él lo busca en el almacén' },
+    { v: 'depende', label: 'Depende del pedido' },
+  ] },
+  { clave: 'cobra_efectivo', seccion: 2, texto: '¿El repartidor va a cobrarle dinero al cliente?', grupo: 'efectivo', ops: [
+    { v: 'no_nunca', label: 'No, nunca lleva dinero', mark: 'nunca' },
+    { v: 'si_efectivo', label: 'Sí, cobra en efectivo' },
+    { v: 'si_terminal', label: 'Sí, pero con terminal o transferencia' },
+    { v: 'a_veces', label: 'Nada más algunas veces' },
+  ] },
+  { clave: 'corte_efectivo', seccion: 2, texto: '¿Y ese dinero cómo se lo entrega?', grupo: 'efectivo', sub: true, ops: [
+    { v: 'al_regresar', label: 'Al volver de cada ruta' },
+    { v: 'fin_del_dia', label: 'Todo junto al final del día' },
+    { v: 'en_caja', label: 'Lo deja en caja' },
+    { v: 'platicarlo', label: 'Hay que platicarlo' },
+  ] },
+  { clave: 'contacto_ruta', seccion: 2, texto: 'Si al repartidor se le complica algo en la calle, ¿a quién le habla?',
+    otroLabel: 'A otra persona', otroPlaceholder: 'Nombre y WhatsApp', ops: [
+    { v: 'usted', label: 'A mí directo' },
+    { v: 'encargado', label: 'Al encargado del mostrador' },
+    { v: 'grupo_whatsapp', label: 'A un grupo de WhatsApp' },
+    { v: 'a_nextswift', label: 'Que le hable a NextSwift' },
+  ] },
+  { clave: 'zona_fuera', seccion: 2, texto: '¿Manda entregas fuera de la zona de siempre (Cadereyta, García, Santiago, Salinas)?',
+    ayuda: 'Esas las cotizamos aparte, no se le van a colar al precio.', ops: [
+    { v: 'nunca', label: 'Nunca' },
+    { v: 'rara_vez', label: 'Una que otra vez al mes' },
+    { v: 'seguido', label: 'Sí, seguido' },
+    { v: 'no_se', label: 'No sabría decirle' },
+  ] },
+
+  { clave: 'quien_pone_moto', seccion: 3, texto: 'La moto, ¿la pone usted siempre o fue nada más por el arranque?', ops: [
+    { v: 'siempre_yo', label: 'Siempre la pongo yo' },
+    { v: 'solo_prueba', label: 'Fue nada más por la prueba' },
+    { v: 'prefiero_nextswift', label: 'Prefiero que la ponga NextSwift' },
+    { v: 'platicarlo', label: 'Hay que platicarlo' },
+  ] },
+  { clave: 'motos_disponibles', seccion: 3, texto: '¿Cuántas motos tiene disponibles para reparto?',
+    ayuda: 'Es para saber a cuántos repartidores le podemos crecer después.', ops: [
+    { v: 'una', label: 'Una' },
+    { v: 'dos', label: 'Dos' },
+    { v: 'tres_cuatro', label: 'Tres o cuatro' },
+    { v: 'cinco_mas', label: 'Cinco o más' },
+  ] },
+  { clave: 'gasolina', seccion: 3, texto: 'La gasolina, ¿quién la paga?', ops: [
+    { v: 'yo_vale', label: 'Yo, con vale o tarjeta del negocio' },
+    { v: 'yo_repongo', label: 'Yo, él carga y luego le repongo' },
+    { v: 'nextswift', label: 'Que la ponga NextSwift' },
+    { v: 'platicarlo', label: 'Hay que platicarlo' },
+  ] },
+  { clave: 'mantenimiento_moto', seccion: 3, texto: 'El mantenimiento (aceite, llantas, servicio, verificación), ¿quién lo lleva?', ops: [
+    { v: 'yo', label: 'Yo, ya tengo con quién' },
+    { v: 'nextswift_administra', label: 'Que NextSwift se lo administre' },
+    { v: 'platicarlo', label: 'Hay que platicarlo' },
+  ] },
+  { clave: 'papeles_moto', seccion: 3, texto: 'Tarjeta de circulación y placas, ¿están al corriente y a nombre de quién?',
+    ayuda: 'Si paran al repartidor, tiene que traer papel en regla.', otro: false, ops: [
+    { v: 'corriente_negocio', label: 'Al corriente, a nombre del negocio' },
+    { v: 'corriente_mio', label: 'Al corriente, a mi nombre' },
+    { v: 'corriente_tercero', label: 'Al corriente, a nombre de otra persona' },
+    { v: 'pendiente', label: 'Hay algo pendiente por regularizar' },
+    { v: 'no_se', label: 'No sabría decirle' },
+  ] },
+  { clave: 'caja_moto', seccion: 3, texto: '¿La moto trae caja o cajuela?', ops: [
+    { v: 'caja_grande', label: 'Sí, caja grande' },
+    { v: 'caja_chica', label: 'Sí, caja chica' },
+    { v: 'sin_caja', label: 'Sin caja, el repartidor lleva mochila' },
+    { v: 'no_se', label: 'No sabría decirle' },
+  ] },
+  { clave: 'guarda_moto', seccion: 3, texto: 'Al terminar el turno, ¿dónde se queda la moto?', ops: [
+    { v: 'en_local', label: 'Se queda aquí en el local' },
+    { v: 'se_la_lleva', label: 'El repartidor se la lleva' },
+    { v: 'depende', label: 'Depende del día' },
+    { v: 'platicarlo', label: 'Hay que platicarlo' },
+  ] },
+  { clave: 'seguro_moto', seccion: 3, texto: '¿La moto tiene seguro vigente?', ops: [
+    { v: 'si_amplia', label: 'Sí, cobertura amplia' },
+    { v: 'si_rc', label: 'Sí, solo responsabilidad civil' },
+    { v: 'no', label: 'No tiene seguro' },
+    { v: 'no_se', label: 'No sabría decirle' },
+  ] },
+  { clave: 'responsabilidad_moto', seccion: 3, texto: 'Si la moto se llega a dañar, chocar o se la roban, ¿cómo lo manejamos?',
+    ayuda: 'Preferimos dejarlo claro hoy que discutirlo el día que pase.', otro: false, ops: [
+    { v: 'cliente_absorbe', label: 'Yo lo cubro' },
+    { v: 'seguro', label: 'Lo cubre el seguro de la moto' },
+    { v: 'nextswift', label: 'Lo cubre NextSwift' },
+    { v: 'mitad', label: 'Lo dividimos entre los dos' },
+    { v: 'platicarlo', label: 'Hay que platicarlo' },
+  ] },
+
+  { clave: 'ruta_como_cuenta', seccion: 4, texto: 'Cuando el repartidor sale con una ruta de 6 u 8 entregas por el mismo rumbo, ¿usted eso cómo lo cuenta?', ops: [
+    { v: 'cada_entrega', label: 'Cada entrega es un pedido' },
+    { v: 'una_salida', label: 'Toda la ruta es un solo servicio' },
+    { v: 'depende_distancia', label: 'Depende de qué tan lejos quede' },
+    { v: 'platicarlo', label: 'No lo había pensado, hay que definirlo' },
+  ] },
+  { clave: 'recolecciones', seccion: 4, texto: 'Cuando va a recoger algo (una recolección o una devolución), ¿eso también cuenta como pedido?', ops: [
+    { v: 'si_cuenta', label: 'Sí, cuenta igual' },
+    { v: 'no_cuenta', label: 'No, esa va sin costo' },
+    { v: 'medio', label: 'Cuenta como medio' },
+    { v: 'platicarlo', label: 'Hay que platicarlo' },
+  ] },
+  { clave: 'reintento', seccion: 4, texto: 'Si el cliente no estaba y hay que volver otro día, ¿ese segundo viaje cómo queda?', ops: [
+    { v: 'cuentan_dos', label: 'Cuentan los dos viajes' },
+    { v: 'cuenta_uno', label: 'Cuenta solo uno' },
+    { v: 'segundo_gratis', label: 'El segundo va sin costo' },
+    { v: 'platicarlo', label: 'Hay que platicarlo' },
+  ] },
+  { clave: 'conteo_diario', seccion: 4, texto: '¿Quién lleva la cuenta de los pedidos del día, para que al cobrar los números cuadren?', ops: [
+    { v: 'mi_sistema', label: 'Mi sistema saca el reporte' },
+    { v: 'hoja_papel', label: 'Una hoja o bitácora en papel' },
+    { v: 'foto_whatsapp', label: 'Una foto o mensaje por WhatsApp al cierre' },
+    { v: 'nextswift_lleva', label: 'Que lo lleve NextSwift y usted lo revisa' },
+  ] },
+  { clave: 'minimo_diario', seccion: 4, texto: '¿Le funciona el mínimo de 8 pedidos al día por repartidor?', ops: [
+    { v: 'si_8', label: 'Sí, 8 está bien' },
+    { v: 'prefiero_10', label: 'Prefiero 10' },
+    { v: 'sin_minimo', label: 'Prefiero sin mínimo' },
+    { v: 'platicarlo', label: 'Hay que platicarlo' },
+  ] },
+
+  { clave: 'forma_pago', seccion: 5, texto: '¿Cómo le queda mejor pagar?', ops: [
+    { v: 'semanal', label: 'Semanal, como quedamos' },
+    { v: 'quincenal', label: 'Quincenal' },
+    { v: 'credito_15', label: 'Crédito a 15 días' },
+    { v: 'credito_30', label: 'Crédito a 30 días' },
+  ] },
+  { clave: 'factura', seccion: 5, texto: '¿Necesita factura?', grupo: 'factura', ops: [
+    { v: 'si_semanal', label: 'Sí, cada semana', mark: 'sifac' },
+    { v: 'si_mensual', label: 'Sí, una mensual', mark: 'sifac' },
+    { v: 'no', label: 'No necesito factura' },
+  ], extras: [
+    { clave: 'factura_razon_social', label: 'Razón social', placeholder: 'A nombre de quién va' },
+    { clave: 'factura_rfc', label: 'RFC' },
+    { clave: 'factura_correo', label: 'Correo para mandársela', placeholder: 'correo@ejemplo.com' },
+    { clave: 'factura_uso_cfdi', label: 'Uso de CFDI', placeholder: 'Si no lo sabe, déjelo en blanco' },
+  ] },
+  { clave: 'repartidores_propios', seccion: 5, texto: '¿Ya tiene repartidores propios?',
+    ayuda: 'Es para saber contra qué nos está comparando.', ops: [
+    { v: 'si_varios', label: 'Sí, varios' },
+    { v: 'si_uno', label: 'Sí, uno' },
+    { v: 'no', label: 'No, ninguno' },
+    { v: 'usaba_apps', label: 'Usaba apps de reparto' },
+  ] },
+  { clave: 'cuantos_quiere', seccion: 5, texto: 'Si esto sale bien, ¿cuántos repartidores querría y para cuándo?',
+    ayuda: 'Necesitamos mínimo 3 días para conseguirle a alguien bueno; con más de uno, un poco más.', ops: [
+    { v: 'uno_basta', label: 'Con uno me basta por ahora' },
+    { v: 'dos_este_mes', label: 'Dos, este mes' },
+    { v: 'tres_mas_este_mes', label: 'Tres o más, este mes' },
+    { v: 'mas_adelante', label: 'Más adelante, todavía no sé' },
+  ] },
+];
+
+const TOTAL = PREGUNTAS.length;
+
+/* Agrupa preguntas consecutivas que comparten `grupo`, para envolverlas en un
+   .qgroup y que el colapso con :has() alcance a sus hermanas. */
+type Bloque = { grupo: string | null; items: Pregunta[] };
+function agrupar(lista: Pregunta[]): Bloque[] {
+  const bloques: Bloque[] = [];
+  for (const p of lista) {
+    const ultimo = bloques[bloques.length - 1];
+    if (p.grupo && ultimo && ultimo.grupo === p.grupo) ultimo.items.push(p);
+    else bloques.push({ grupo: p.grupo ?? null, items: [p] });
+  }
+  return bloques;
+}
+const numeroDe = new Map(PREGUNTAS.map((p, i) => [p.clave, i + 1]));
+---
+
+<Standalone
+  title="Arranque del servicio de reparto · NextSwift"
+  description="Unas preguntas rápidas para dejar el servicio bien armado desde el primer día."
+  themeColor="#0A6C74"
+>
+  <main class="ar">
+    <header class="hd">
+      <div class="hd__inner">
+        <p class="wm">NEXT<span class="wm__dot">·</span>SWIFT</p>
+        <h1 class="hd__title">Arranque del servicio</h1>
+        <p class="hd__for">Para <strong data-cliente>MR PLUG</strong></p>
+        <p class="hd__lead">Unas preguntas rápidas para dejar todo claro desde el primer día y no
+          andarle preguntando cosas a cada rato. Son casi todas de botón y <strong>puede saltarse
+          las que quiera</strong>.</p>
+      </div>
+      <div class="hd__rule" aria-hidden="true"></div>
+    </header>
+
+    <form id="ar-form" novalidate>
+      {/* Honeypot anti-bot — oculto para humanos. */}
+      <div class="hp" aria-hidden="true">
+        <label>No llenar<input type="text" name="hp" id="hp" tabindex="-1" autocomplete="off" /></label>
+      </div>
+      <input type="hidden" id="cliente" name="cliente" value={DEFAULT_SLUG} />
+      <input type="hidden" id="cliente_nombre" name="cliente_nombre" value={CLIENTES[DEFAULT_SLUG].nombre} />
+
+      {/* Paso 0 — identificación */}
+      <section class="step" id="step-quien">
+        <div class="step__head">
+          <span class="step__kicker">Para empezar</span>
+          <h2 class="step__title">¿Con quién tengo el gusto?</h2>
+        </div>
+        <label class="field">
+          <span class="field__lbl">Su nombre</span>
+          <input type="text" id="contacto_nombre" name="contacto_nombre" maxlength="80"
+                 autocomplete="name" placeholder="Nombre y apellido" />
+        </label>
+        <p class="err" id="err-nombre" hidden>Nada más su nombre y seguimos.</p>
+        <label class="field">
+          <span class="field__lbl">¿A qué WhatsApp le escribimos si hay algo en la ruta? <em>(opcional)</em></span>
+          <input type="tel" id="contacto_whatsapp" name="contacto_whatsapp" maxlength="30"
+                 autocomplete="tel" inputmode="tel" placeholder="81 0000 0000" />
+        </label>
+      </section>
+
+      {SECCIONES.map((sec) => (
+        <section class="step">
+          <div class="step__head">
+            <span class="step__kicker">Sección {sec.n} de {SECCIONES.length}</span>
+            <h2 class="step__title">{sec.titulo}</h2>
+            {sec.nota && <p class="step__note">{sec.nota}</p>}
+          </div>
+
+          {agrupar(PREGUNTAS.filter((p) => p.seccion === sec.n)).map((bloque) => {
+            const inner = bloque.items.map((p) => (
+              <fieldset class={`q${p.sub ? ' q--sub' : ''}`} data-clave={p.clave}>
+                <legend class="q__head">
+                  <span class="q__n">{numeroDe.get(p.clave)}</span>
+                  <span class="q__label">{p.texto}</span>
+                  {p.ayuda && <span class="q__help">{p.ayuda}</span>}
+                </legend>
+
+                <div class="opts" role="radiogroup" aria-label={p.texto}>
+                  {p.ops.map((o) => (
+                    <Fragment>
+                      <input class={`opt__in${o.mark ? ` opt__in--${o.mark}` : ''}`} type="radio"
+                             name={`q__${p.clave}`} id={`${p.clave}-${o.v}`} value={o.v} />
+                      <label class="opt" for={`${p.clave}-${o.v}`}>{o.label}</label>
+                    </Fragment>
+                  ))}
+                  {p.otro !== false && (
+                    <Fragment>
+                      <input class="opt__in opt__in--otro" type="radio"
+                             name={`q__${p.clave}`} id={`${p.clave}-otro`} value="otro" />
+                      <label class="opt opt--otro" for={`${p.clave}-otro`}>
+                        {p.otroLabel ?? 'Otro — se lo explico'}
+                      </label>
+                    </Fragment>
+                  )}
+                </div>
+
+                {p.otro !== false && (
+                  <div class="otro">
+                    <label class="otro__lbl" for={`otro-${p.clave}`}>Cuénteme:</label>
+                    <input class="otro__in" type="text" id={`otro-${p.clave}`}
+                           name={`otro__${p.clave}`} maxlength="300" autocomplete="off"
+                           placeholder={p.otroPlaceholder ?? 'Escriba aquí…'} />
+                  </div>
+                )}
+
+                {p.extras && (
+                  <div class="extras">
+                    <p class="extras__intro">Para dejarla lista, sus datos:</p>
+                    {p.extras.map((x) => (
+                      <label class="field field--sm">
+                        <span class="field__lbl">{x.label}</span>
+                        <input type="text" id={x.clave} name={x.clave} maxlength="200"
+                               autocomplete="off" placeholder={x.placeholder ?? ''} />
+                      </label>
+                    ))}
+                  </div>
+                )}
+              </fieldset>
+            ));
+
+            return bloque.grupo
+              ? <div class={`qgroup qgroup--${bloque.grupo}`}>{inner}</div>
+              : <Fragment>{inner}</Fragment>;
+          })}
+        </section>
+      ))}
+
+      <section class="step">
+        <div class="step__head">
+          <span class="step__kicker">Por último</span>
+          <h2 class="step__title">¿Algo más que deba saber?</h2>
+          <p class="step__note">Cualquier cosa antes de mandarle al repartidor. Si no, déjelo en blanco.</p>
+        </div>
+        <textarea class="libre" id="comentario_final" rows="3" maxlength="1000"
+                  placeholder="Opcional…"></textarea>
+      </section>
+
+      <div class="submitbar">
+        <div class="submitbar__meta">
+          <span class="progress"><strong id="progress-n">0</strong><small>/{TOTAL}</small></span>
+          <span class="submitbar__hint" id="submit-hint">Puede saltarse las que no sepa</span>
+        </div>
+        <button type="submit" class="send" id="send">Enviar</button>
+      </div>
+    </form>
+
+    <div class="thanks" id="thanks" hidden role="status" aria-live="polite">
+      <div class="thanks__mark" aria-hidden="true">✓</div>
+      <h2 class="thanks__title">Listo, <span id="thanks-name">gracias</span></h2>
+      <p class="thanks__body">Ya me llegaron sus respuestas. Con esto dejamos el servicio bien armado
+        y le confirmo lo que falte por WhatsApp. No necesita hacer nada más.</p>
+      <p class="thanks__brand">NEXT<span class="wm__dot">·</span>SWIFT</p>
+    </div>
+  </main>
+
+  <script type="application/json" id="clientes-data" is:inline set:html={JSON.stringify(CLIENTES)}></script>
+</Standalone>
+
+<style>
+  .ar {
+    display: block;
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 0 0 9rem;
+    background: var(--color-surface-alt);
+    color: var(--color-text);
+    font-family: var(--font-body);
+    min-height: 100dvh;
+  }
+  .ar :is(h1, h2) { font-family: var(--font-display); font-weight: 700; letter-spacing: var(--tracking-heading); margin: 0; line-height: var(--line-tight); }
+  .ar ::selection { background: var(--color-action); color: #fff; }
+  .ar :focus-visible { outline: 3px solid var(--color-action); outline-offset: 2px; box-shadow: none; }
+
+  /* ------------------------------------------------------------------ header */
+  .hd { background: var(--color-ink); color: #fff; }
+  .hd__inner { padding: 1.75rem 1.25rem 1.5rem; }
+  .wm { margin: 0 0 0.9rem; font-weight: 800; letter-spacing: 0.1em; font-size: 0.9rem; font-family: var(--font-body); }
+  .wm__dot { color: var(--color-spark); }
+  .hd__title { font-size: 1.7rem; color: #fff; }
+  .hd__for { margin: 0.5rem 0 0; font-family: var(--font-mono); font-size: 0.95rem; color: var(--color-spark); letter-spacing: 0.02em; }
+  .hd__for strong { color: #fff; font-weight: 700; }
+  .hd__lead { margin: 0.75rem 0 0; color: #C7D4DE; font-size: 0.95rem; line-height: var(--line-snug); }
+  .hd__lead strong { color: #fff; }
+  .hd__rule { height: 5px; background: linear-gradient(90deg, var(--color-action) 0 45%, var(--color-spark) 45% 100%); }
+
+  /* ------------------------------------------------------------------- steps */
+  .step { padding: 1.75rem 1.25rem 0.25rem; }
+  .step__head { margin-bottom: 1.1rem; }
+  .step__kicker {
+    display: inline-block; font-family: var(--font-mono); font-size: 0.7rem; font-weight: 700;
+    letter-spacing: 0.12em; text-transform: uppercase; color: var(--color-action-hover);
+    background: #DDEEEF; padding: 0.22rem 0.5rem; border-radius: var(--radius-1); margin-bottom: 0.55rem;
+  }
+  .step__title { font-size: 1.3rem; }
+  .step__note { margin: 0.5rem 0 0; color: var(--color-text-muted); font-size: 0.9rem; line-height: var(--line-snug); }
+
+  /* --------------------------------------------------------- campos de texto */
+  .field { display: flex; flex-direction: column; gap: 0.35rem; margin-bottom: 0.9rem; }
+  .field__lbl { font-size: 0.88rem; font-weight: 600; color: var(--color-text); }
+  .field__lbl em { font-style: normal; font-weight: 400; color: var(--color-text-muted); }
+  .field input, .otro__in, .libre {
+    width: 100%; min-height: 48px; padding: 0.7rem 0.8rem;
+    border: 1.5px solid var(--color-border); border-radius: var(--radius-3);
+    background: var(--color-surface); color: var(--color-text); font-size: 1rem;
+    font-family: var(--font-body);
+  }
+  .field input:focus, .otro__in:focus, .libre:focus { border-color: var(--color-action); }
+  .libre { resize: vertical; min-height: 90px; }
+  .field--sm { margin-bottom: 0.65rem; }
+
+  /* --------------------------------------------------------------- pregunta */
+  .q {
+    border: 1px solid var(--color-border); border-radius: var(--radius-4);
+    background: var(--color-surface); padding: 1.1rem 1rem 1rem; margin: 0 0 0.85rem;
+    box-shadow: var(--shadow-1);
+  }
+  .q__head { padding: 0; display: block; margin-bottom: 0.75rem; }
+  .q__n {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 24px; height: 24px; margin-right: 0.45rem; vertical-align: 2px;
+    border-radius: var(--radius-pill); background: var(--color-ink); color: #fff;
+    font-family: var(--font-mono); font-size: 0.75rem; font-weight: 700;
+  }
+  .q__label { font-weight: 700; font-size: 1rem; line-height: var(--line-snug); }
+  .q__help { display: block; margin-top: 0.35rem; font-size: 0.84rem; font-weight: 400; color: var(--color-text-muted); line-height: var(--line-snug); }
+
+  .opts { display: grid; gap: 0.45rem; }
+  .opt__in { position: absolute; opacity: 0; pointer-events: none; }
+  .opt {
+    display: flex; align-items: center; min-height: 48px; padding: 0.7rem 0.9rem;
+    border: 1.5px solid var(--color-border); border-radius: var(--radius-3);
+    background: var(--color-surface); font-weight: 600; font-size: 0.95rem;
+    line-height: var(--line-snug); cursor: pointer; transition: background var(--dur-1), border-color var(--dur-1), color var(--dur-1);
+  }
+  .opt:hover { border-color: var(--color-action); }
+  .opt__in:checked + .opt {
+    background: var(--color-action); border-color: var(--color-action); color: #fff;
+    box-shadow: 0 2px 8px rgba(10, 108, 116, 0.28);
+  }
+  .opt__in:focus-visible + .opt { outline: 3px solid var(--color-action-hover); outline-offset: 2px; }
+  .opt--otro { border-style: dashed; color: var(--color-text-muted); }
+  .opt__in:checked + .opt--otro { color: #fff; border-style: solid; }
+
+  /* ---- la salida abierta: cerrada por defecto, se abre con :has() ---- */
+  .q .otro { display: none; }
+  .q:has(.opt__in--otro:checked) .otro { display: block; margin-top: 0.6rem; }
+  .otro__lbl { display: block; font-size: 0.84rem; font-weight: 600; color: var(--color-text-muted); margin-bottom: 0.3rem; }
+
+  /* ---- colapsos condicionales ---- */
+  /* Si nunca lleva dinero, la pregunta del corte sobra. */
+  .qgroup--efectivo:has(.opt__in--nunca:checked) .q--sub { display: none; }
+  /* Los datos de factura solo aparecen si pidió factura. */
+  .extras { display: none; }
+  .qgroup--factura:has(.opt__in--sifac:checked) .extras {
+    display: block; margin-top: 1rem; padding-top: 0.9rem; border-top: 1px dashed var(--color-border);
+  }
+  .extras__intro { margin: 0 0 0.7rem; font-size: 0.88rem; font-weight: 700; }
+
+  /* honeypot */
+  .hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+
+  .err { color: var(--color-error); font-size: 0.86rem; font-weight: 600; margin: 0.1rem 0 0.9rem; }
+
+  /* ------------------------------------------------------------- submit bar */
+  .submitbar {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: var(--z-sticky-cta-mobile);
+    max-width: 600px; margin: 0 auto;
+    padding: 0.7rem 1.25rem calc(0.7rem + env(safe-area-inset-bottom));
+    background: rgba(255, 255, 255, 0.96); backdrop-filter: blur(8px);
+    border-top: 1px solid var(--color-border);
+    display: flex; align-items: center; gap: 0.85rem;
+  }
+  .submitbar__meta { display: flex; flex-direction: column; line-height: 1.2; flex-shrink: 0; }
+  .progress { font-family: var(--font-mono); font-size: 1.05rem; font-weight: 700; color: var(--color-ink); }
+  .progress small { font-size: 0.8rem; font-weight: 400; color: var(--color-text-muted); }
+  .submitbar__hint { font-size: 0.72rem; color: var(--color-text-muted); }
+  .send {
+    flex: 1; min-height: 52px; border: 0; border-radius: var(--radius-3);
+    background: var(--color-action); color: #fff; font-family: var(--font-body);
+    font-weight: 700; font-size: 1.05rem; cursor: pointer;
+    transition: background var(--dur-2), transform var(--dur-1);
+    box-shadow: 0 4px 14px rgba(10, 108, 116, 0.32);
+  }
+  .send:hover { background: var(--color-action-hover); }
+  .send:active { transform: translateY(1px); }
+  .send:disabled { opacity: 0.6; cursor: not-allowed; box-shadow: none; }
+
+  /* ---------------------------------------------------------------- gracias */
+  .thanks { text-align: center; padding: 3.5rem 1.5rem; }
+  .thanks__mark {
+    width: 76px; height: 76px; margin: 0 auto 1.25rem; border-radius: 50%;
+    background: var(--color-success); color: #fff; font-size: 2.4rem;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .thanks__title { font-size: 1.7rem; }
+  .thanks__body { margin: 0.85rem auto 0; max-width: 36ch; color: var(--color-text-muted); line-height: var(--line-base); }
+  .thanks__brand { margin-top: 1.75rem; font-weight: 800; letter-spacing: 0.1em; font-size: 0.9rem; color: var(--color-ink); }
+
+  @media (min-width: 480px) {
+    .hd__inner { padding: 2.25rem 1.5rem 1.75rem; }
+    .hd__title { font-size: 2rem; }
+    .step { padding-left: 1.5rem; padding-right: 1.5rem; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .opt, .send { transition: none; }
+  }
+</style>
+
+<script>
+  const form = document.getElementById('ar-form') as HTMLFormElement | null;
+  const sendBtn = document.getElementById('send') as HTMLButtonElement | null;
+  const thanks = document.getElementById('thanks') as HTMLElement | null;
+  const progressN = document.getElementById('progress-n') as HTMLElement | null;
+  const submitHint = document.getElementById('submit-hint') as HTMLElement | null;
+  const errNombre = document.getElementById('err-nombre') as HTMLElement | null;
+
+  if (form && sendBtn) {
+    const qEls = Array.from(document.querySelectorAll<HTMLElement>('.q'));
+    const val = (id: string) => (document.getElementById(id) as HTMLInputElement | null)?.value.trim() || '';
+    const checkedVal = (name: string): string =>
+      form.querySelector<HTMLInputElement>(`input[name="${CSS.escape(name)}"]:checked`)?.value || '';
+    // Una pregunta colapsada por :has() no tiene caja de layout.
+    const visible = (el: HTMLElement) => el.offsetParent !== null;
+
+    /* -------- cliente desde ?c= (la página es estática; se resuelve aquí) -------- */
+    const DEFAULT_SLUG = 'mr-plug';
+    let slug = DEFAULT_SLUG;
+    try {
+      const raw = document.getElementById('clientes-data')?.textContent || '{}';
+      const CLIENTES = JSON.parse(raw) as Record<string, { nombre: string; giro: string }>;
+      const pedido = new URLSearchParams(location.search).get('c') || '';
+      if (pedido && CLIENTES[pedido]) slug = pedido;
+      const c = CLIENTES[slug];
+      if (c) {
+        document.querySelectorAll<HTMLElement>('[data-cliente]').forEach((el) => { el.textContent = c.nombre; });
+        document.title = `Arranque del servicio · ${c.nombre} · NextSwift`;
+        (document.getElementById('cliente') as HTMLInputElement).value = slug;
+        (document.getElementById('cliente_nombre') as HTMLInputElement).value = c.nombre;
+      }
+    } catch { /* si algo falla, se queda el default prerenderizado */ }
+
+    const DRAFT_KEY = `arranque-reparto-${slug}-draft-v1`;
+
+    /* -------- progreso -------- */
+    const refresh = () => {
+      let done = 0;
+      qEls.forEach((el) => { if (visible(el) && checkedVal(`q__${el.dataset.clave}`)) done++; });
+      if (progressN) progressN.textContent = String(done);
+      if (submitHint) {
+        submitHint.textContent = done === 0
+          ? 'Puede saltarse las que no sepa'
+          : (done < qEls.length ? 'Va bien, siga a su ritmo' : 'Listo para enviar');
+      }
+    };
+
+    /* -------- draft anti-pérdida -------- */
+    const TEXTOS = ['contacto_nombre', 'contacto_whatsapp', 'comentario_final',
+      'factura_razon_social', 'factura_rfc', 'factura_correo', 'factura_uso_cfdi'];
+    const saveDraft = () => {
+      try {
+        const data: Record<string, string> = {};
+        form.querySelectorAll<HTMLInputElement>('input[type="radio"]:checked').forEach((r) => { data[r.name] = r.value; });
+        form.querySelectorAll<HTMLInputElement>('input[name^="otro__"]').forEach((t) => { if (t.value) data[t.name] = t.value; });
+        TEXTOS.forEach((id) => { const v = val(id); if (v) data[id] = v; });
+        localStorage.setItem(DRAFT_KEY, JSON.stringify(data));
+      } catch { /* modo privado */ }
+    };
+    const restoreDraft = () => {
+      try {
+        const raw = localStorage.getItem(DRAFT_KEY);
+        if (!raw) return;
+        const data = JSON.parse(raw) as Record<string, string>;
+        Object.keys(data).forEach((k) => {
+          if (TEXTOS.indexOf(k) > -1) {
+            const el = document.getElementById(k) as HTMLInputElement | HTMLTextAreaElement | null;
+            if (el) el.value = data[k];
+            return;
+          }
+          if (k.startsWith('otro__')) {
+            const el = form.querySelector<HTMLInputElement>(`input[name="${CSS.escape(k)}"]`);
+            if (el) el.value = data[k];
+            return;
+          }
+          const r = form.querySelector<HTMLInputElement>(
+            `input[name="${CSS.escape(k)}"][value="${CSS.escape(data[k])}"]`);
+          if (r) r.checked = true;
+        });
+      } catch { /* noop */ }
+    };
+
+    /* -------- payload -------- */
+    const buildPayload = () => {
+      const respuestas: Record<string, { v: string; otro: string }> = {};
+      let n = 0;
+      qEls.forEach((el) => {
+        if (!visible(el)) return;              // pregunta colapsada: no viaja
+        const clave = el.dataset.clave as string;
+        const v = checkedVal(`q__${clave}`);
+        const otroEl = el.querySelector<HTMLInputElement>(`input[name="otro__${clave}"]`);
+        // El texto abierto SOLO viaja si la opción elegida es "otro".
+        respuestas[clave] = { v, otro: v === 'otro' ? (otroEl?.value || '').trim().slice(0, 300) : '' };
+        if (v) n++;
+      });
+
+      // Los datos de factura solo si el bloque está visible.
+      const extras = document.querySelector<HTMLElement>('.extras');
+      const conFactura = !!extras && extras.offsetParent !== null;
+
+      return {
+        cliente: val('cliente'),
+        cliente_nombre: val('cliente_nombre'),
+        contacto_nombre: val('contacto_nombre'),
+        contacto_whatsapp: val('contacto_whatsapp'),
+        hp: val('hp'),
+        pagina_url: location.href,
+        respondidas: n,
+        comentario_final: val('comentario_final'),
+        respuestas,
+        factura_razon_social: conFactura ? val('factura_razon_social') : '',
+        factura_rfc: conFactura ? val('factura_rfc') : '',
+        factura_correo: conFactura ? val('factura_correo') : '',
+        factura_uso_cfdi: conFactura ? val('factura_uso_cfdi') : '',
+      };
+    };
+
+    form.addEventListener('change', () => { refresh(); saveDraft(); });
+    form.addEventListener('input', saveDraft);
+
+    // Web App de Apps Script (Ejecutar como: Efer · Acceso: cualquiera). El form postea
+    // aquí DIRECTO porque el sitio no ejecuta rutas /api server-side. Rotar si se filtra.
+    // ⚠️ Publicar el Apps Script y pegar aquí su URL /exec ANTES de desplegar.
+    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz7ix3SxNwbxdKhHrnNOCpBNpJIKv2D2HavEmxe026l2jKMv6RkXZem7l3g5TasX8mRzg/exec';
+    const URL_LISTA = APPS_SCRIPT_URL.indexOf('script.google.com') > -1;
+
+    form.addEventListener('submit', async (ev) => {
+      ev.preventDefault();
+
+      // Guarda: sin endpoint real, el POST no-cors "parece" exitoso y la respuesta se
+      // perdería en silencio. Mejor fallar fuerte y visible que tragarse los datos.
+      if (!URL_LISTA) {
+        if (submitHint) submitHint.textContent = 'Formulario aún no conectado. Avísele a Efer.';
+        sendBtn.disabled = true;
+        return;
+      }
+
+      // Lo único obligatorio: saber con quién hablamos.
+      if (!val('contacto_nombre')) {
+        errNombre?.removeAttribute('hidden');
+        document.getElementById('step-quien')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        (document.getElementById('contacto_nombre') as HTMLInputElement | null)?.focus();
+        return;
+      }
+      errNombre?.setAttribute('hidden', '');
+
+      sendBtn.disabled = true;
+      const original = sendBtn.textContent;
+      sendBtn.textContent = 'Enviando…';
+
+      try {
+        // 'no-cors' + text/plain = petición "simple" (sin preflight CORS): el navegador
+        // envía el cuerpo y el Apps Script lo lee con JSON.parse(e.postData.contents). La
+        // respuesta es opaque (no legible), así que si no hubo error de red lo damos por
+        // enviado. HAY QUE VERIFICAR EL SHEET a mano tras el primer envío real.
+        await fetch(APPS_SCRIPT_URL, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify(buildPayload()),
+        });
+      } catch {
+        sendBtn.disabled = false;
+        sendBtn.textContent = original;
+        if (submitHint) submitHint.textContent = 'Sin conexión. Intente de nuevo en unos segundos.';
+        return;
+      }
+
+      try { localStorage.removeItem(DRAFT_KEY); } catch { /* noop */ }
+      const nameEl = document.getElementById('thanks-name');
+      if (nameEl) nameEl.textContent = val('contacto_nombre').split(' ')[0] || 'gracias';
+      form.hidden = true;
+      const bar = document.querySelector('.submitbar') as HTMLElement | null;
+      if (bar) bar.style.display = 'none';
+      if (thanks) thanks.hidden = false;
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    restoreDraft();
+    refresh();
+  }
+</script>
