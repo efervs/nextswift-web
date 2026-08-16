@@ -2,8 +2,8 @@
 /**
  * /retro-drivers — Hoja de retroalimentación de repartidores de Depósito Intocables
  * (cliente "repartidores" de NextSwift). Página STANDALONE con marca Intocables
- * (navy #16243F + naranja #E8622A), mobile-first, para que los dos encargados
- * (Chely = día · Brayan = tarde-noche) califiquen a los 4 drivers de forma comparable.
+ * (navy #16243F + naranja #E8622A), mobile-first, para que los tres encargados
+ * (Chely, Brayan y Nancy) califiquen a los 4 drivers de forma comparable.
  *
  * Al enviar postea DIRECTO al Apps Script Web App (fetch no-cors) → Google Sheet. NO pasa por
  * /api/retro-drivers: el sitio se despliega solo-estático y ese endpoint server no corre.
@@ -19,13 +19,14 @@ interface Criterio { clave: string; etiqueta: string; ayuda: string; star?: bool
 const ENCARGADOS: Encargado[] = [
   { value: 'Chely', sub: 'Turno de día / mañana' },
   { value: 'Brayan', sub: 'Turno de tarde-noche' },
+  { value: 'Nancy', sub: 'Encargada' },
 ];
 
 const DRIVERS: Driver[] = [
   { id: 'juan-antonio', nombre: 'Juan Antonio Peñaflor Balderas', corto: 'Juan Antonio', turno: '8:00 pm – 4:00 am', tag: 'noche', tagLabel: 'Noche' },
   { id: 'gerardo', nombre: 'Gerardo Ramírez Hernández', corto: 'Gerardo', turno: '12:00 pm – 8:00 pm', tag: 'dia', tagLabel: 'Día' },
-  { id: 'federico', nombre: 'Federico Espinoza Aguilar', corto: 'Federico', turno: 'Antes 8:00 pm – 4:00 am', tag: 'noche', tagLabel: 'Noche' },
   { id: 'james', nombre: 'James Brayan Macías Flores', corto: 'James', turno: '4:00 pm – 12:00 am', tag: 'tarde', tagLabel: 'Tarde' },
+  { id: 'jose-medina', nombre: 'José Medina', corto: 'José Medina', turno: 'Suplente · sin turno fijo', tag: 'noche', tagLabel: 'Suplente' },
 ];
 
 const CRITERIOS: Criterio[] = [
@@ -263,6 +264,9 @@ const ESCALA = [
 
   /* who (encargado) */
   .who { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+  /* Con un número impar de encargados (hoy son 3), el último ocupa el ancho completo
+     en vez de quedarse a media fila. Con 2 o 4 no cambia nada. */
+  .who__opt:last-child:nth-child(odd) { grid-column: 1 / -1; }
   .who__in { position: absolute; opacity: 0; pointer-events: none; }
   .who__card {
     display: flex; flex-direction: column; gap: 0.15rem; align-items: flex-start;

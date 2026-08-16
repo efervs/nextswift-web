@@ -16,8 +16,8 @@ export const prerender = false;
 
 const RETRO_APPS_SCRIPT_URL = import.meta.env.RETRO_APPS_SCRIPT_URL as string | undefined;
 
-const ENCARGADOS = ['Chely', 'Brayan'] as const;
-const DRIVER_IDS = ['juan-antonio', 'gerardo', 'federico', 'james'] as const;
+const ENCARGADOS = ['Chely', 'Brayan', 'Nancy'] as const;
+const DRIVER_IDS = ['juan-antonio', 'gerardo', 'james', 'jose-medina'] as const;
 const VE = ['si', 'poco', 'no'] as const;
 const TURNO_IDEAL = ['dia', 'tarde', 'noche', 'sin-opinion', ''] as const;
 const RECOMENDACION = ['mantener', 'reubicar', 'baja', ''] as const;
